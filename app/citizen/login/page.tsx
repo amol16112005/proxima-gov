@@ -1,9 +1,7 @@
-import Link from "next/link";
 import AuthPageShell from "@/components/AuthPageShell";
 import OtpAuthFlow from "@/components/OtpAuthFlow";
 import { safeCitizenNextPath } from "@/lib/auth/issueAccess";
 import { getSession } from "@/lib/auth/session";
-import styles from "@/app/shared.module.css";
 
 export default async function CitizenLoginPage({
   searchParams,
@@ -19,7 +17,7 @@ export default async function CitizenLoginPage({
   return (
     <AuthPageShell
       portal="citizen"
-      badge="Citizen Portal · OTP Secured"
+      badgeKey="auth.citizenBadge"
       reason={reason}
       activeSessionRole={activeSessionRole}
       activeSessionName={session?.name}
@@ -27,22 +25,8 @@ export default async function CitizenLoginPage({
       <OtpAuthFlow
         role="citizen"
         purpose="login"
-        title="Citizen Login"
-        subtitle="Enter your registered mobile number to receive a one-time password."
         redirectTo={redirectTo ?? undefined}
         blocked={Boolean(activeSessionRole)}
-        footer={
-          <p style={{ fontSize: "0.88rem", color: "#7c8db5" }}>
-            Don&apos;t have an account?{" "}
-            <Link href="/citizen/register" style={{ color: "#a78bfa" }}>
-              Register here
-            </Link>
-            {" · "}
-            <Link href="/" className={styles.linkMuted}>
-              Back to home
-            </Link>
-          </p>
-        }
       />
     </AuthPageShell>
   );

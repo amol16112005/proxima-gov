@@ -3,21 +3,24 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAccessibility } from "@/context/AccessibilityContext";
+import type { MessageKey } from "@/frontend/i18n";
 import styles from "@/app/shared.module.css";
 
-const CATEGORIES = [
-  { value: "", label: "Select issue category" },
-  { value: "infrastructure", label: "Infrastructure & Roads" },
-  { value: "healthcare", label: "Healthcare" },
-  { value: "education", label: "Education" },
-  { value: "water-sanitation", label: "Water & Sanitation" },
-  { value: "employment", label: "Employment & Welfare" },
-  { value: "safety", label: "Public Safety" },
-  { value: "other", label: "Other" },
+const CATEGORY_OPTIONS: { value: string; labelKey: MessageKey }[] = [
+  { value: "", labelKey: "issuesNew.selectCategory" },
+  { value: "infrastructure", labelKey: "cat.infrastructure" },
+  { value: "healthcare", labelKey: "cat.healthcare" },
+  { value: "education", labelKey: "cat.education" },
+  { value: "water-sanitation", labelKey: "cat.water-sanitation" },
+  { value: "employment", labelKey: "cat.employment" },
+  { value: "safety", labelKey: "cat.safety" },
+  { value: "other", labelKey: "cat.other" },
 ];
 
 export default function NewIssueForm() {
   const router = useRouter();
+  const { translate: t } = useAccessibility();
   const [category, setCategory] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -37,12 +40,12 @@ export default function NewIssueForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Submission failed.");
+        setError(data.error ?? t("issuesNew.submissionFailed"));
         return;
       }
       router.push(`/citizen/issues/${data.issue.id}`);
     } catch {
-      setError("Network error.");
+      setError(t("common.networkError"));
     } finally {
       setLoading(false);
     }
@@ -50,16 +53,14 @@ export default function NewIssueForm() {
 
   return (
     <div className={styles.card} style={{ maxWidth: "100%" }}>
-      <h1 className={styles.title}>Submit a Community Issue</h1>
+      <h1 className={styles.title}>{t("issuesNew.title")}</h1>
       <p className={styles.subtitle} style={{ marginBottom: "1.5rem" }}>
-        AI first scans your issue for constituency reach and MP mandate. Eligible community issues
-        go to your MP for approval; out-of-scope submissions receive an automated explanation
-        and referral guidance — they will not appear on the MP dashboard.
+        {t("issuesNew.aiHint")}
       </p>
       <form onSubmit={submit} aria-busy={loading}>
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="issue-category">
-            Category<span className={styles.required}>*</span>
+            {t("issuesNew.category")}<span className={styles.required}>*</span>
           </label>
           <select
             id="issue-category"
@@ -68,38 +69,42 @@ export default function NewIssueForm() {
             onChange={(e) => setCategory(e.target.value)}
             required
           >
-            {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+            {CATEGORY_OPTIONS.map((opt) => (
+              <option key={opt.value || "empty"} value={opt.value}>
+                {t(opt.labelKey)}
+              </option>
+            ))}
           </select>
         </div>
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="issue-title">
-            Issue Title<span className={styles.required}>*</span>
+            {t("issuesNew.titleField")}<span className={styles.required}>*</span>
           </label>
           <input
             id="issue-title"
             className={styles.input}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. Damaged road in XYZ village"
+            placeholder={t("issuesNew.titlePlaceholder")}
             required
           />
         </div>
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="issue-location">
-            Location<span className={styles.required}>*</span>
+            {t("issuesNew.location")}<span className={styles.required}>*</span>
           </label>
           <input
             id="issue-location"
             className={styles.input}
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="Village, ward, landmark"
+            placeholder={t("issuesNew.locationPlaceholder")}
             required
           />
         </div>
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="issue-description">
-            Detailed Description<span className={styles.required}>*</span>
+            {t("issuesNew.detailedDesc")}<span className={styles.required}>*</span>
           </label>
           <textarea
             id="issue-description"
@@ -107,7 +112,7 @@ export default function NewIssueForm() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={6}
-            placeholder="Describe the problem, who is affected, and for how long..."
+            placeholder={t("issuesNew.descPlaceholder")}
             required
           />
         </div>
@@ -117,18 +122,20 @@ export default function NewIssueForm() {
             {loading ? (
               <>
                 <span className={styles.spinner} aria-hidden="true" />
-                <span className="sr-only">Submitting issue</span>
+                <span className="sr-only">{t("common.submittingIssue")}</span>
               </>
             ) : (
-              "Submit & Run AI Analysis"
+              t("issuesNew.submitAi")
             )}
           </button>
-          <Link href="/citizen/dashboard" className={styles.btnSecondary}>Cancel</Link>
+          <Link href="/citizen/dashboard" className={styles.btnSecondary}>
+            {t("common.cancel")}
+          </Link>
         </div>
         <p style={{ fontSize: "0.82rem", color: "#7c8db5", marginTop: "1rem" }}>
-          Not sure what to submit?{" "}
+          {t("issuesNew.faqHint")}{" "}
           <Link href="/faq#faq-issues" style={{ color: "#a78bfa" }}>
-            Read issue submission FAQs
+            {t("issuesNew.readFaqs")}
           </Link>
         </p>
       </form>

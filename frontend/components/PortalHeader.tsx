@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useAccessibility } from "@/context/AccessibilityContext";
 import styles from "@/app/shared.module.css";
 
 interface PortalHeaderProps {
@@ -18,6 +19,7 @@ function navIsActive(pathname: string, href: string): boolean {
 export default function PortalHeader({ portal, userName, constituencyName }: PortalHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { translate: t } = useAccessibility();
 
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -27,31 +29,33 @@ export default function PortalHeader({ portal, userName, constituencyName }: Por
 
   const dashboardHref = portal === "citizen" ? "/citizen/dashboard" : "/mp/dashboard";
 
+  const navItems = [
+    { href: dashboardHref, label: t("nav.dashboard") },
+    ...(portal === "citizen"
+      ? [
+          { href: "/citizen/mp", label: t("nav.myMp") },
+          { href: "/citizen/issues", label: t("nav.myIssues") },
+          { href: "/citizen/issues/new", label: t("nav.submitIssue") },
+          { href: "/citizen/notifications", label: t("nav.notifications") },
+          { href: "/citizen/history", label: t("nav.history") },
+          { href: "/citizen/profile", label: t("nav.profile") },
+        ]
+      : [{ href: "/mp/dashboard#pending-approvals", label: t("nav.pendingApprovals") }]),
+    { href: "/faq", label: t("nav.faqs") },
+    { href: "/transparency", label: t("nav.transparency") },
+  ];
+
   return (
     <header className={styles.headerBar}>
       <div>
         <Link href="/" className={styles.linkMuted}>
-          ← Home
+          {t("nav.backHome")}
         </Link>
         <h1 className={styles.title} style={{ fontSize: "1.4rem", marginTop: "0.4rem" }}>
-          {portal === "citizen" ? "Citizen Portal" : "MP Dashboard"}
+          {portal === "citizen" ? t("nav.citizenPortal") : t("nav.mpDashboard")}
         </h1>
         <nav className={styles.portalNav} aria-label="Portal sections">
-          {[
-            { href: dashboardHref, label: "Dashboard" },
-            ...(portal === "citizen"
-              ? [
-                  { href: "/citizen/mp", label: "My MP" },
-                  { href: "/citizen/issues", label: "My Issues" },
-                  { href: "/citizen/issues/new", label: "Submit Issue" },
-                  { href: "/citizen/notifications", label: "Notifications" },
-                  { href: "/citizen/history", label: "History" },
-                  { href: "/citizen/profile", label: "Profile" },
-                ]
-              : [{ href: "/mp/dashboard#pending-approvals", label: "Pending Approvals" }]),
-            { href: "/faq", label: "FAQs" },
-            { href: "/transparency", label: "Transparency" },
-          ].map(({ href, label }) => (
+          {navItems.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
@@ -70,9 +74,9 @@ export default function PortalHeader({ portal, userName, constituencyName }: Por
           className={styles.btnSecondary}
           onClick={logout}
           type="button"
-          aria-label={`Log out of ${portal === "citizen" ? "citizen" : "MP"} portal`}
+          aria-label={t("nav.logout")}
         >
-          Logout
+          {t("nav.logout")}
         </button>
       </div>
     </header>

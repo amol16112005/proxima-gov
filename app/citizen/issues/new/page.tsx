@@ -4,18 +4,20 @@ import NewIssueForm from "@/components/NewIssueForm";
 import PortalHeader from "@/components/PortalHeader";
 import { getConstituencyById } from "@/data/constituencies";
 import { getSession } from "@/lib/auth/session";
+import { getServerTranslator } from "@/frontend/i18n/server";
 import styles from "@/app/shared.module.css";
 
 export default async function NewIssuePage() {
   const session = await getSession();
   if (!session || session.role !== "citizen") redirect("/citizen/login");
 
+  const m = await getServerTranslator();
   const constituency = getConstituencyById(session.constituencyId);
 
   return (
     <div className={styles.pageWide}>
       <PortalHeader portal="citizen" userName={session.name} constituencyName={constituency?.name ?? ""} />
-      <Link href="/citizen/issues" className={styles.linkMuted}>← My Issues</Link>
+      <Link href="/citizen/issues" className={styles.linkMuted}>{m("issuesNew.backIssues")}</Link>
       <NewIssueForm />
     </div>
   );

@@ -1,11 +1,14 @@
+"use client";
+
 import type { CSSProperties } from "react";
 import Image from "next/image";
+import { useAccessibility } from "@/context/AccessibilityContext";
+import { categoryLabel, stageLabel, subStageLabel } from "@/frontend/i18n/labels";
 import {
-  CATEGORY_LABELS,
   STAGE_EMOJI,
-  STAGE_LABELS,
   SUB_STAGE_CONFIG,
   type DevelopmentIssue,
+  type LifecycleStage,
 } from "@/data/lifecycleTypes";
 import { formatINR } from "@/data/constituencies";
 import ls from "./lifecycle.module.css";
@@ -39,6 +42,10 @@ function stageIndex(stage: string): number {
   return map[stage] ?? 0;
 }
 
+function stageText(locale: "en" | "hi", stage: LifecycleStage): string {
+  return stageLabel(locale, stage);
+}
+
 export default function LifecycleTracker({
   issue,
   publicView = false,
@@ -46,8 +53,10 @@ export default function LifecycleTracker({
   issue: DevelopmentIssue;
   publicView?: boolean;
 }) {
+  const { locale } = useAccessibility();
   const currentIdx = stageIndex(issue.stage);
-  const submittedDate = new Date(issue.submittedAt).toLocaleDateString("en-IN", {
+  const dateLocale = locale === "hi" ? "hi-IN" : "en-IN";
+  const submittedDate = new Date(issue.submittedAt).toLocaleDateString(dateLocale, {
     day: "numeric",
     month: "long",
   });
@@ -64,10 +73,10 @@ export default function LifecycleTracker({
           <p style={{ fontSize: "0.82rem", color: "#7c8db5" }}>{issue.description}</p>
         )}
         <div style={{ display: "flex", gap: "1.5rem", marginTop: "1rem", flexWrap: "wrap", fontSize: "0.85rem" }}>
-          <span>Status: {STAGE_EMOJI.submitted} {STAGE_LABELS[issue.stage === "submitted" ? "submitted" : issue.stage]}</span>
+          <span>Status: {STAGE_EMOJI.submitted} {stageText(locale, issue.stage === "submitted" ? "submitted" : issue.stage)}</span>
           <span>Date: {submittedDate}</span>
           <span>Issue ID: <strong>#{issue.id}</strong></span>
-          <span>{CATEGORY_LABELS[issue.category] ?? issue.category}</span>
+          <span>{categoryLabel(locale, issue.category)}</span>
           {!publicView && <span>📍 {issue.location}</span>}
         </div>
       </section>
@@ -185,7 +194,7 @@ export default function LifecycleTracker({
               return (
                 <div key={s.key} className={ls.progressStage}>
                   <div className={`${ls.progressDot} ${done ? ls.progressDotDone : ""} ${current ? ls.progressDotCurrent : ""}`} />
-                  <span className={ls.progressLabel}>{s.label}</span>
+                  <span className={ls.progressLabel}>{subStageLabel(locale, s.key)}</span>
                   <span className={ls.progressPct}>{s.progress}%</span>
                 </div>
               );
@@ -345,7 +354,7 @@ export default function LifecycleTracker({
             key={s}
             className={`${ls.stageChip} ${i < currentIdx ? ls.stageChipDone : ""} ${i === currentIdx ? ls.stageChipActive : ""}`}
           >
-            {STAGE_LABELS[s]}
+            {stageText(locale, s)}
           </span>
         ))}
       </div>

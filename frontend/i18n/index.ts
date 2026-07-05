@@ -22,3 +22,11 @@ export function getMessages(locale: Locale): Messages {
 export function t(locale: Locale, key: MessageKey): string {
   return CATALOG[locale][key];
 }
+
+export function interpolate(text: string, vars: Record<string, string | number>): string {
+  let out = text;
+  for (const [key, value] of Object.entries(vars)) {
+    out = out.replace(`{${key}}`, String(value));
+  }
+  return out;
+}

@@ -17,7 +17,7 @@ export default async function MpLoginPage({
   return (
     <AuthPageShell
       portal="mp"
-      badge="MP Portal · Restricted Access · Username + PIN"
+      badgeKey="auth.mpBadge"
       badgeVariant="mp"
       reason={reason}
       activeSessionRole={activeSessionRole}

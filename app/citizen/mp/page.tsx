@@ -6,11 +6,15 @@ import { getConstituencyById } from "@/data/constituencies";
 import { getMpProfileByConstituency } from "@/data/mpProfiles";
 import { getSession } from "@/lib/auth/session";
 import { buildMpTransparencyReport } from "@/lib/datagovindia/mpReport";
+import { interpolate } from "@/frontend/i18n";
+import { getServerTranslator } from "@/frontend/i18n/server";
 import styles from "@/app/shared.module.css";
 
 export default async function CitizenMpProfilePage() {
   const session = await getSession();
   if (!session || session.role !== "citizen") redirect("/citizen/login");
+
+  const m = await getServerTranslator();
 
   const constituency = getConstituencyById(session.constituencyId);
   const profile = getMpProfileByConstituency(session.constituencyId);
@@ -28,15 +32,13 @@ export default async function CitizenMpProfilePage() {
       />
 
       <Link href="/citizen/dashboard" className={styles.linkMuted}>
-        ← Dashboard
+        {m("issues.backDashboard")}
       </Link>
 
       <header style={{ margin: "1rem 0 1.5rem" }}>
-        <h2 className={styles.sectionTitle}>Your MP — Transparency Profile</h2>
+        <h2 className={styles.sectionTitle}>{m("mpProfile.title")}</h2>
         <p className={styles.subtitle}>
-          Official performance report combining live MPLADS and MGNREGA data from{" "}
-          <strong style={{ color: "#34d399" }}>data.gov.in</strong> with constituency
-          project tracking on Proxima Gov.
+          {interpolate(m("mpProfile.subtitle"), { source: m("mpProfile.dataGov") })}
         </p>
       </header>
 

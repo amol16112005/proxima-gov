@@ -1,15 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAccessibility } from "@/context/AccessibilityContext";
 import type { OtpPurpose, UserRole } from "@/lib/auth/types";
 import styles from "@/app/shared.module.css";
 
 interface OtpAuthFlowProps {
   role: UserRole;
   purpose: OtpPurpose;
-  title: string;
-  subtitle: string;
+  title?: string;
+  subtitle?: string;
   registrationFields?: React.ReactNode;
   onBeforeSend?: () => boolean;
   onBeforeVerify?: () => Record<string, string> | null;
@@ -31,6 +33,7 @@ export default function OtpAuthFlow({
   blocked = false,
 }: OtpAuthFlowProps) {
   const router = useRouter();
+  const { translate: t } = useAccessibility();
   const [step, setStep] = useState<"phone" | "otp">("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -40,12 +43,14 @@ export default function OtpAuthFlow({
   const [demoOtp, setDemoOtp] = useState<string | null>(null);
   const [demoNote, setDemoNote] = useState<string | null>(null);
 
+  const displayTitle = title ?? (purpose === "register" ? t("auth.registerTitle") : t("auth.loginTitle"));
+  const displaySubtitle =
+    subtitle ?? (purpose === "register" ? t("auth.registerSubtitle") : t("auth.loginSubtitle"));
+
   const sendOtp = async () => {
     if (blocked) return;
     setError(null);
-    if (onBeforeSend && !onBeforeSend()) {
-      return;
-    }
+    if (onBeforeSend && !onBeforeSend()) return;
     setLoading(true);
     try {
       const res = await fetch("/api/auth/send-otp", {
@@ -55,7 +60,7 @@ export default function OtpAuthFlow({
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Failed to send OTP.");
+        setError(data.error ?? t("common.error"));
         return;
       }
       setMaskedPhone(data.maskedPhone);
@@ -64,7 +69,7 @@ export default function OtpAuthFlow({
       setOtp("");
       setStep("otp");
     } catch {
-      setError("Network error. Please try again.");
+      setError(t("common.error"));
     } finally {
       setLoading(false);
     }
@@ -88,13 +93,13 @@ export default function OtpAuthFlow({
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Verification failed.");
+        setError(data.error ?? t("common.error"));
         return;
       }
       router.push(redirectTo ?? data.redirect);
       router.refresh();
     } catch {
-      setError("Network error. Please try again.");
+      setError(t("common.error"));
     } finally {
       setLoading(false);
     }
@@ -106,9 +111,9 @@ export default function OtpAuthFlow({
       style={blocked ? { opacity: 0.55, pointerEvents: "none" } : undefined}
       aria-hidden={blocked}
     >
-      <h1 className={styles.title}>{title}</h1>
+      <h1 className={styles.title}>{displayTitle}</h1>
       <p className={styles.subtitle} style={{ marginBottom: "1.5rem" }}>
-        {subtitle}
+        {displaySubtitle}
       </p>
 
       <form
@@ -125,7 +130,7 @@ export default function OtpAuthFlow({
             {purpose === "register" && registrationFields}
             <div className={styles.fieldGroup}>
               <label className={styles.label} htmlFor="proxima-mobile">
-                Mobile Number<span className={styles.required}>*</span>
+                {t("auth.mobile")}<span className={styles.required}>*</span>
               </label>
               <input
                 id="proxima-mobile"
@@ -139,15 +144,15 @@ export default function OtpAuthFlow({
                 spellCheck={false}
                 data-lpignore="true"
                 data-1p-ignore="true"
-                placeholder="Enter your 10-digit number"
+                placeholder={t("auth.mobilePlaceholder")}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                 maxLength={10}
               />
             </div>
             <p className={styles.infoBox}>
-              OTP appears on the next screen (demo mode — SMS not configured). Valid for 5 minutes.
-              {purpose === "login" && " You must register first if you are a new user."}
+              {t("auth.demoOtpHint")}
+              {purpose === "login" && t("auth.loginExtraHint")}
             </p>
           </>
         )}
@@ -155,14 +160,20 @@ export default function OtpAuthFlow({
         {step === "otp" && (
           <>
             <p className={styles.infoBox}>
-              {demoOtp
-                ? <>Demo OTP for <strong>{maskedPhone}</strong> — enter the code below.</>
-                : <>Enter the OTP sent to <strong>{maskedPhone}</strong></>}
+              {demoOtp ? (
+                <>
+                  {t("auth.otpStepDemo")} <strong>{maskedPhone}</strong> {t("auth.enterCodeBelow")}
+                </>
+              ) : (
+                <>
+                  {t("auth.otpStepSms")} <strong>{maskedPhone}</strong>
+                </>
+              )}
             </p>
             {demoOtp && (
               <div className={styles.devOtp} role="status" aria-live="polite">
                 <p style={{ fontSize: "0.78rem", color: "#7c8db5", margin: "0 0 0.5rem" }}>
-                  {demoNote ?? "Demo verification code"}
+                  {demoNote ?? t("auth.demoCode")}
                 </p>
                 <div className={styles.devOtpCode}>{demoOtp}</div>
                 <button
@@ -171,13 +182,13 @@ export default function OtpAuthFlow({
                   style={{ marginTop: "0.75rem", fontSize: "0.8rem" }}
                   onClick={() => setOtp(demoOtp)}
                 >
-                  Fill code automatically
+                  {t("auth.fillAuto")}
                 </button>
               </div>
             )}
             <div className={styles.fieldGroup}>
               <label className={styles.label} htmlFor="proxima-otp">
-                One-Time Password<span className={styles.required}>*</span>
+                {t("auth.otp")}<span className={styles.required}>*</span>
               </label>
               <input
                 id="proxima-otp"
@@ -186,7 +197,7 @@ export default function OtpAuthFlow({
                 type="text"
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                placeholder="6-digit OTP"
+                placeholder={t("auth.otpPlaceholder")}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 maxLength={6}
@@ -196,7 +207,11 @@ export default function OtpAuthFlow({
           </>
         )}
 
-        {error && <p className={styles.errorMsg} role="alert">{error}</p>}
+        {error && (
+          <p className={styles.errorMsg} role="alert">
+            {error}
+          </p>
+        )}
 
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
           {step === "phone" ? (
@@ -209,10 +224,10 @@ export default function OtpAuthFlow({
               {loading ? (
                 <>
                   <span className={styles.spinner} aria-hidden="true" />
-                  <span className="sr-only">Sending OTP</span>
+                  <span className="sr-only">{t("auth.sendingOtp")}</span>
                 </>
               ) : (
-                "Send OTP"
+                t("auth.sendOtp")
               )}
             </button>
           ) : (
@@ -226,19 +241,24 @@ export default function OtpAuthFlow({
                 {loading ? (
                   <>
                     <span className={styles.spinner} aria-hidden="true" />
-                    <span className="sr-only">Verifying OTP</span>
+                    <span className="sr-only">{t("auth.verifying")}</span>
                   </>
                 ) : (
-                  "Verify & Continue"
+                  t("auth.verifyContinue")
                 )}
               </button>
               <button
                 className={styles.btnSecondary}
                 type="button"
-                onClick={() => { setStep("phone"); setOtp(""); setDemoOtp(null); setError(null); }}
+                onClick={() => {
+                  setStep("phone");
+                  setOtp("");
+                  setDemoOtp(null);
+                  setError(null);
+                }}
                 disabled={loading}
               >
-                Change Number
+                {t("auth.changeNumber")}
               </button>
               <button
                 className={styles.btnSecondary}
@@ -246,14 +266,38 @@ export default function OtpAuthFlow({
                 onClick={sendOtp}
                 disabled={loading}
               >
-                Resend OTP
+                {t("auth.resendOtp")}
               </button>
             </>
           )}
         </div>
       </form>
 
-      {footer && <div style={{ marginTop: "1.5rem" }}>{footer}</div>}
+      <div style={{ marginTop: "1.5rem" }}>
+        {footer ?? (
+          <p style={{ fontSize: "0.88rem", color: "#7c8db5" }}>
+            {purpose === "register" ? (
+              <>
+                {t("auth.alreadyRegistered")}{" "}
+                <Link href="/citizen/login" style={{ color: "#a78bfa" }}>
+                  {t("auth.loginHere")}
+                </Link>
+              </>
+            ) : (
+              <>
+                {t("auth.noAccount")}{" "}
+                <Link href="/citizen/register" style={{ color: "#a78bfa" }}>
+                  {t("auth.registerHere")}
+                </Link>
+              </>
+            )}
+            {" · "}
+            <Link href="/" className={styles.linkMuted}>
+              {t("auth.backHome")}
+            </Link>
+          </p>
+        )}
+      </div>
     </div>
   );
 }

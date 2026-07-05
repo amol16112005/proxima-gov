@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LOCALES } from "@/frontend/i18n";
 import { useAccessibility } from "@/context/AccessibilityContext";
+import { A11yIcon } from "@/components/icons/ProximaIcons";
 import a11y from "@/frontend/styles/accessibility.module.css";
 
 export default function AccessibilityToolbar() {
   const [open, setOpen] = useState(false);
+  const toolbarRef = useRef<HTMLDivElement>(null);
   const {
     locale,
     setLocale,
@@ -20,10 +22,33 @@ export default function AccessibilityToolbar() {
     stopSpeaking,
   } = useAccessibility();
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    const onClick = (e: MouseEvent) => {
+      if (toolbarRef.current && !toolbarRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("mousedown", onClick);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("mousedown", onClick);
+    };
+  }, [open]);
+
   return (
-    <div className={a11y.toolbar} role="region" aria-label={translate("toolbarLabel")}>
+    <div
+      ref={toolbarRef}
+      className={a11y.toolbar}
+      role="region"
+      aria-label={translate("toolbarLabel")}
+    >
       {open && (
-        <div className={a11y.panel}>
+        <div id="proxima-a11y-panel" className={a11y.panel}>
           <p className={a11y.title}>{translate("toolbarLabel")}</p>
           <div className={a11y.row} role="group" aria-label={translate("language")}>
             {LOCALES.map((loc) => (
@@ -38,7 +63,7 @@ export default function AccessibilityToolbar() {
               </button>
             ))}
           </div>
-          <div className={a11y.row} style={{ marginTop: "0.5rem" }}>
+          <div className={`${a11y.row} ${a11y.panelRow}`}>
             <button
               type="button"
               className={`${a11y.btn} ${largeText ? a11y.btnActive : ""}`}
@@ -56,7 +81,7 @@ export default function AccessibilityToolbar() {
               {translate("highContrast")}
             </button>
           </div>
-          <div className={a11y.row} style={{ marginTop: "0.5rem" }}>
+          <div className={`${a11y.row} ${a11y.panelRow}`}>
             <button
               type="button"
               className={a11y.btn}
@@ -75,7 +100,7 @@ export default function AccessibilityToolbar() {
         aria-label={translate("toolbarLabel")}
         onClick={() => setOpen((v) => !v)}
       >
-        ♿
+        <A11yIcon size={24} />
       </button>
     </div>
   );

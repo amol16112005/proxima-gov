@@ -5,11 +5,16 @@ import { getConstituencyById } from "@/data/constituencies";
 import { ensureDataHydrated } from "@/lib/cloud";
 import { getSession } from "@/lib/auth/session";
 import { getCitizenById } from "@/lib/store";
+import { interpolate } from "@/frontend/i18n";
+import { getServerLocale, getServerTranslator } from "@/frontend/i18n/server";
 import styles from "@/app/shared.module.css";
 
 export default async function CitizenProfilePage() {
   const session = await getSession();
   if (!session || session.role !== "citizen") redirect("/citizen/login");
+
+  const m = await getServerTranslator();
+  const locale = await getServerLocale();
 
   await ensureDataHydrated();
 
@@ -18,6 +23,7 @@ export default async function CitizenProfilePage() {
   if (!citizen || !constituency) redirect("/citizen/login");
 
   const constituencyLabel = `${constituency.name}, ${constituency.state}`;
+  const memberSince = new Date(citizen.createdAt).toLocaleDateString(locale === "hi" ? "hi-IN" : "en-IN");
 
   return (
     <div className={styles.pageWide}>
@@ -29,32 +35,30 @@ export default async function CitizenProfilePage() {
 
       <section style={{ marginBottom: "1.5rem" }}>
         <h1 className={styles.title} style={{ fontSize: "1.6rem", marginBottom: "0.5rem" }}>
-          My Profile
+          {m("profile.title")}
         </h1>
-        <p className={styles.subtitle}>
-          Manage your account and switch the Lok Sabha constituency you follow on Proxima Gov.
-        </p>
+        <p className={styles.subtitle}>{m("profile.manageAccount")}</p>
       </section>
 
       <div className={styles.grid2} style={{ marginBottom: "1.5rem" }}>
         <div className={styles.projectCard}>
-          <p style={{ fontSize: "0.75rem", color: "#7c8db5", margin: 0 }}>Account</p>
+          <p style={{ fontSize: "0.75rem", color: "#7c8db5", margin: 0 }}>{m("profile.account")}</p>
           <p style={{ fontSize: "1.05rem", fontWeight: 600, margin: "0.35rem 0 0" }}>{citizen.name}</p>
           <p style={{ fontSize: "0.85rem", color: "#9aa5b8", margin: "0.35rem 0 0" }}>{citizen.email}</p>
           <p style={{ fontSize: "0.85rem", color: "#9aa5b8", margin: "0.35rem 0 0" }}>
-            Mobile: {citizen.phone}
+            {m("profile.mobile")} {citizen.phone}
           </p>
         </div>
         <div className={styles.projectCard}>
-          <p style={{ fontSize: "0.75rem", color: "#7c8db5", margin: 0 }}>Current constituency</p>
+          <p style={{ fontSize: "0.75rem", color: "#7c8db5", margin: 0 }}>{m("profile.currentConstituency")}</p>
           <p style={{ fontSize: "1.05rem", fontWeight: 600, margin: "0.35rem 0 0" }}>
             {constituency.name}
           </p>
           <p style={{ fontSize: "0.85rem", color: "#9aa5b8", margin: "0.35rem 0 0" }}>
-            {constituency.state} · MP: {constituency.mpName} ({constituency.mpParty})
+            {constituency.state} · {m("profile.mpLabel")} {constituency.mpName} ({constituency.mpParty})
           </p>
           <p style={{ fontSize: "0.82rem", color: "#7c8db5", margin: "0.5rem 0 0" }}>
-            Member since {new Date(citizen.createdAt).toLocaleDateString("en-IN")}
+            {interpolate(m("profile.memberSince"), { date: memberSince })}
           </p>
         </div>
       </div>

@@ -9,8 +9,14 @@ import {
   useState,
 } from "react";
 import { getMessages, isLocale, t, type Locale, type MessageKey } from "@/frontend/i18n";
+import { LOCALE_COOKIE } from "@/frontend/i18n/constants";
 
 const STORAGE_KEY = "proxima_locale";
+
+function persistLocale(locale: Locale) {
+  localStorage.setItem(STORAGE_KEY, locale);
+  document.cookie = `${LOCALE_COOKIE}=${locale};path=/;max-age=31536000;SameSite=Lax`;
+}
 const A11Y_KEY = "proxima_a11y";
 
 interface A11yPrefs {
@@ -82,7 +88,7 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dataset.locale = locale;
-    localStorage.setItem(STORAGE_KEY, locale);
+    persistLocale(locale);
   }, [locale]);
 
   useEffect(() => {

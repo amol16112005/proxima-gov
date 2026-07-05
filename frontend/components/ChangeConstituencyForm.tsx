@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAccessibility } from "@/context/AccessibilityContext";
 import { CONSTITUENCIES } from "@/data/constituencies";
 import styles from "@/app/shared.module.css";
 
@@ -11,6 +12,7 @@ interface ChangeConstituencyFormProps {
 
 export default function ChangeConstituencyForm({ currentConstituencyId }: ChangeConstituencyFormProps) {
   const router = useRouter();
+  const { translate: t } = useAccessibility();
   const [constituencyId, setConstituencyId] = useState(currentConstituencyId);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,13 +34,13 @@ export default function ChangeConstituencyForm({ currentConstituencyId }: Change
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Could not update constituency.");
+        setError(data.error ?? t("profile.updateFailed"));
         return;
       }
-      setSuccess(data.message ?? "Constituency updated.");
+      setSuccess(data.message ?? t("profile.updated"));
       router.refresh();
     } catch {
-      setError("Network error. Please try again.");
+      setError(t("common.networkError"));
     } finally {
       setSaving(false);
     }
@@ -47,13 +49,10 @@ export default function ChangeConstituencyForm({ currentConstituencyId }: Change
   return (
     <div className={styles.projectCard}>
       <h2 className={styles.sectionTitle} style={{ fontSize: "1.1rem", marginBottom: "0.75rem" }}>
-        Change Constituency
+        {t("dash.changeConstituency")}
       </h2>
       <p style={{ fontSize: "0.88rem", color: "#9aa5b8", marginBottom: "1rem", lineHeight: 1.5 }}>
-        Select the Lok Sabha constituency you want to follow — for example if you moved, work in
-        another city, or want to track a different MP&apos;s constituency. Your dashboard, MP report,
-        and new submissions will use this seat. Issues you already filed stay linked to their
-        original constituency.
+        {t("profile.changeDesc")}
       </p>
 
       {error && (
@@ -80,7 +79,7 @@ export default function ChangeConstituencyForm({ currentConstituencyId }: Change
 
       <div className={styles.fieldGroup}>
         <label className={styles.label} htmlFor="profile-constituency">
-          Parliamentary constituency<span className={styles.required}>*</span>
+          {t("profile.parliamentaryConstituency")}<span className={styles.required}>*</span>
         </label>
         <select
           id="profile-constituency"
@@ -94,7 +93,7 @@ export default function ChangeConstituencyForm({ currentConstituencyId }: Change
         >
           {CONSTITUENCIES.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.name}, {c.state} — MP: {c.mpName}
+              {c.name}, {c.state} — {t("profile.mpLabel")} {c.mpName}
             </option>
           ))}
         </select>
@@ -107,7 +106,7 @@ export default function ChangeConstituencyForm({ currentConstituencyId }: Change
         disabled={!hasChange || saving}
         style={{ marginTop: "0.5rem", opacity: !hasChange || saving ? 0.6 : 1 }}
       >
-        {saving ? "Saving…" : "Save constituency"}
+        {saving ? t("profile.saving") : t("profile.saveConstituency")}
       </button>
     </div>
   );

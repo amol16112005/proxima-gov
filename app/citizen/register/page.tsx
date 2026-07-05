@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useState } from "react";
 import AuthPageShell from "@/components/AuthPageShell";
 import OtpAuthFlow from "@/components/OtpAuthFlow";
+import { useAccessibility } from "@/context/AccessibilityContext";
 import { CONSTITUENCIES } from "@/data/constituencies";
 import { validateRegistrationFields as validateRegistration } from "@/lib/validation";
 import styles from "@/app/shared.module.css";
 
 export default function CitizenRegisterPage() {
+  const { translate: t } = useAccessibility();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [constituencyId, setConstituencyId] = useState("");
@@ -38,12 +40,10 @@ export default function CitizenRegisterPage() {
   };
 
   return (
-    <AuthPageShell portal="citizen" badge="Citizen Portal · New Registration">
+    <AuthPageShell portal="citizen" badgeKey="auth.registerBadge">
       <OtpAuthFlow
         role="citizen"
         purpose="register"
-        title="Create Citizen Account"
-        subtitle="Register with your mobile number, select your constituency, and verify via OTP."
         onBeforeSend={validateBeforeSend}
         onBeforeVerify={validateFields}
         registrationFields={
@@ -51,7 +51,7 @@ export default function CitizenRegisterPage() {
             {fieldError && <p className={styles.errorMsg} role="alert">{fieldError}</p>}
             <div className={styles.fieldGroup}>
               <label className={styles.label} htmlFor="name">
-                Full Name<span className={styles.required}>*</span>
+                {t("auth.fullName")}<span className={styles.required}>*</span>
               </label>
               <input
                 id="name"
@@ -59,12 +59,12 @@ export default function CitizenRegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoComplete="name"
-                placeholder="As per Aadhaar / voter ID"
+                placeholder={t("auth.namePlaceholder")}
               />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.label} htmlFor="email">
-                Email Address<span className={styles.required}>*</span>
+                {t("auth.email")}<span className={styles.required}>*</span>
               </label>
               <input
                 id="email"
@@ -73,12 +73,12 @@ export default function CitizenRegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
-                placeholder="you@example.com"
+                placeholder={t("auth.emailPlaceholder")}
               />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.label} htmlFor="constituency">
-                Constituency<span className={styles.required}>*</span>
+                {t("auth.constituency")}<span className={styles.required}>*</span>
               </label>
               <select
                 id="constituency"
@@ -86,10 +86,10 @@ export default function CitizenRegisterPage() {
                 value={constituencyId}
                 onChange={(e) => setConstituencyId(e.target.value)}
               >
-                <option value="">Select your parliamentary constituency</option>
+                <option value="">{t("auth.selectConstituency")}</option>
                 {CONSTITUENCIES.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name}, {c.state} — MP: {c.mpName}
+                    {c.name}, {c.state} — {t("profile.mpLabel")} {c.mpName}
                   </option>
                 ))}
               </select>
@@ -98,13 +98,13 @@ export default function CitizenRegisterPage() {
         }
         footer={
           <p style={{ fontSize: "0.88rem", color: "#7c8db5" }}>
-            Already registered?{" "}
+            {t("auth.alreadyRegistered")}{" "}
             <Link href="/citizen/login" style={{ color: "#a78bfa" }}>
-              Login here
+              {t("auth.loginHere")}
             </Link>
             {" · "}
             <Link href="/" className={styles.linkMuted}>
-              Back to home
+              {t("auth.backHome")}
             </Link>
           </p>
         }

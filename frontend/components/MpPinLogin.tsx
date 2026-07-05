@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAccessibility } from "@/context/AccessibilityContext";
 import styles from "@/app/shared.module.css";
 
 interface MpPinLoginProps {
@@ -12,6 +13,7 @@ interface MpPinLoginProps {
 
 export default function MpPinLogin({ redirectTo, blocked = false }: MpPinLoginProps) {
   const router = useRouter();
+  const { translate: t } = useAccessibility();
   const [username, setUsername] = useState("");
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,11 +25,11 @@ export default function MpPinLogin({ redirectTo, blocked = false }: MpPinLoginPr
     setError(null);
 
     if (!username.trim()) {
-      setError("Please enter your username.");
+      setError(t("auth.usernameRequired"));
       return;
     }
     if (pin.length !== 6) {
-      setError("PIN must be exactly 6 digits.");
+      setError(t("auth.pinInvalid"));
       return;
     }
 
@@ -40,13 +42,13 @@ export default function MpPinLogin({ redirectTo, blocked = false }: MpPinLoginPr
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Login failed.");
+        setError(data.error ?? t("auth.loginFailed"));
         return;
       }
       router.push(redirectTo ?? data.redirect);
       router.refresh();
     } catch {
-      setError("Network error. Please try again.");
+      setError(t("common.networkError"));
     } finally {
       setLoading(false);
     }
@@ -58,15 +60,15 @@ export default function MpPinLogin({ redirectTo, blocked = false }: MpPinLoginPr
       style={blocked ? { opacity: 0.55, pointerEvents: "none" } : undefined}
       aria-hidden={blocked}
     >
-      <h1 className={styles.title}>MP Login</h1>
+      <h1 className={styles.title}>{t("auth.mpLoginTitle")}</h1>
       <p className={styles.subtitle} style={{ marginBottom: "1.5rem" }}>
-        Enter your official username and 6-digit PIN to access your constituency dashboard.
+        {t("auth.mpLoginSubtitle")}
       </p>
 
       <form autoComplete="off" onSubmit={login} aria-busy={loading}>
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="mp-username">
-            Username<span className={styles.required}>*</span>
+            {t("auth.username")}<span className={styles.required}>*</span>
           </label>
           <input
             id="mp-username"
@@ -78,7 +80,7 @@ export default function MpPinLogin({ redirectTo, blocked = false }: MpPinLoginPr
             spellCheck={false}
             data-lpignore="true"
             data-1p-ignore="true"
-            placeholder="Constituency seat ID (e.g. mp.new-delhi)"
+            placeholder={t("auth.mpUsernamePlaceholder")}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -87,7 +89,7 @@ export default function MpPinLogin({ redirectTo, blocked = false }: MpPinLoginPr
 
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="mp-pin">
-            6-Digit PIN<span className={styles.required}>*</span>
+            {t("auth.pinLabel")}<span className={styles.required}>*</span>
           </label>
           <input
             id="mp-pin"
@@ -121,26 +123,25 @@ export default function MpPinLogin({ redirectTo, blocked = false }: MpPinLoginPr
           {loading ? (
             <>
               <span className={styles.spinner} aria-hidden="true" />
-              <span className="sr-only">Logging in</span>
+              <span className="sr-only">{t("auth.loggingIn")}</span>
             </>
           ) : (
-            "Login to MP Dashboard"
+            t("auth.mpLoginBtn")
           )}
         </button>
       </form>
 
       <p className={styles.infoBox} style={{ marginTop: "1.25rem" }}>
-        Demo judges and developers: see <strong>DEVELOPER_MP_CREDENTIALS.md</strong> in the
-        project folder for usernames and PINs.
+        {t("auth.mpDemoHint")}
       </p>
 
       <p style={{ fontSize: "0.88rem", color: "#7c8db5", marginTop: "1rem" }}>
         <Link href="/" className={styles.linkMuted}>
-          ← Back to home
+          {t("nav.backHome")}
         </Link>
         {" · "}
         <Link href="/citizen/login" className={styles.linkMuted}>
-          Citizen login
+          {t("auth.citizenLoginLink")}
         </Link>
       </p>
     </div>

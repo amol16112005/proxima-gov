@@ -5,11 +5,14 @@ import { getConstituencyById } from "@/data/constituencies";
 import { ensureDataHydrated } from "@/lib/cloud";
 import { getSession } from "@/lib/auth/session";
 import { getNotificationsByCitizen } from "@/lib/notifications";
+import { getServerTranslator } from "@/frontend/i18n/server";
 import styles from "@/app/shared.module.css";
 
 export default async function NotificationsPage() {
   const session = await getSession();
   if (!session || session.role !== "citizen") redirect("/citizen/login");
+
+  const m = await getServerTranslator();
 
   await ensureDataHydrated();
 
@@ -20,13 +23,13 @@ export default async function NotificationsPage() {
     <div className={styles.pageWide}>
       <PortalHeader portal="citizen" userName={session.name} constituencyName={constituency?.name ?? ""} />
 
-      <h2 className={styles.sectionTitle}>🔔 Notifications</h2>
+      <h2 className={styles.sectionTitle}>{m("notifications.title")}</h2>
       <p className={styles.subtitle} style={{ marginBottom: "1.5rem" }}>
-        Alerts whenever your project status changes.
+        {m("notifications.subtitleAlerts")}
       </p>
 
       {notifications.length === 0 ? (
-        <p style={{ color: "#7c8db5" }}>No notifications yet. Submit an issue to start receiving updates.</p>
+        <p style={{ color: "#7c8db5" }}>{m("notifications.emptyHint")}</p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
           {notifications.map((n) => (
@@ -46,9 +49,9 @@ export default async function NotificationsPage() {
       )}
 
       <p style={{ marginTop: "2rem" }}>
-        <Link href="/citizen/dashboard" className={styles.linkMuted}>← Dashboard</Link>
+        <Link href="/citizen/dashboard" className={styles.linkMuted}>{m("issues.backDashboard")}</Link>
         {" · "}
-        <Link href="/citizen/issues" className={styles.linkMuted}>My Issues</Link>
+        <Link href="/citizen/issues" className={styles.linkMuted}>{m("nav.myIssues")}</Link>
       </p>
     </div>
   );

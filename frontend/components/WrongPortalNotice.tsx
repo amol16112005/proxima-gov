@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAccessibility } from "@/context/AccessibilityContext";
+import { interpolate } from "@/frontend/i18n";
 import styles from "@/app/shared.module.css";
 
 interface WrongPortalNoticeProps {
@@ -18,10 +20,11 @@ export default function WrongPortalNotice({
   variant = "auth",
 }: WrongPortalNoticeProps) {
   const router = useRouter();
+  const { translate: t } = useAccessibility();
   const [loading, setLoading] = useState(false);
 
-  const activeLabel = activeRole === "citizen" ? "Citizen Portal" : "MP Portal";
-  const targetLabel = activeRole === "citizen" ? "MP Portal" : "Citizen Portal";
+  const activeLabel = activeRole === "citizen" ? t("nav.citizenPortal") : t("nav.mpPortal");
+  const targetLabel = activeRole === "citizen" ? t("nav.mpPortal") : t("nav.citizenPortal");
 
   const logout = async () => {
     setLoading(true);
@@ -45,21 +48,21 @@ export default function WrongPortalNotice({
       }
     >
       <p style={{ margin: 0, fontWeight: 700, color: "#fde68a" }}>
-        Cannot open {targetLabel} while signed in elsewhere
+        {interpolate(t("wrongPortal.cannotOpen"), { target: targetLabel })}
       </p>
       <p style={{ margin: 0 }}>
-        You are still signed in to the <strong>{activeLabel}</strong>
+        {interpolate(t("wrongPortal.signedIn"), { portal: activeLabel })}
         {userName ? (
           <>
             {" "}
-            as <strong>{userName}</strong>
+            {interpolate(t("wrongPortal.asUser"), { name: userName })}
           </>
         ) : null}
-        . Citizen and MP portals use separate accounts — only one session can be active at a time.
+        . {t("wrongPortal.oneSession")}
       </p>
       <p style={{ margin: 0 }}>
-        <strong>What to do:</strong> Log out of the {activeLabel}, then sign in again on the{" "}
-        {targetLabel}.
+        <strong>{t("wrongPortal.whatToDo")}</strong>{" "}
+        {interpolate(t("wrongPortal.instruction"), { from: activeLabel, to: targetLabel })}
       </p>
       <button
         type="button"
@@ -68,7 +71,9 @@ export default function WrongPortalNotice({
         disabled={loading}
         style={{ alignSelf: variant === "home" ? "flex-start" : "stretch", marginTop: "0.15rem" }}
       >
-        {loading ? "Logging out…" : `Log out of ${activeLabel}`}
+        {loading
+          ? t("wrongPortal.loggingOut")
+          : interpolate(t("wrongPortal.logoutOf"), { portal: activeLabel })}
       </button>
     </div>
   );
