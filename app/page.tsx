@@ -91,6 +91,9 @@ export default async function Home({
           <Link href="/faq" className={styles.btnOutline}>
             FAQs
           </Link>
+          <Link href="/problem" className={styles.btnOutline}>
+            Problem Statement
+          </Link>
         </div>
         <p className={styles.securityNote}>
           Secured with OTP verification · No password required · Data encrypted in transit
@@ -237,6 +240,8 @@ export default async function Home({
         <p>Proxima Digital Governance Initiative · Ministry of Electronics & IT · Government of India · FY 2026–27</p>
         <p className={styles.footerSub}>
           <Link href="/faq" style={{ color: "#a78bfa" }}>FAQs</Link>
+          {" · "}
+          <Link href="/problem" style={{ color: "#a78bfa" }}>Problem Statement</Link>
           {" · "}
           MP demo credentials for judges &amp; developers: see DEVELOPER_MP_CREDENTIALS.md
         </p>

@@ -16,9 +16,9 @@ import {
 } from "./storage";
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var __proximaHydrated: boolean | undefined;
-  // eslint-disable-next-line no-var
+   
   var __proximaHydratePromise: Promise<void> | undefined;
 }
 

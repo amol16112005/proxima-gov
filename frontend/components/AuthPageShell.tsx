@@ -36,7 +36,7 @@ export default function AuthPageShell({
   const otherHref = portal === "citizen" ? "/mp/login" : "/citizen/login";
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <nav className={styles.authNav} aria-label="Portal navigation">
         <Link href="/" className={styles.linkMuted}>
           ← Home
@@ -74,6 +74,6 @@ export default function AuthPageShell({
       ) : null}
 
       {children}
-    </main>
+    </div>
   );
 }

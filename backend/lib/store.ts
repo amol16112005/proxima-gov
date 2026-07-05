@@ -28,9 +28,9 @@ export interface Grievance {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var __proximaCitizens: Map<string, CitizenAccount> | undefined;
-  // eslint-disable-next-line no-var
+   
   var __proximaGrievances: Grievance[] | undefined;
 }
 

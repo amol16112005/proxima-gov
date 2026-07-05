@@ -1,4 +1,5 @@
 import type { DevelopmentIssue } from "@/data/lifecycleTypes";
+import { stripMongoId } from "@/lib/omit";
 import type { CitizenAccount, Grievance } from "@/lib/store";
 import type { Notification } from "@/lib/notifications";
 import type { Document } from "mongodb";
@@ -167,7 +168,7 @@ export async function loadCitizens(): Promise<CitizenAccount[]> {
       .collection<StoredDoc<CitizenAccount>>(COLLECTIONS.citizens)
       .find()
       .toArray();
-    return docs.map(({ _id, ...rest }) => rest as CitizenAccount);
+    return docs.map((doc) => stripMongoId(doc) as CitizenAccount);
   }
   return sqliteLoadAll<CitizenAccount>("citizens");
 }
@@ -180,7 +181,7 @@ export async function loadIssues(): Promise<DevelopmentIssue[]> {
       .collection<StoredDoc<DevelopmentIssue>>(COLLECTIONS.issues)
       .find()
       .toArray();
-    return docs.map(({ _id, ...rest }) => rest as DevelopmentIssue);
+    return docs.map((doc) => stripMongoId(doc) as DevelopmentIssue);
   }
   return sqliteLoadAll<DevelopmentIssue>("issues");
 }
@@ -193,7 +194,7 @@ export async function loadGrievances(): Promise<Grievance[]> {
       .collection<StoredDoc<Grievance>>(COLLECTIONS.grievances)
       .find()
       .toArray();
-    return docs.map(({ _id, ...rest }) => rest as Grievance);
+    return docs.map((doc) => stripMongoId(doc) as Grievance);
   }
   return sqliteLoadAll<Grievance>("grievances");
 }
@@ -206,7 +207,7 @@ export async function loadNotifications(): Promise<Notification[]> {
       .collection<StoredDoc<Notification>>(COLLECTIONS.notifications)
       .find()
       .toArray();
-    return docs.map(({ _id, ...rest }) => rest as Notification);
+    return docs.map((doc) => stripMongoId(doc) as Notification);
   }
   return sqliteLoadAll<Notification>("notifications");
 }
@@ -240,7 +241,7 @@ export async function loadActivityLog(): Promise<ActivityEntry[]> {
       .sort({ createdAt: -1 })
       .limit(500)
       .toArray();
-    return docs.map(({ _id, ...rest }) => rest as ActivityEntry);
+    return docs.map((doc) => stripMongoId(doc) as ActivityEntry);
   }
 
   const database = getDb();

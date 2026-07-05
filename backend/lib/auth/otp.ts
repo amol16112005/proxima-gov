@@ -4,7 +4,7 @@ const OTP_TTL_MS = 5 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var __proximaOtpStore: Map<string, OtpRecord> | undefined;
 }
 

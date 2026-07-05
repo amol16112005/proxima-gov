@@ -32,7 +32,7 @@ export interface ActivityEntry {
 }
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var __proximaActivityLog: ActivityEntry[] | undefined;
 }
 

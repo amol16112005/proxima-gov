@@ -1,4 +1,3 @@
-import { formatINR } from "@/data/constituencies";
 import { CATEGORY_LABELS, STAGE_LABELS, type DevelopmentIssue } from "@/data/lifecycleTypes";
 import Link from "next/link";
 import ls from "./lifecycle.module.css";

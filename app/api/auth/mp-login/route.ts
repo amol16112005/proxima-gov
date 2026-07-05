@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/apiResponse";
 import { sessionCookieOptions, signSession } from "@/lib/auth/session";
 import { verifyMpCredentials } from "@/data/mpRegistry";
+import { checkRateLimit } from "@/lib/security/rateLimit";
 
 export async function POST(request: Request) {
   try {
@@ -8,20 +10,25 @@ export async function POST(request: Request) {
     const { username, pin } = body as { username: string; pin: string };
 
     if (!username?.trim() || !pin) {
-      return NextResponse.json({ error: "Username and PIN are required." }, { status: 400 });
+      return jsonError("Username and PIN are required.", 400);
+    }
+
+    const normalizedUser = username.trim().toLowerCase();
+    const rate = checkRateLimit(`mp-login:${normalizedUser}`, 10, 15 * 60 * 1000);
+    if (!rate.allowed) {
+      return jsonError("Too many login attempts. Please try again later.", 429, {
+        retryAfterSec: rate.retryAfterSec,
+      });
     }
 
     const pinDigits = pin.replace(/\D/g, "");
     if (pinDigits.length !== 6) {
-      return NextResponse.json({ error: "PIN must be exactly 6 digits." }, { status: 400 });
+      return jsonError("PIN must be exactly 6 digits.", 400);
     }
 
     const mp = verifyMpCredentials(username, pinDigits);
     if (!mp) {
-      return NextResponse.json(
-        { error: "Invalid username or PIN. Contact the Parliamentary Affairs cell." },
-        { status: 401 }
-      );
+      return jsonError("Invalid username or PIN. Contact the Parliamentary Affairs cell.", 401);
     }
 
     const sessionUser = {

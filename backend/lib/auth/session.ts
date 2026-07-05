@@ -51,7 +51,8 @@ export async function getSession(): Promise<SessionUser | null> {
   if (!token) return null;
   const payload = parseSessionToken(token);
   if (!payload) return null;
-  const { expiresAt: _, ...user } = payload;
+  const { expiresAt, ...user } = payload;
+  void expiresAt;
   return user;
 }
 

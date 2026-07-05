@@ -1,3 +1,5 @@
+import { normalizeFreeText } from "@/lib/security/sanitize";
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function isValidEmail(email: string): boolean {
@@ -28,18 +30,26 @@ export function validateIssueSubmission(body: {
   description?: string;
   location?: string;
 }): { ok: true; data: { category: string; title: string; description: string; location: string } } | { ok: false; error: string } {
-  const category = body.category?.trim() ?? "";
-  const title = body.title?.trim() ?? "";
-  const description = body.description?.trim() ?? "";
-  const location = body.location?.trim() ?? "";
+  const categoryRaw = body.category?.trim() ?? "";
+  const titleRaw = body.title?.trim() ?? "";
+  const descriptionRaw = body.description?.trim() ?? "";
+  const locationRaw = body.location?.trim() ?? "";
 
-  if (!category || !title || !description || !location) {
+  if (!categoryRaw || !titleRaw || !descriptionRaw || !locationRaw) {
     return { ok: false, error: "All fields are required." };
   }
-  if (title.length > 200) return { ok: false, error: "Title must be 200 characters or fewer." };
-  if (description.length > 5000) {
+  if (titleRaw.length > 200) return { ok: false, error: "Title must be 200 characters or fewer." };
+  if (descriptionRaw.length > 5000) {
     return { ok: false, error: "Description must be 5000 characters or fewer." };
   }
+  if (locationRaw.length > 300) {
+    return { ok: false, error: "Location must be 300 characters or fewer." };
+  }
+
+  const category = normalizeFreeText(categoryRaw, 80);
+  const title = normalizeFreeText(titleRaw, 200);
+  const description = normalizeFreeText(descriptionRaw, 5000);
+  const location = normalizeFreeText(locationRaw, 300);
 
   return { ok: true, data: { category, title, description, location } };
 }

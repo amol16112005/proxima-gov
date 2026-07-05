@@ -25,6 +25,7 @@ The name **Proxima** reflects *proximity*: bringing government closer to the peo
 | Document | Description |
 |----------|-------------|
 | **[README.md](README.md)** | Overview, quick start, features (this file) |
+| **[PROBLEM_STATEMENT.md](PROBLEM_STATEMENT.md)** | Hackathon problem, solution, success criteria |
 | **[SETUP.md](SETUP.md)** | Install, environment, MongoDB, troubleshooting |
 | **[ARCHITECTURE.md](ARCHITECTURE.md)** | System design, auth, storage, layers |
 | **[CONSTRUCTION.md](CONSTRUCTION.md)** | Folder layout, conventions, how to extend |

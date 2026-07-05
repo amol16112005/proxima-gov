@@ -7,6 +7,7 @@ describe("security headers", () => {
     expect(keys).toContain("X-Frame-Options");
     expect(keys).toContain("X-Content-Type-Options");
     expect(keys).toContain("Referrer-Policy");
+    expect(keys).toContain("Content-Security-Policy");
   });
 
   it("adds HSTS in production", () => {

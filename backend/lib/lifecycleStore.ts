@@ -5,7 +5,6 @@ import type {
   LifecycleStage,
   MpReviewDecision,
   ProgressSubStage,
-  TimelineEvent,
 } from "@/data/lifecycleTypes";
 import { SUB_STAGE_CONFIG } from "@/data/lifecycleTypes";
 import { scheduleActivity } from "./cloud/activityLog";
@@ -18,9 +17,9 @@ export { canMarkWorkComplete, hasCompletionPhoto } from "./lifecycleRules";
 export { isMpActionableIssue } from "./issueTriage";
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var __proximaIssues: DevelopmentIssue[] | undefined;
-  // eslint-disable-next-line no-var
+   
   var __proximaIssueCounter: number | undefined;
 }
 

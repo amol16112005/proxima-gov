@@ -10,8 +10,11 @@ export function mpCanAccessIssue(issue: DevelopmentIssue, constituencyId: string
   return issue.constituencyId === constituencyId;
 }
 
-export function sanitizeIssueForPublic(issue: DevelopmentIssue): DevelopmentIssue {
-  const { citizenId: _citizenId, ...rest } = issue;
+export function sanitizeIssueForPublic(
+  issue: DevelopmentIssue
+): Omit<DevelopmentIssue, "citizenId"> {
+  const { citizenId, ...rest } = issue;
+  void citizenId;
   return rest;
 }
 
