@@ -1,0 +1,68 @@
+# See https://help.github.com/articles/ignoring-files/
+
+# ── Dependencies ──────────────────────────────────────────────────────
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# ── Next.js / build ───────────────────────────────────────────────────
+/.next/
+/out/
+/build
+.vercel
+
+# ── Environment & secrets (NEVER commit) ──────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Local databases ───────────────────────────────────────────────────
+/data/*.sqlite
+/data/*.sqlite-*
+/backend/data/*.sqlite
+/backend/data/*.sqlite-*
+
+# ── Secrets folder (keep .gitkeep only) ───────────────────────────────
+/secrets/*
+!/secrets/.gitkeep
+
+# ── IDE / editor ──────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── OS / OneDrive ─────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.lnk
+
+# ── Logs & debug ──────────────────────────────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# ── TypeScript cache ──────────────────────────────────────────────────
+*.tsbuildinfo
+
+# ── Test coverage ─────────────────────────────────────────────────────
+/coverage
+
+# ── TLS keys ──────────────────────────────────────────────────────────
+*.pem
+
+# ── Local dev / agent artifacts (not part of the app) ─────────────────
+/terminals/
+/agent-tools/
+
+# ── Local-only docs (demo PINs also live in backend/data/mpRegistry.ts for dev)
+DEVELOPER_MP_CREDENTIALS.md

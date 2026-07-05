@@ -1,0 +1,440 @@
+.tracker {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stageRow {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.stageChip {
+  font-size: 0.72rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #7c8db5;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.stageChipActive {
+  border-color: rgba(167, 139, 250, 0.5);
+  color: #c4b5fd;
+  background: rgba(124, 111, 239, 0.12);
+}
+
+.stageChipDone {
+  border-color: rgba(52, 211, 153, 0.3);
+  color: #6ee7b7;
+  background: rgba(52, 211, 153, 0.08);
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 1rem;
+  padding: 1.4rem;
+}
+
+.panelTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e8e8f0;
+  margin: 0 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scoreRing {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: conic-gradient(#7c6fef calc(var(--score) * 1%), rgba(255,255,255,0.08) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.scoreInner {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #1a1040;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #a78bfa;
+}
+
+.scoreLabel {
+  font-size: 0.55rem;
+  color: #7c8db5;
+  font-weight: 500;
+}
+
+.reasonList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.reasonList li {
+  font-size: 0.85rem;
+  color: #9aa5b8;
+  padding-left: 1rem;
+  position: relative;
+}
+
+.reasonList li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #34d399;
+  font-size: 0.75rem;
+}
+
+.progressStages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.progressStage {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.progressDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.progressDotDone {
+  background: #34d399;
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.5);
+}
+
+.progressDotCurrent {
+  background: #a78bfa;
+  box-shadow: 0 0 8px rgba(167, 139, 250, 0.5);
+}
+
+.progressLabel {
+  font-size: 0.85rem;
+  color: #9aa5b8;
+  flex: 1;
+}
+
+.progressPct {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #7c8db5;
+  min-width: 36px;
+  text-align: right;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(180deg, #7c6fef, #34d399);
+  opacity: 0.4;
+}
+
+.timelineItem {
+  position: relative;
+  padding-bottom: 1.2rem;
+}
+
+.timelineItem::before {
+  content: "";
+  position: absolute;
+  left: -1.5rem;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #7c6fef;
+  border: 2px solid #1a1040;
+}
+
+.timelineDate {
+  font-size: 0.75rem;
+  color: #7c8db5;
+}
+
+.timelineLabel {
+  font-size: 0.9rem;
+  color: #e8e8f0;
+  font-weight: 500;
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.8rem;
+}
+
+.imageCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.imagePlaceholder {
+  height: 90px;
+  background: linear-gradient(135deg, #302b63, #1a1040);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.imagePreview {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+  background: #1a1040;
+}
+
+.imageMeta {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.78rem;
+}
+
+.imageMeta strong {
+  display: block;
+  color: #e8e8f0;
+  margin-bottom: 0.2rem;
+}
+
+.imageMeta span {
+  color: #7c8db5;
+}
+
+.gpsBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  color: #34d399;
+  margin-top: 0.3rem;
+}
+
+.beforeAfter {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.compareCard {
+  text-align: center;
+}
+
+.compareLabel {
+  font-size: 0.78rem;
+  color: #7c8db5;
+  margin-top: 0.4rem;
+}
+
+.impactGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.8rem;
+}
+
+.impactCard {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+}
+
+.impactBefore {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f87171;
+}
+
+.impactAfter {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #34d399;
+}
+
+.impactArrow {
+  font-size: 0.8rem;
+  color: #7c8db5;
+  margin: 0.2rem 0;
+}
+
+.transparencyCard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.transparencyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.bigProgress {
+  height: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  overflow: hidden;
+  margin: 0.8rem 0;
+}
+
+.bigProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c6fef, #34d399);
+  border-radius: 5px;
+}
+
+.budgetRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.8rem;
+}
+
+.budgetItem {
+  text-align: center;
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0.5rem;
+}
+
+.budgetValue {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e8e8f0;
+}
+
+.budgetLabel {
+  font-size: 0.7rem;
+  color: #7c8db5;
+}
+
+.delayAlert {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 0.75rem;
+  padding: 1rem 1.2rem;
+  margin-top: 1rem;
+}
+
+.delayTitle {
+  color: #fca5a5;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.verifyButtons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.verifyYes {
+  flex: 1;
+  padding: 0.8rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  background: rgba(52, 211, 153, 0.1);
+  color: #6ee7b7;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.verifyNo {
+  flex: 1;
+  padding: 0.8rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  background: rgba(248, 113, 113, 0.1);
+  color: #fca5a5;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.issueListItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s;
+}
+
+.issueListItem:hover {
+  border-color: rgba(167, 139, 250, 0.35);
+}
+
+.flowDiagram {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  margin: 1.5rem 0;
+}
+
+.flowStep {
+  font-size: 0.78rem;
+  padding: 0.5rem 0.9rem;
+  background: rgba(124, 111, 239, 0.12);
+  border: 1px solid rgba(124, 111, 239, 0.25);
+  border-radius: 2rem;
+  color: #c4b5fd;
+}
+
+.flowArrow {
+  color: #5a6880;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .beforeAfter {
+    grid-template-columns: 1fr;
+  }
+  .budgetRow {
+    grid-template-columns: 1fr;
+  }
+}

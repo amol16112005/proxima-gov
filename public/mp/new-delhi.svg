@@ -1,0 +1,12 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="MP portrait placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a365d"/>
+      <stop offset="100%" stop-color="#c53030"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="24" fill="url(#bg)"/>
+  <circle cx="100" cy="78" r="38" fill="#f4d0b8"/>
+  <ellipse cx="100" cy="175" rx="58" ry="42" fill="#3b4f6b"/>
+  <text x="100" y="188" text-anchor="middle" fill="#e8e8f0" font-family="system-ui,sans-serif" font-size="22" font-weight="700">AM</text>
+</svg>

@@ -1,0 +1,193 @@
+.hero {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.photoWrap {
+  flex-shrink: 0;
+}
+
+.photo {
+  border-radius: 1rem;
+  border: 3px solid rgba(124, 111, 239, 0.45);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.heroText {
+  flex: 1;
+  min-width: 240px;
+}
+
+.partyBadge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #fcd34d;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 1rem;
+  padding: 0.25rem 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.mpName {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #e8e8f0;
+  margin: 0 0 0.35rem;
+}
+
+.bio {
+  font-size: 0.92rem;
+  color: #9aa5b8;
+  line-height: 1.6;
+  margin: 0.75rem 0;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  font-size: 0.82rem;
+  color: #7c8db5;
+}
+
+.committees {
+  font-size: 0.82rem;
+  color: #a78bfa;
+  margin-top: 0.75rem;
+}
+
+.sourceBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sourceLive {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 1rem;
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.sourceDemo {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #7c8db5;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.highlights {
+  margin-bottom: 2rem;
+}
+
+.highlightList {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #c4cfe0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.section {
+  margin-bottom: 2.5rem;
+}
+
+.sectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 1rem;
+  padding: 1.2rem;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #a78bfa;
+  margin: 0;
+}
+
+.statLabel {
+  font-size: 0.78rem;
+  color: #7c8db5;
+  margin: 0.35rem 0 0;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  margin-top: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.table th,
+.table td {
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.table th {
+  color: #7c8db5;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.table td {
+  color: #e8e8f0;
+}
+
+.dashboardMpCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s, transform 0.15s;
+  margin-bottom: 2rem;
+}
+
+.dashboardMpCard:hover {
+  border-color: rgba(124, 111, 239, 0.45);
+  transform: translateY(-1px);
+}
+
+.dashboardMpPhoto {
+  border-radius: 0.75rem;
+  flex-shrink: 0;
+}

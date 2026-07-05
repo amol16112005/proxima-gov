@@ -1,0 +1,267 @@
+.page {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #0a0a1a 0%, #1a1040 40%, #24243e 100%);
+  color: #e8e8f0;
+  font-family: var(--font-geist-sans, system-ui, sans-serif);
+  padding: 0 1.5rem 4rem;
+}
+
+.hero {
+  text-align: center;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 4rem 0 3rem;
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 2rem;
+  padding: 0.35rem 1.1rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  color: #a9b4c2;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: clamp(2.8rem, 7vw, 4.2rem);
+  font-weight: 800;
+  background: linear-gradient(90deg, #a78bfa, #60a5fa, #34d399);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 1rem;
+  line-height: 1.1;
+}
+
+.tagline {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: #b0bac8;
+  line-height: 1.7;
+  margin: 0 auto 2rem;
+  max-width: 640px;
+}
+
+.heroActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.btnCitizen,
+.btnMp,
+.btnOutline {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.7rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s, opacity 0.2s;
+}
+
+.btnCitizen {
+  background: linear-gradient(135deg, #7c6fef, #5b8dee);
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(124, 111, 239, 0.35);
+}
+
+.btnMp {
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(248, 113, 113, 0.3);
+}
+
+.btnOutline {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #c4cfe0;
+}
+
+.btnCitizen:hover,
+.btnMp:hover,
+.btnOutline:hover {
+  transform: translateY(-2px);
+  opacity: 0.92;
+}
+
+.securityNote {
+  font-size: 0.8rem;
+  color: #5a6880;
+  margin: 0;
+}
+
+.section {
+  max-width: 960px;
+  margin: 0 auto 3.5rem;
+}
+
+.sectionTitle {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 700;
+  color: #e8e8f0;
+  margin: 0 0 1rem;
+  text-align: center;
+}
+
+.sectionText {
+  font-size: 1rem;
+  color: #9aa5b8;
+  line-height: 1.75;
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.valuesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+}
+
+.valueCard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.valueIcon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.valueTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e8e8f0;
+  margin: 0 0 0.5rem;
+}
+
+.valueText {
+  font-size: 0.86rem;
+  color: #7c8db5;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.stepCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 0.9rem;
+  padding: 1.3rem;
+}
+
+.stepNum {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #a78bfa;
+  letter-spacing: 0.1em;
+}
+
+.stepTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e8e8f0;
+  margin: 0.4rem 0;
+}
+
+.stepText {
+  font-size: 0.82rem;
+  color: #7c8db5;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.constituencyList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 1.2rem;
+}
+
+.constituencyChip {
+  font-size: 0.78rem;
+  background: rgba(124, 111, 239, 0.1);
+  border: 1px solid rgba(124, 111, 239, 0.2);
+  color: #c4b5fd;
+  padding: 0.35rem 0.8rem;
+  border-radius: 2rem;
+}
+
+.portalSection {
+  max-width: 900px;
+  margin: 0 auto 3rem;
+}
+
+.portalGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.portalCard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.portalIcon {
+  font-size: 2.2rem;
+}
+
+.portalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.portalDesc {
+  font-size: 0.9rem;
+  color: #9aa5b8;
+  line-height: 1.65;
+  margin: 0;
+  flex: 1;
+}
+
+.portalLinks {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.footer {
+  text-align: center;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.8rem;
+  color: #5a6880;
+}
+
+.footerSub {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #4a5568;
+}
