@@ -146,7 +146,7 @@ export default function OtpAuthFlow({
               />
             </div>
             <p className={styles.infoBox}>
-              In this demo, OTP is shown on the next screen (SMS is not wired up). Valid for 5 minutes.
+              OTP appears on the next screen (demo mode — SMS not configured). Valid for 5 minutes.
               {purpose === "login" && " You must register first if you are a new user."}
             </p>
           </>

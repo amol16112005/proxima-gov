@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid phone number." }, { status: 400 });
     }
 
-    const result = verifyOtp(phone, purpose, role, otp);
+    const result = await verifyOtp(phone, purpose, role, otp);
     if (!result.valid) {
       return NextResponse.json({ error: result.error }, { status: 401 });
     }

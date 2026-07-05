@@ -5,6 +5,7 @@ export const COLLECTIONS = {
   notifications: "notifications",
   activityLog: "activity_log",
   meta: "meta",
+  otps: "otps",
 } as const;
 
 export const META_DOCS = {

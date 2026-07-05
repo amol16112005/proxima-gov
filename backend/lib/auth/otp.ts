@@ -1,10 +1,15 @@
+import {
+  deleteOtpRecord,
+  loadOtpRecord,
+  otpDocumentId,
+  saveOtpRecord,
+} from "./otpPersistence";
 import type { OtpPurpose, OtpRecord, UserRole } from "./types";
 
 const OTP_TTL_MS = 5 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
 
 declare global {
-   
   var __proximaOtpStore: Map<string, OtpRecord> | undefined;
 }
 
@@ -16,7 +21,7 @@ function getStore(): Map<string, OtpRecord> {
 }
 
 function otpKey(phone: string, purpose: OtpPurpose, role: UserRole): string {
-  return `${role}:${purpose}:${phone}`;
+  return otpDocumentId(phone, purpose, role);
 }
 
 function generateOtp(): string {
@@ -30,13 +35,14 @@ export function normalizePhone(phone: string): string | null {
   return null;
 }
 
-export function createOtp(
+export async function createOtp(
   phone: string,
   purpose: OtpPurpose,
   role: UserRole
-): { otp: string; expiresIn: number } {
+): Promise<{ otp: string; expiresIn: number }> {
   const store = getStore();
   const otp = generateOtp();
+  const key = otpKey(phone, purpose, role);
   const record: OtpRecord = {
     phone,
     otp,
@@ -45,19 +51,25 @@ export function createOtp(
     expiresAt: Date.now() + OTP_TTL_MS,
     attempts: 0,
   };
-  store.set(otpKey(phone, purpose, role), record);
+  store.set(key, record);
+  await saveOtpRecord(key, record);
   return { otp, expiresIn: OTP_TTL_MS / 1000 };
 }
 
-export function verifyOtp(
+export async function verifyOtp(
   phone: string,
   purpose: OtpPurpose,
   role: UserRole,
   submittedOtp: string
-): { valid: boolean; error?: string } {
+): Promise<{ valid: boolean; error?: string }> {
   const store = getStore();
   const key = otpKey(phone, purpose, role);
-  const record = store.get(key);
+  let record = store.get(key);
+
+  if (!record) {
+    record = (await loadOtpRecord(key)) ?? undefined;
+    if (record) store.set(key, record);
+  }
 
   if (!record) {
     return { valid: false, error: "OTP expired or not found. Please request a new one." };
@@ -65,17 +77,20 @@ export function verifyOtp(
 
   if (Date.now() > record.expiresAt) {
     store.delete(key);
+    await deleteOtpRecord(key);
     return { valid: false, error: "OTP has expired. Please request a new one." };
   }
 
   if (record.attempts >= MAX_ATTEMPTS) {
     store.delete(key);
+    await deleteOtpRecord(key);
     return { valid: false, error: "Too many failed attempts. Please request a new OTP." };
   }
 
   if (record.otp !== submittedOtp.trim()) {
     record.attempts += 1;
     store.set(key, record);
+    await saveOtpRecord(key, record);
     const remaining = MAX_ATTEMPTS - record.attempts;
     return {
       valid: false,
@@ -84,6 +99,7 @@ export function verifyOtp(
   }
 
   store.delete(key);
+  await deleteOtpRecord(key);
   return { valid: true };
 }
 

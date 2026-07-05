@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { jsonError } from "@/lib/apiResponse";
 import { ensureDataHydrated } from "@/lib/cloud";
+import { shouldExposeDemoOtp } from "@/lib/auth/otpConfig";
 import { createOtp, maskPhone, normalizePhone } from "@/lib/auth/otp";
 import type { OtpPurpose, UserRole } from "@/lib/auth/types";
 import { checkRateLimit } from "@/lib/security/rateLimit";
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const { otp, expiresIn } = createOtp(phone, purpose, role);
+    const { otp, expiresIn } = await createOtp(phone, purpose, role);
 
     const response: Record<string, string | number> = {
       message: `OTP sent to ${maskPhone(phone)}`,
@@ -69,12 +70,14 @@ export async function POST(request: Request) {
       expiresIn,
     };
 
-    // Demo / hackathon: no SMS gateway — expose OTP only in development for testing.
-    if (process.env.NODE_ENV === "development") {
+    // Hackathon / Vercel: show OTP on screen until a real SMS gateway is configured.
+    if (shouldExposeDemoOtp()) {
       response.demoOtp = otp;
       response.demoNote =
         "Demo mode: SMS is not configured. Use the 6-digit code shown below (not sent to your phone).";
-      console.info(`[Proxima Gov dev OTP] ${maskPhone(phone)} → ${otp}`);
+      if (process.env.NODE_ENV === "development") {
+        console.info(`[Proxima Gov OTP] ${maskPhone(phone)} → ${otp}`);
+      }
     }
 
     return NextResponse.json(response);

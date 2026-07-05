@@ -18,15 +18,15 @@ describe("normalizePhone", () => {
 });
 
 describe("OTP flow", () => {
-  it("creates and verifies a valid OTP", () => {
-    const { otp } = createOtp("9876543210", "login", "citizen");
-    const result = verifyOtp("9876543210", "login", "citizen", otp);
+  it("creates and verifies a valid OTP", async () => {
+    const { otp } = await createOtp("9876543210", "login", "citizen");
+    const result = await verifyOtp("9876543210", "login", "citizen", otp);
     expect(result.valid).toBe(true);
   });
 
-  it("rejects wrong OTP and tracks attempts", () => {
-    createOtp("9876543210", "login", "citizen");
-    const result = verifyOtp("9876543210", "login", "citizen", "000000");
+  it("rejects wrong OTP and tracks attempts", async () => {
+    await createOtp("9876543210", "login", "citizen");
+    const result = await verifyOtp("9876543210", "login", "citizen", "000000");
     expect(result.valid).toBe(false);
     expect(result.error).toMatch(/Invalid OTP/i);
   });
