@@ -1,6 +1,6 @@
 import { mkdirSync } from "fs";
 import { dirname, isAbsolute, resolve } from "path";
-import Database from "better-sqlite3";
+import type Database from "better-sqlite3";
 
 const DEFAULT_DB_PATH = resolve(process.cwd(), "backend", "data", "proxima.sqlite");
 
@@ -45,12 +45,20 @@ function initSchema(database: Database.Database): void {
   `);
 }
 
+function loadSqlite(): typeof import("better-sqlite3") {
+  // Lazy load — avoids bundling native module on Vercel when using MongoDB
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  return require("better-sqlite3") as typeof import("better-sqlite3");
+}
+
 export function getDb(): Database.Database | null {
   if (process.env.PROXIMA_STORAGE === "off") return null;
+  if (process.env.VERCEL === "1" && !process.env.MONGODB_URI?.trim()) return null;
   if (db) return db;
 
   const path = getDbPath();
   mkdirSync(dirname(path), { recursive: true });
+  const Database = loadSqlite();
   db = new Database(path);
   db.pragma("journal_mode = WAL");
   initSchema(db);

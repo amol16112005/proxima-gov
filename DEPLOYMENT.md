@@ -130,14 +130,51 @@ Add Certbot for HTTPS.
 
 ---
 
-## Vercel deployment
+## Vercel deployment (recommended)
 
-1. Connect Git repository
-2. Framework preset: **Next.js**
-3. Environment variables: `MONGODB_URI`, `SESSION_SECRET`, API keys
-4. **Remove** dependency on `better-sqlite3` or ensure `MONGODB_URI` is always set (Vercel cannot persist SQLite reliably)
+Proxima Gov is configured for Vercel with region **`bom1`** (Mumbai).
 
-Build command: `npm run build`  
+### Option A — Import from GitHub (easiest)
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import **`amol16112005/proxima-gov`**
+3. Framework: **Next.js** (auto-detected)
+4. Add **Environment Variables** (see `.env.vercel.example`):
+
+   | Variable | Required | Notes |
+   |----------|----------|-------|
+   | `MONGODB_URI` | **Yes** | MongoDB Atlas connection string |
+   | `MONGODB_DB` | Yes | `proxima_gov` |
+   | `SESSION_SECRET` | **Yes** | 32+ random characters |
+   | `NEXT_PUBLIC_GEMINI_API_KEY` | No | AI grievance responses |
+   | `DATAGOVINDIA_API_KEY` | No | Live MPLADS data |
+
+5. Click **Deploy**
+
+### Option B — Vercel CLI
+
+```bash
+npm i -g vercel
+vercel login
+vercel link
+# Add env vars in dashboard or: vercel env add MONGODB_URI
+npm run deploy:vercel
+```
+
+### Vercel + MongoDB Atlas checklist
+
+1. Atlas cluster → **Network Access** → allow `0.0.0.0/0` (or Vercel IP ranges for production)
+2. Atlas → **Database Access** → app user with read/write on `proxima_gov`
+3. Copy connection string into Vercel `MONGODB_URI`
+4. After deploy, open `https://YOUR-APP.vercel.app/api/health` and `/api/cloud/status`
+
+### Important
+
+- **SQLite does not work on Vercel** — you must set `MONGODB_URI`
+- Without `MONGODB_URI`, the app runs in **memory demo mode** (data resets per cold start)
+- `better-sqlite3` is lazy-loaded and externalized — local dev still uses SQLite when `MONGODB_URI` is unset
+
+Build command: `npm run build` (default)  
 Output: automatic
 
 ---

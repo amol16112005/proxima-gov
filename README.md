@@ -224,6 +224,16 @@ Path aliases (see `tsconfig.json`): `@/components`, `@/lib`, `@/data`, `@/fronte
 
 ---
 
+## Deploy on Vercel
+
+1. Import [github.com/amol16112005/proxima-gov](https://github.com/amol16112005/proxima-gov) at [vercel.com/new](https://vercel.com/new)
+2. Set env vars from **`.env.vercel.example`** (`MONGODB_URI`, `MONGODB_DB`, `SESSION_SECRET`)
+3. Deploy — region defaults to **Mumbai (bom1)** via `vercel.json`
+
+Full steps: **[DEPLOYMENT.md](DEPLOYMENT.md#vercel-deployment-recommended)**
+
+---
+
 ## Getting Started
 
 Quick start (full detail in **[SETUP.md](SETUP.md)**):
