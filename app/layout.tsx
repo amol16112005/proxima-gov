@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import AccessibilityShell from "@/components/AccessibilityShell";
 import "@/app/globals.css";
 
 const geistSans = Geist({
@@ -33,6 +34,11 @@ export const metadata: Metadata = {
       "Bridging citizens and Lok Sabha MPs through transparent issue tracking, AI triage, and accountability.",
     type: "website",
   },
+  manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1e3a5f",
 };
 
 export default function RootLayout({
@@ -43,10 +49,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
-        <a href="#main-content" className="skip-link">
-          Skip to main content
-        </a>
-        <main id="main-content">{children}</main>
+        <AccessibilityShell>
+          <main id="main-content">{children}</main>
+        </AccessibilityShell>
       </body>
     </html>
   );

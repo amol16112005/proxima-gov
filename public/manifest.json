@@ -1,0 +1,17 @@
+{
+  "name": "Proxima Gov",
+  "short_name": "Proxima",
+  "description": "Lok Sabha citizen and MP digital governance platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1e3a5f",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

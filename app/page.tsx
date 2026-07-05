@@ -1,49 +1,9 @@
 import Link from "next/link";
+import HomeLocalizedSections from "@/components/home/HomeLocalizedSections";
 import WrongPortalNotice from "@/components/WrongPortalNotice";
 import { CONSTITUENCIES } from "@/data/constituencies";
 import { getSession } from "@/lib/auth/session";
-import ls from "@/components/lifecycle/lifecycle.module.css";
 import styles from "@/app/page.module.css";
-
-const LIFECYCLE_FLOW = [
-  "Submit Complaint",
-  "AI Analysis",
-  "MP Approval",
-  "Work Assigned",
-  "Live Progress",
-  "Citizen Verify",
-  "Impact Analysis",
-];
-
-const VALUES = [
-  {
-    icon: "🔍",
-    title: "Transparency",
-    text: "Every government project in your constituency is tracked publicly — budgets, timelines, and progress you can verify.",
-  },
-  {
-    icon: "🤝",
-    title: "Accountability",
-    text: "Lok Sabha MPs see citizen issues in real time and are accountable for timely resolution within defined SLAs.",
-  },
-  {
-    icon: "🔐",
-    title: "Secure Access",
-    text: "OTP-based authentication ensures only verified citizens and registered MPs access their respective portals.",
-  },
-  {
-    icon: "🤖",
-    title: "AI-Assisted Response",
-    text: "ProximaGov AI acknowledges submissions instantly and helps route grievances to the right department faster.",
-  },
-];
-
-const STEPS = [
-  { step: "01", title: "Register as a Citizen", text: "Create your account with OTP verification and select your constituency." },
-  { step: "02", title: "Track Local Work", text: "View roads, health centres, schools, and infrastructure projects in your area." },
-  { step: "03", title: "Submit Grievances", text: "File structured complaints with category, location, and detailed description." },
-  { step: "04", title: "MP Reviews & Acts", text: "Your Lok Sabha MP sees constituency-specific issues and drives MPLADS-funded resolution." },
-];
 
 export default async function Home({
   searchParams,
@@ -70,112 +30,9 @@ export default async function Home({
           variant="home"
         />
       ) : null}
-      {/* Hero */}
-      <section className={styles.hero}>
-        <div className={styles.badge}>Government of India · Lok Sabha · Digital India Initiative</div>
-        <h1 className={styles.title}>Proxima Gov</h1>
-        <p className={styles.tagline}>
-          Bridging citizens and elected representatives through transparent governance,
-          real-time project tracking, and secure digital grievance redressal.
-        </p>
-        <div className={styles.heroActions}>
-          <Link href="/citizen/register" className={styles.btnCitizen}>
-            Citizen Registration
-          </Link>
-          <Link href="/citizen/login" className={styles.btnOutline}>
-            Citizen Login
-          </Link>
-          <Link href="/mp/login" className={styles.btnMp}>
-            MP Login
-          </Link>
-          <Link href="/faq" className={styles.btnOutline}>
-            FAQs
-          </Link>
-          <Link href="/problem" className={styles.btnOutline}>
-            Problem Statement
-          </Link>
-        </div>
-        <p className={styles.securityNote}>
-          Secured with OTP verification · No password required · Data encrypted in transit
-        </p>
-      </section>
 
-      {/* Problem statement */}
-      <section className={styles.section} aria-labelledby="problem-heading">
-        <h2 id="problem-heading" className={styles.sectionTitle}>The Problem We Solve</h2>
-        <p className={styles.sectionText}>
-          Citizens in Lok Sabha constituencies often have no structured way to report local development
-          needs — damaged roads, water shortages, school repairs — and no visibility into whether their
-          MP acted. MPs receive unstructured complaints across the wrong channels (passport, police, jobs)
-          with no triage, tracking, or accountability loop. Proxima Gov closes this gap with constituency-scoped
-          portals, AI jurisdiction screening, MPLADS-aligned workflows, photo-verified progress, and public
-          transparency — directly addressing the hackathon mandate for citizen–representative digital governance.
-        </p>
-      </section>
+      <HomeLocalizedSections />
 
-      {/* About */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>What is Proxima Gov?</h2>
-        <p className={styles.sectionText}>
-          Proxima Gov is India&apos;s citizen-first digital governance platform for Lok Sabha
-          constituencies. It gives every resident a direct window into central-government-funded
-          work in their parliamentary seat — from MPLADS projects and metro lines to rural roads
-          and health centres. Citizens register, track progress, and submit issues. Members of
-          Parliament receive a constituency dashboard for approvals, accountability, and transparency.
-        </p>
-      </section>
-
-      {/* Values */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>What We Stand For</h2>
-        <div className={styles.valuesGrid}>
-          {VALUES.map((v) => (
-            <article key={v.title} className={styles.valueCard}>
-              <span className={styles.valueIcon} aria-hidden="true">{v.icon}</span>
-              <h3 className={styles.valueTitle}>{v.title}</h3>
-              <p className={styles.valueText}>{v.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* Closed-loop lifecycle */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Closed-Loop Governance Lifecycle</h2>
-        <p className={styles.sectionText}>
-          Not just a grievance portal — a full development governance platform tracking execution,
-          transparency, accountability, and measurable impact.
-        </p>
-        <div className={ls.flowDiagram}>
-          {LIFECYCLE_FLOW.map((step, i) => (
-            <span key={step} style={{ display: "contents" }}>
-              <span className={ls.flowStep}>{step}</span>
-              {i < LIFECYCLE_FLOW.length - 1 && <span className={ls.flowArrow}>→</span>}
-            </span>
-          ))}
-        </div>
-        <p style={{ textAlign: "center", marginTop: "1rem" }}>
-          <Link href="/transparency" className={styles.btnOutline} style={{ display: "inline-flex" }}>
-            View Public Transparency Dashboard
-          </Link>
-        </p>
-      </section>
-
-      {/* How it works */}
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>How It Works</h2>
-        <div className={styles.stepsGrid}>
-          {STEPS.map((s) => (
-            <article key={s.step} className={styles.stepCard}>
-              <span className={styles.stepNum}>{s.step}</span>
-              <h3 className={styles.stepTitle}>{s.title}</h3>
-              <p className={styles.stepText}>{s.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      {/* Coverage */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Constituencies Covered</h2>
         <p className={styles.sectionText}>
@@ -191,12 +48,11 @@ export default async function Home({
         </div>
       </section>
 
-      {/* FAQ teaser */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Common Questions</h2>
         <p className={styles.sectionText}>
           Confused about citizen vs MP login, why an issue was declined, photo uploads, or what MPs
-          can approve? Our FAQ covers the most frequent portal questions.
+          can approve? Our FAQ covers the most frequent portal questions — also available in Hindi (हिन्दी).
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", justifyContent: "center" }}>
           <Link href="/faq" className={styles.btnOutline}>
@@ -208,7 +64,6 @@ export default async function Home({
         </div>
       </section>
 
-      {/* Portal entry */}
       <section className={styles.portalSection}>
         <h2 className={styles.sectionTitle}>Choose Your Portal</h2>
         <div className={styles.portalGrid}>
@@ -243,7 +98,7 @@ export default async function Home({
           {" · "}
           <Link href="/problem" style={{ color: "#a78bfa" }}>Problem Statement</Link>
           {" · "}
-          MP demo credentials for judges &amp; developers: see DEVELOPER_MP_CREDENTIALS.md
+          Use ♿ button for Hindi, large text, high contrast, and read-aloud
         </p>
       </footer>
     </div>

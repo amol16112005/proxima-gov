@@ -31,7 +31,7 @@ The name **Proxima** reflects *proximity*: bringing government closer to the peo
 | **[CONSTRUCTION.md](CONSTRUCTION.md)** | Folder layout, conventions, how to extend |
 | **[LIFECYCLE.md](LIFECYCLE.md)** | Issue stages, MP actions, AI triage flow |
 | **[API.md](API.md)** | REST API reference |
-| **[DEPLOYMENT.md](DEPLOYMENT.md)** | Production hosting and security checklist |
+| **[DEPLOYMENT.md](DEPLOYMENT.md)** | Docker, pilot rollout, scaling, and security checklist |
 | **[DEVELOPER_MP_CREDENTIALS.md](DEVELOPER_MP_CREDENTIALS.md)** | Demo MP usernames & PINs |
 | **[/faq](http://localhost:3000/faq)** | End-user FAQ (runtime page) |
 
@@ -68,6 +68,7 @@ The name **Proxima** reflects *proximity*: bringing government closer to the peo
 | **Accountability** | MPs act on citizen-verified work; disputed completions trigger review and contractor/officer accountability. |
 | **Proximity** | Constituency-scoped access — citizens see *their* MP, *their* seat, and *their* local issues. |
 | **Security** | OTP-based citizen auth; separate MP portal with constituency username + PIN. |
+| **Inclusivity** | Hindi UI, large text, high contrast, read-aloud, offline banner (♿ toolbar). |
 | **Intelligence** | AI triages issues for jurisdiction and priority before they reach an MP's desk. |
 
 Proxima Gov is framed as a **Digital India / Lok Sabha** initiative demo (FY 2026–27) for hackathons, judging, and local development — not a production government deployment without further hardening.

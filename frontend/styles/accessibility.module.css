@@ -1,0 +1,85 @@
+.toolbar {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: min(18rem, calc(100vw - 1.5rem));
+}
+
+.panel {
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.btn {
+  font-size: 0.82rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+  cursor: pointer;
+}
+
+.btn:hover,
+.btn:focus-visible {
+  border-color: #60a5fa;
+  background: rgba(37, 99, 235, 0.25);
+}
+
+.btnActive {
+  border-color: #34d399;
+  background: rgba(16, 185, 129, 0.2);
+  color: #a7f3d0;
+}
+
+.toggleFab {
+  align-self: flex-end;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #fff;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+}
+
+.offlineBanner {
+  position: sticky;
+  top: 0;
+  z-index: 1100;
+  background: #7c2d12;
+  color: #fff7ed;
+  padding: 0.65rem 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  border-bottom: 2px solid #ea580c;
+}
+
+.offlineBanner strong {
+  display: block;
+  font-size: 0.95rem;
+}

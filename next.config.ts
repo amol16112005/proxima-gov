@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import { productionHeaders } from "./backend/lib/security/headers";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   compress: true,
   poweredByHeader: false,
   experimental: {

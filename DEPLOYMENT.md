@@ -6,6 +6,24 @@ See also: [SETUP.md](SETUP.md) · [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ---
 
+## Quick pilot (Docker — 1 constituency in ~30 minutes)
+
+```bash
+cp .env.production.example .env.docker
+# Edit SESSION_SECRET (32+ chars)
+
+docker compose --env-file .env.docker up --build -d
+curl http://localhost:3000/api/health
+```
+
+- App: `http://localhost:3000`
+- Health check: `GET /api/health` (for load balancers / Render / Railway)
+- Data: MongoDB volume `proxima_mongo_data` (persists across restarts)
+
+**One-click cloud:** deploy `render.yaml` on Render, or connect GitHub to Railway with `MONGODB_URI` from Atlas.
+
+---
+
 ## Build artifacts
 
 ```bash
@@ -26,7 +44,7 @@ npm start
 | **Vercel** | Good for UI demo | Serverless; `better-sqlite3` **not** supported — use MongoDB |
 | **Railway / Render / Fly.io** | Good full-stack | Persistent disk or MongoDB Atlas |
 | **VPS (Ubuntu)** | Best control | PM2 + Nginx reverse proxy |
-| **Docker** | Portable | Multi-stage Node image (not included in repo) |
+| **Docker** | Portable | `Dockerfile` + `docker-compose.yml` (app + MongoDB) |
 
 ---
 
@@ -152,6 +170,34 @@ Manual smoke tests on staging URL:
 
 ---
 
+## Constituency rollout plan (weeks → national scale)
+
+| Phase | Timeline | Scope | Infrastructure |
+|-------|----------|-------|----------------|
+| **Pilot** | Week 1–2 | 1 Lok Sabha seat | Docker compose or Render + MongoDB Atlas M0 |
+| **District cluster** | Week 3–6 | 5–10 neighbouring seats | Single app instance, `constituencyId` row isolation |
+| **State** | Month 2–3 | All seats in one state | Atlas M10, CDN for static assets, SMS OTP |
+| **National** | Month 4+ | 543 constituencies | Horizontal app replicas + Atlas sharded cluster, object storage for photos |
+
+Every record is keyed by `constituencyId` — no code fork per MP. Onboard a new seat by adding roster entry + MP credentials.
+
+---
+
+## Inclusivity & low-connectivity (built-in)
+
+| Feature | Location |
+|---------|----------|
+| **Hindi UI** | ♿ toolbar → हिन्दी (home, FAQ, skip link) |
+| **Large text / high contrast** | ♿ toolbar toggles |
+| **Read aloud** | Browser TTS (`hi-IN` / `en-IN`) |
+| **Offline notice** | Banner when `navigator.onLine` is false |
+| **PWA manifest** | `public/manifest.json` — add-to-home-screen on mobile |
+| **OTP-first** | No password literacy barrier |
+
+Roadmap: SMS short-code issue filing, WhatsApp bot, full Kannada/Tamil locales.
+
+---
+
 ## Scaling considerations
 
 Current architecture is **single-node in-memory + DB write-through**. For high concurrency:
@@ -159,7 +205,8 @@ Current architecture is **single-node in-memory + DB write-through**. For high c
 1. Replace global in-memory stores with DB-read per request (or Redis cache)
 2. Move images to object storage (S3, Cloudflare R2)
 3. Queue OTP SMS and AI calls
-4. Add rate limiting on `/api/auth/*` and `/api/issues`
+4. Rate limiting is enabled on `/api/auth/send-otp` and `/api/auth/mp-login`
+5. Use `/api/health` behind a load balancer for multi-instance deploys
 
 ---
 

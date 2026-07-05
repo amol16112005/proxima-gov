@@ -89,6 +89,42 @@ a {
   }
 }
 
+html.a11y-large-text {
+  font-size: 112.5%;
+}
+
+html.a11y-large-text h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+html.a11y-large-text button,
+html.a11y-large-text input,
+html.a11y-large-text select,
+html.a11y-large-text textarea {
+  font-size: 1.05rem;
+  min-height: 2.75rem;
+}
+
+html.a11y-high-contrast {
+  --background: #000;
+  --foreground: #fff;
+}
+
+html.a11y-high-contrast body {
+  background: #000;
+  color: #fff;
+}
+
+html.a11y-high-contrast a:focus-visible,
+html.a11y-high-contrast button:focus-visible {
+  outline: 3px solid #facc15;
+  outline-offset: 3px;
+}
+
+html[lang="hi"] body {
+  font-family: "Nirmala UI", "Mangal", "Segoe UI", Arial, sans-serif;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

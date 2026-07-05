@@ -1,0 +1,41 @@
+# Local / pilot deployment: Proxima Gov + MongoDB
+# Usage: copy .env.production.example → .env.docker, fill secrets, then:
+#   docker compose up --build -d
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - proxima_mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB: proxima_gov
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env.docker}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
+
+volumes:
+  proxima_mongo_data:
