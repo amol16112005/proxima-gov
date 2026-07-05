@@ -60,9 +60,10 @@ export function createCitizen(data: {
   name: string;
   email: string;
   constituencyId: string;
+  id?: string;
 }): CitizenAccount {
   const account: CitizenAccount = {
-    id: `CIT-${Date.now()}`,
+    id: data.id ?? `CIT-${Date.now()}`,
     ...data,
     createdAt: new Date().toISOString(),
   };

@@ -62,22 +62,47 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Invalid constituency selected." }, { status: 400 });
       }
       if (findCitizenByPhone(phone)) {
-        return NextResponse.json({ error: "Account already exists." }, { status: 409 });
+        return NextResponse.json(
+          {
+            error: "An account with this number already exists. Please log in instead.",
+            code: "ALREADY_EXISTS",
+          },
+          { status: 409 }
+        );
       }
-      const citizen = createCitizen({
+
+      const citizenId = `CIT-${Date.now()}`;
+      sessionUser = sessionFromCitizen({
+        id: citizenId,
+        phone,
+        name: name.trim(),
+        email: email.trim(),
+        constituencyId,
+        createdAt: new Date().toISOString(),
+      });
+
+      const token = signSession(sessionUser);
+      createCitizen({
+        id: citizenId,
         phone,
         name: name.trim(),
         email: email.trim(),
         constituencyId,
       });
-      sessionUser = sessionFromCitizen(citizen);
-    } else {
-      const citizen = findCitizenByPhone(phone);
-      if (!citizen) {
-        return NextResponse.json({ error: "Account not found." }, { status: 404 });
-      }
-      sessionUser = sessionFromCitizen(citizen);
+
+      const response = NextResponse.json({
+        user: sessionUser,
+        redirect: "/citizen/dashboard",
+      });
+      response.cookies.set(sessionCookieOptions(token));
+      return response;
     }
+
+    const citizen = findCitizenByPhone(phone);
+    if (!citizen) {
+      return NextResponse.json({ error: "Account not found." }, { status: 404 });
+    }
+    sessionUser = sessionFromCitizen(citizen);
 
     const token = signSession(sessionUser);
     const response = NextResponse.json({
@@ -86,7 +111,18 @@ export async function POST(request: Request) {
     });
     response.cookies.set(sessionCookieOptions(token));
     return response;
-  } catch {
+  } catch (err) {
+    console.error("[verify-otp]", err);
+    const message = err instanceof Error ? err.message : "";
+    if (message.includes("SESSION_SECRET")) {
+      return NextResponse.json(
+        {
+          error:
+            "Server session is not configured. Set SESSION_SECRET (32+ characters) in Vercel environment variables.",
+        },
+        { status: 503 }
+      );
+    }
     return NextResponse.json({ error: "Verification failed." }, { status: 500 });
   }
 }

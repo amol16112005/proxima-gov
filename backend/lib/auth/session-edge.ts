@@ -1,8 +1,5 @@
+import { getSessionSecret } from "./sessionSecret";
 import type { SessionPayload } from "./types";
-
-function getSecret(): string {
-  return process.env.SESSION_SECRET ?? "proxima-dev-secret-change-in-production";
-}
 
 function toBase64Url(bytes: Uint8Array): string {
   let binary = "";
@@ -14,7 +11,7 @@ async function sign(data: string): Promise<string> {
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
-    enc.encode(getSecret()),
+    enc.encode(getSessionSecret()),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"]

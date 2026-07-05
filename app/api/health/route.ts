@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isSessionSecretConfigured } from "@/lib/auth/sessionSecret";
 import { getStorageProvider } from "@/lib/cloud/provider";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,7 @@ export async function GET() {
       service: "proxima-gov",
       version: process.env.npm_package_version ?? "0.1.0",
       storage,
+      sessionSecretConfigured: isSessionSecretConfigured(),
       timestamp: new Date().toISOString(),
     },
     {

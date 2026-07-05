@@ -1,22 +1,10 @@
 import crypto from "crypto";
 import { cookies } from "next/headers";
+import { getSessionSecret } from "./sessionSecret";
 import type { SessionPayload, SessionUser } from "./types";
 
 const COOKIE_NAME = "proxima_session";
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60;
-
-const DEV_FALLBACK = "proxima-dev-secret-change-in-production";
-
-function getSecret(): string {
-  const secret = process.env.SESSION_SECRET;
-  if (secret && secret.length >= 32) return secret;
-  if (process.env.NODE_ENV === "production") {
-    throw new Error(
-      "SESSION_SECRET must be set to a random string of at least 32 characters in production."
-    );
-  }
-  return secret ?? DEV_FALLBACK;
-}
 
 export function signSession(user: SessionUser): string {
   const payload: SessionPayload = {
@@ -24,7 +12,7 @@ export function signSession(user: SessionUser): string {
     expiresAt: Date.now() + SESSION_MAX_AGE * 1000,
   };
   const data = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const sig = crypto.createHmac("sha256", getSecret()).update(data).digest("base64url");
+  const sig = crypto.createHmac("sha256", getSessionSecret()).update(data).digest("base64url");
   return `${data}.${sig}`;
 }
 
@@ -32,7 +20,7 @@ export function parseSessionToken(token: string): SessionPayload | null {
   const [data, sig] = token.split(".");
   if (!data || !sig) return null;
 
-  const expected = crypto.createHmac("sha256", getSecret()).update(data).digest("base64url");
+  const expected = crypto.createHmac("sha256", getSessionSecret()).update(data).digest("base64url");
   if (sig.length !== expected.length) return null;
   if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
 
