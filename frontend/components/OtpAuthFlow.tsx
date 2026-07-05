@@ -113,6 +113,7 @@ export default function OtpAuthFlow({
 
       <form
         autoComplete="off"
+        aria-busy={loading}
         onSubmit={(e) => {
           e.preventDefault();
           if (step === "phone") sendOtp();
@@ -199,13 +200,37 @@ export default function OtpAuthFlow({
 
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
           {step === "phone" ? (
-            <button className={styles.btnPrimary} type="submit" disabled={loading || phone.length < 10}>
-              {loading ? <span className={styles.spinner} /> : "Send OTP"}
+            <button
+              className={styles.btnPrimary}
+              type="submit"
+              disabled={loading || phone.length < 10}
+              aria-busy={loading}
+            >
+              {loading ? (
+                <>
+                  <span className={styles.spinner} aria-hidden="true" />
+                  <span className="sr-only">Sending OTP</span>
+                </>
+              ) : (
+                "Send OTP"
+              )}
             </button>
           ) : (
             <>
-              <button className={styles.btnPrimary} type="submit" disabled={loading || otp.length !== 6}>
-                {loading ? <span className={styles.spinner} /> : "Verify & Continue"}
+              <button
+                className={styles.btnPrimary}
+                type="submit"
+                disabled={loading || otp.length !== 6}
+                aria-busy={loading}
+              >
+                {loading ? (
+                  <>
+                    <span className={styles.spinner} aria-hidden="true" />
+                    <span className="sr-only">Verifying OTP</span>
+                  </>
+                ) : (
+                  "Verify & Continue"
+                )}
               </button>
               <button
                 className={styles.btnSecondary}

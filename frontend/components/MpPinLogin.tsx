@@ -63,7 +63,7 @@ export default function MpPinLogin({ redirectTo, blocked = false }: MpPinLoginPr
         Enter your official username and 6-digit PIN to access your constituency dashboard.
       </p>
 
-      <form autoComplete="off" onSubmit={login}>
+      <form autoComplete="off" onSubmit={login} aria-busy={loading}>
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="mp-username">
             Username<span className={styles.required}>*</span>
@@ -112,8 +112,20 @@ export default function MpPinLogin({ redirectTo, blocked = false }: MpPinLoginPr
           </p>
         )}
 
-        <button className={styles.btnPrimary} type="submit" disabled={loading}>
-          {loading ? <span className={styles.spinner} /> : "Login to MP Dashboard"}
+        <button
+          className={styles.btnPrimary}
+          type="submit"
+          disabled={loading}
+          aria-busy={loading}
+        >
+          {loading ? (
+            <>
+              <span className={styles.spinner} aria-hidden="true" />
+              <span className="sr-only">Logging in</span>
+            </>
+          ) : (
+            "Login to MP Dashboard"
+          )}
         </button>
       </form>
 

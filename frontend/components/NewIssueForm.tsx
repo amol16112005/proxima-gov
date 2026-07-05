@@ -56,29 +56,72 @@ export default function NewIssueForm() {
         go to your MP for approval; out-of-scope submissions receive an automated explanation
         and referral guidance — they will not appear on the MP dashboard.
       </p>
-      <form onSubmit={submit}>
+      <form onSubmit={submit} aria-busy={loading}>
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>Category<span className={styles.required}>*</span></label>
-          <select className={styles.select} value={category} onChange={(e) => setCategory(e.target.value)} required>
+          <label className={styles.label} htmlFor="issue-category">
+            Category<span className={styles.required}>*</span>
+          </label>
+          <select
+            id="issue-category"
+            className={styles.select}
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          >
             {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
           </select>
         </div>
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>Issue Title<span className={styles.required}>*</span></label>
-          <input className={styles.input} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Damaged road in XYZ village" required />
+          <label className={styles.label} htmlFor="issue-title">
+            Issue Title<span className={styles.required}>*</span>
+          </label>
+          <input
+            id="issue-title"
+            className={styles.input}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. Damaged road in XYZ village"
+            required
+          />
         </div>
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>Location<span className={styles.required}>*</span></label>
-          <input className={styles.input} value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Village, ward, landmark" required />
+          <label className={styles.label} htmlFor="issue-location">
+            Location<span className={styles.required}>*</span>
+          </label>
+          <input
+            id="issue-location"
+            className={styles.input}
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="Village, ward, landmark"
+            required
+          />
         </div>
         <div className={styles.fieldGroup}>
-          <label className={styles.label}>Detailed Description<span className={styles.required}>*</span></label>
-          <textarea className={styles.textarea} value={description} onChange={(e) => setDescription(e.target.value)} rows={6} placeholder="Describe the problem, who is affected, and for how long..." required />
+          <label className={styles.label} htmlFor="issue-description">
+            Detailed Description<span className={styles.required}>*</span>
+          </label>
+          <textarea
+            id="issue-description"
+            className={styles.textarea}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={6}
+            placeholder="Describe the problem, who is affected, and for how long..."
+            required
+          />
         </div>
         {error && <p className={styles.errorMsg} role="alert">{error}</p>}
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-          <button type="submit" className={styles.btnPrimary} disabled={loading}>
-            {loading ? <span className={styles.spinner} /> : "Submit & Run AI Analysis"}
+          <button type="submit" className={styles.btnPrimary} disabled={loading} aria-busy={loading}>
+            {loading ? (
+              <>
+                <span className={styles.spinner} aria-hidden="true" />
+                <span className="sr-only">Submitting issue</span>
+              </>
+            ) : (
+              "Submit & Run AI Analysis"
+            )}
           </button>
           <Link href="/citizen/dashboard" className={styles.btnSecondary}>Cancel</Link>
         </div>

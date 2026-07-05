@@ -52,7 +52,12 @@ export default function PortalHeader({ portal, userName, constituencyName }: Por
         <p className={styles.userChip}>
           <strong>{userName}</strong> · {constituencyName}
         </p>
-        <button className={styles.btnSecondary} onClick={logout} type="button">
+        <button
+          className={styles.btnSecondary}
+          onClick={logout}
+          type="button"
+          aria-label={`Log out of ${portal === "citizen" ? "citizen" : "MP"} portal`}
+        >
           Logout
         </button>
       </div>

@@ -61,7 +61,7 @@ export default async function Home({
   const showWrongPortal = reason === "wrong_portal" && activeRole;
 
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       {showWrongPortal ? (
         <WrongPortalNotice
           activeRole={activeRole}
@@ -228,6 +228,6 @@ export default async function Home({
           MP demo credentials for judges &amp; developers: see DEVELOPER_MP_CREDENTIALS.md
         </p>
       </footer>
-    </main>
+    </div>
   );
 }
