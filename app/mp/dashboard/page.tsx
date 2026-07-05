@@ -33,7 +33,7 @@ export default async function MpDashboardPage() {
   const delayed = allIssues.filter((i) => i.delayAlert?.active);
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <PortalHeader portal="mp" userName={mp.name} constituencyName={constituency.name} />
 
       <section className={styles.projectCard} style={{ marginBottom: "2rem" }}>
@@ -153,6 +153,6 @@ export default async function MpDashboardPage() {
       <p style={{ marginTop: "2rem" }}>
         <Link href="/transparency" className={styles.linkMuted}>Public Transparency Dashboard →</Link>
       </p>
-    </main>
+    </div>
   );
 }

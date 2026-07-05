@@ -21,7 +21,7 @@ export default async function CitizenIssuesPage() {
   const constituencyIssues = getAllIssues().filter((i) => i.constituencyId === session.constituencyId);
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <PortalHeader portal="citizen" userName={session.name} constituencyName={constituency?.name ?? ""} />
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1.5rem" }}>
@@ -77,6 +77,6 @@ export default async function CitizenIssuesPage() {
         {" · "}
         <Link href="/transparency" className={styles.linkMuted}>Public Transparency →</Link>
       </p>
-    </main>
+    </div>
   );
 }

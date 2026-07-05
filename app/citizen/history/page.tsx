@@ -45,7 +45,7 @@ export default async function CitizenHistoryPage() {
   const cloud = cloudStatus();
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <PortalHeader portal="citizen" userName={session.name} constituencyName={constituency.name} />
 
       <section style={{ marginBottom: "1.5rem" }}>
@@ -133,6 +133,6 @@ export default async function CitizenHistoryPage() {
           ))}
         </div>
       )}
-    </main>
+    </div>
   );
 }

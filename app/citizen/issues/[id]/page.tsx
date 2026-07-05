@@ -1,8 +1,12 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import PortalHeader from "@/components/PortalHeader";
 import CitizenVerify from "@/components/lifecycle/CitizenVerify";
-import LifecycleTracker from "@/components/lifecycle/LifecycleTracker";
+
+const LifecycleTracker = dynamic(() => import("@/components/lifecycle/LifecycleTracker"), {
+  loading: () => <p>Loading lifecycle tracker…</p>,
+});
 import { getConstituencyById } from "@/data/constituencies";
 import { STAGE_EMOJI, STAGE_LABELS } from "@/data/lifecycleTypes";
 import { citizenOwnsIssue } from "@/lib/auth/issueAccess";
@@ -35,7 +39,7 @@ export default async function CitizenIssueDetailPage({
   const constituency = getConstituencyById(issue.constituencyId);
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <PortalHeader portal="citizen" userName={session.name} constituencyName={constituency?.name ?? ""} />
 
       <div style={{ marginBottom: "1.5rem" }}>
@@ -54,6 +58,6 @@ export default async function CitizenIssueDetailPage({
       )}
 
       <LifecycleTracker issue={issue} />
-    </main>
+    </div>
   );
 }

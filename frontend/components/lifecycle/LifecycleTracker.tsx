@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import Image from "next/image";
 import {
   CATEGORY_LABELS,
   STAGE_EMOJI,
@@ -215,8 +216,16 @@ export default function LifecycleTracker({
                 {issue.progressImages.map((img, index) => (
                   <div key={`${img.week}-${img.label}-${index}`} className={ls.imageCard}>
                     {img.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={img.imageUrl} alt={img.caption} className={ls.imagePreview} />
+                      <Image
+                        src={img.imageUrl}
+                        alt={img.caption}
+                        width={320}
+                        height={200}
+                        className={ls.imagePreview}
+                        unoptimized
+                        loading="lazy"
+                        sizes="(max-width: 768px) 100vw, 320px"
+                      />
                     ) : (
                       <div className={ls.imagePlaceholder}>📷</div>
                     )}

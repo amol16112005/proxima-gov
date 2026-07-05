@@ -16,7 +16,7 @@ export default async function TransparencyDetailPage({
   if (!issue) notFound();
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <nav className={styles.authNav} style={{ maxWidth: "100%" }} aria-label="Site navigation">
         <Link href="/transparency" className={styles.linkMuted}>← Transparency Dashboard</Link>
         <div className={styles.authNavLinks}>
@@ -31,6 +31,6 @@ export default async function TransparencyDetailPage({
         Public progress view — submitter identity and private complaint details are hidden.
       </p>
       <LifecycleTracker issue={issue} publicView />
-    </main>
+    </div>
   );
 }

@@ -39,7 +39,7 @@ export default async function CitizenDashboardPage() {
   const governmentProjects = [...ogdProjects, ...constituency.projects];
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <PortalHeader portal="citizen" userName={session.name} constituencyName={constituency.name} />
 
       <section style={{ marginBottom: "2rem" }}>
@@ -158,6 +158,6 @@ export default async function CitizenDashboardPage() {
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

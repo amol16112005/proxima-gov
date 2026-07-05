@@ -1,12 +1,18 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import FaqSection from "@/components/FaqSection";
 import { FAQ_CATEGORIES } from "@/data/faqs";
 import styles from "@/app/page.module.css";
 import faq from "@/components/faq.module.css";
 
+const FaqSection = dynamic(() => import("@/components/FaqSection"), {
+  loading: () => <p className={styles.sectionText}>Loading FAQs…</p>,
+});
+
+export const revalidate = 3600;
+
 export default function FaqPage() {
   return (
-    <main className={styles.page}>
+    <div className={styles.page}>
       <section className={styles.section} style={{ paddingTop: "2.5rem" }}>
         <Link href="/" className={styles.btnOutline} style={{ display: "inline-flex", marginBottom: "1.5rem" }}>
           ← Back to Home
@@ -45,6 +51,6 @@ export default function FaqPage() {
           </Link>
         </p>
       </footer>
-    </main>
+    </div>
   );
 }

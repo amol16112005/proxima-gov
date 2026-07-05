@@ -17,7 +17,7 @@ export default async function NotificationsPage() {
   const notifications = getNotificationsByCitizen(session.id);
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <PortalHeader portal="citizen" userName={session.name} constituencyName={constituency?.name ?? ""} />
 
       <h2 className={styles.sectionTitle}>🔔 Notifications</h2>
@@ -50,6 +50,6 @@ export default async function NotificationsPage() {
         {" · "}
         <Link href="/citizen/issues" className={styles.linkMuted}>My Issues</Link>
       </p>
-    </main>
+    </div>
   );
 }

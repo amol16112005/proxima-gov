@@ -20,7 +20,7 @@ export default async function CitizenProfilePage() {
   const constituencyLabel = `${constituency.name}, ${constituency.state}`;
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <PortalHeader
         portal="citizen"
         userName={session.name}
@@ -60,6 +60,6 @@ export default async function CitizenProfilePage() {
       </div>
 
       <ChangeConstituencyForm currentConstituencyId={citizen.constituencyId} />
-    </main>
+    </div>
   );
 }

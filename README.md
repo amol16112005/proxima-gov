@@ -8,6 +8,18 @@ The name **Proxima** reflects *proximity*: bringing government closer to the peo
 
 ---
 
+## Problem Statement
+
+| Challenge | How Proxima Gov addresses it |
+|-----------|------------------------------|
+| Citizens cannot track MPLADS or local development work in their Lok Sabha seat | Constituency-scoped citizen portal with project registry, transparency dashboard, and issue lifecycle |
+| Grievances arrive on wrong channels (passport, police, personal jobs) | AI jurisdiction triage declines out-of-scope issues with referral guidance before they reach the MP |
+| No accountability loop after a complaint is filed | Closed-loop stages: MP approval → contractor assignment → photo progress → citizen verification → impact analysis |
+| MPs lack a single constituency operations view | MP dashboard with pending approvals, delay alerts, and mandatory completion photos |
+| Low trust in opaque government processes | Public transparency pages, audit trail, and FAQ for citizens and judges |
+
+---
+
 ## Documentation
 
 | Document | Description |

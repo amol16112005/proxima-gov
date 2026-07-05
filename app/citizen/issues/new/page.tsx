@@ -13,10 +13,10 @@ export default async function NewIssuePage() {
   const constituency = getConstituencyById(session.constituencyId);
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <PortalHeader portal="citizen" userName={session.name} constituencyName={constituency?.name ?? ""} />
       <Link href="/citizen/issues" className={styles.linkMuted}>← My Issues</Link>
       <NewIssueForm />
-    </main>
+    </div>
   );
 }

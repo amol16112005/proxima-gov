@@ -6,6 +6,8 @@ import { ensureDataHydrated } from "@/lib/cloud";
 import { getActiveTransparencyIssues, getAllIssues } from "@/lib/lifecycleStore";
 import styles from "@/app/shared.module.css";
 
+export const revalidate = 60;
+
 export default async function TransparencyPage({
   searchParams,
 }: {
@@ -21,7 +23,7 @@ export default async function TransparencyPage({
   const delayed = all.filter((i) => i.delayAlert?.active && (!filterId || i.constituencyId === filterId));
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <header style={{ marginBottom: "2rem" }}>
         <nav className={styles.authNav} style={{ maxWidth: "100%" }} aria-label="Site navigation">
           <Link href="/" className={styles.linkMuted}>← Home</Link>
@@ -70,6 +72,6 @@ export default async function TransparencyPage({
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/apiResponse";
 import { ensureDataHydrated } from "@/lib/cloud";
 import { createOtp, maskPhone, normalizePhone } from "@/lib/auth/otp";
 import type { OtpPurpose, UserRole } from "@/lib/auth/types";
+import { checkRateLimit } from "@/lib/security/rateLimit";
 import { findCitizenByPhone } from "@/lib/store";
 
 export async function POST(request: Request) {
@@ -15,15 +17,19 @@ export async function POST(request: Request) {
     };
 
     if (!rawPhone || !role || !purpose) {
-      return NextResponse.json({ error: "Phone, role, and purpose are required." }, { status: 400 });
+      return jsonError("Phone, role, and purpose are required.", 400);
     }
 
     const phone = normalizePhone(rawPhone);
     if (!phone) {
-      return NextResponse.json(
-        { error: "Enter a valid 10-digit Indian mobile number." },
-        { status: 400 }
-      );
+      return jsonError("Enter a valid 10-digit Indian mobile number.", 400);
+    }
+
+    const rate = checkRateLimit(`otp:${phone}`, 5, 15 * 60 * 1000);
+    if (!rate.allowed) {
+      return jsonError("Too many OTP requests. Please try again later.", 429, {
+        retryAfterSec: rate.retryAfterSec,
+      });
     }
 
     if (role === "mp") {

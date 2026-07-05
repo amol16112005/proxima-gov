@@ -97,6 +97,19 @@ export default async function Home({
         </p>
       </section>
 
+      {/* Problem statement */}
+      <section className={styles.section} aria-labelledby="problem-heading">
+        <h2 id="problem-heading" className={styles.sectionTitle}>The Problem We Solve</h2>
+        <p className={styles.sectionText}>
+          Citizens in Lok Sabha constituencies often have no structured way to report local development
+          needs — damaged roads, water shortages, school repairs — and no visibility into whether their
+          MP acted. MPs receive unstructured complaints across the wrong channels (passport, police, jobs)
+          with no triage, tracking, or accountability loop. Proxima Gov closes this gap with constituency-scoped
+          portals, AI jurisdiction screening, MPLADS-aligned workflows, photo-verified progress, and public
+          transparency — directly addressing the hackathon mandate for citizen–representative digital governance.
+        </p>
+      </section>
+
       {/* About */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>What is Proxima Gov?</h2>

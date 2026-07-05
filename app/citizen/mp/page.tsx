@@ -20,7 +20,7 @@ export default async function CitizenMpProfilePage() {
   if (!report) redirect("/citizen/dashboard");
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <PortalHeader
         portal="citizen"
         userName={session.name}
@@ -41,6 +41,6 @@ export default async function CitizenMpProfilePage() {
       </header>
 
       <MpTransparencyReportView report={report} />
-    </main>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import styles from "@/app/shared.module.css";
 
 interface PortalHeaderProps {
@@ -10,8 +10,14 @@ interface PortalHeaderProps {
   constituencyName: string;
 }
 
+function navIsActive(pathname: string, href: string): boolean {
+  if (href.includes("#")) return false;
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function PortalHeader({ portal, userName, constituencyName }: PortalHeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -31,21 +37,29 @@ export default function PortalHeader({ portal, userName, constituencyName }: Por
           {portal === "citizen" ? "Citizen Portal" : "MP Dashboard"}
         </h1>
         <nav className={styles.portalNav} aria-label="Portal sections">
-          <Link href={dashboardHref}>Dashboard</Link>
-          {portal === "citizen" ? (
-            <>
-              <Link href="/citizen/mp">My MP</Link>
-              <Link href="/citizen/issues">My Issues</Link>
-              <Link href="/citizen/issues/new">Submit Issue</Link>
-              <Link href="/citizen/notifications">Notifications</Link>
-              <Link href="/citizen/history">History</Link>
-              <Link href="/citizen/profile">Profile</Link>
-            </>
-          ) : (
-            <Link href="/mp/dashboard#pending-approvals">Pending Approvals</Link>
-          )}
-          <Link href="/faq">FAQs</Link>
-          <Link href="/transparency">Transparency</Link>
+          {[
+            { href: dashboardHref, label: "Dashboard" },
+            ...(portal === "citizen"
+              ? [
+                  { href: "/citizen/mp", label: "My MP" },
+                  { href: "/citizen/issues", label: "My Issues" },
+                  { href: "/citizen/issues/new", label: "Submit Issue" },
+                  { href: "/citizen/notifications", label: "Notifications" },
+                  { href: "/citizen/history", label: "History" },
+                  { href: "/citizen/profile", label: "Profile" },
+                ]
+              : [{ href: "/mp/dashboard#pending-approvals", label: "Pending Approvals" }]),
+            { href: "/faq", label: "FAQs" },
+            { href: "/transparency", label: "Transparency" },
+          ].map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              aria-current={navIsActive(pathname, href) ? "page" : undefined}
+            >
+              {label}
+            </Link>
+          ))}
         </nav>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>

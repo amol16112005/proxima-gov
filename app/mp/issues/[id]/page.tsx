@@ -30,11 +30,11 @@ export default async function MpIssueDetailPage({
   const constituency = getConstituencyById(issue.constituencyId);
 
   return (
-    <main className={styles.pageWide}>
+    <div className={styles.pageWide}>
       <PortalHeader portal="mp" userName={mp?.name ?? session.name} constituencyName={constituency?.name ?? ""} />
       <Link href="/mp/dashboard" className={styles.linkMuted}>← MP Dashboard</Link>
       <MpIssueActions issue={issue} />
       <LifecycleTracker issue={issue} />
-    </main>
+    </div>
   );
 }

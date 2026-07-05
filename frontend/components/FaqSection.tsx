@@ -33,10 +33,12 @@ export default function FaqSection({ categories, defaultOpenId }: FaqSectionProp
             {category.items.map((item) => {
               const isOpen = openId === item.id;
               return (
-                <article key={item.id} className={faq.item}>
+                <article key={item.id} className={faq.item} id={`faq-${item.id}`}>
+                  <h3 className="sr-only">{item.question}</h3>
                   <button
                     type="button"
                     className={faq.trigger}
+                    id={`faq-trigger-${item.id}`}
                     aria-expanded={isOpen}
                     aria-controls={`faq-answer-${item.id}`}
                     onClick={() => toggle(item.id)}
@@ -46,11 +48,15 @@ export default function FaqSection({ categories, defaultOpenId }: FaqSectionProp
                       ▾
                     </span>
                   </button>
-                  {isOpen && (
-                    <p id={`faq-answer-${item.id}`} className={faq.answer}>
-                      {item.answer}
-                    </p>
-                  )}
+                  <div
+                    id={`faq-answer-${item.id}`}
+                    className={faq.answer}
+                    role="region"
+                    aria-labelledby={`faq-trigger-${item.id}`}
+                    hidden={!isOpen}
+                  >
+                    <p>{item.answer}</p>
+                  </div>
                 </article>
               );
             })}

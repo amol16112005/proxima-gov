@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError, withCacheHeaders } from "@/lib/apiResponse";
 import { ensureDataHydrated } from "@/lib/cloud";
 import { getSession } from "@/lib/auth/session";
 import {
@@ -7,6 +8,7 @@ import {
   getIssuesByCitizen,
   getMpDashboardIssues,
 } from "@/lib/lifecycleStore";
+import { validateIssueSubmission } from "@/lib/validation";
 
 export async function GET(request: Request) {
   await ensureDataHydrated();
@@ -14,7 +16,10 @@ export async function GET(request: Request) {
   const publicView = searchParams.get("public") === "true";
 
   if (publicView) {
-    return NextResponse.json({ issues: getAllIssues() });
+    return withCacheHeaders(
+      NextResponse.json({ issues: getAllIssues() }),
+      60
+    );
   }
 
   const session = await getSession();
@@ -38,25 +43,18 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { category, title, description, location } = body as {
-    category: string;
-    title: string;
-    description: string;
-    location: string;
-  };
+  const parsed = validateIssueSubmission(body);
+  if (!parsed.ok) return jsonError(parsed.error, 400);
 
-  if (!category || !title?.trim() || !description?.trim() || !location?.trim()) {
-    return NextResponse.json({ error: "All fields are required." }, { status: 400 });
-  }
-
+  const { category, title, description, location } = parsed.data;
   const issue = createIssue({
     citizenId: session.id,
     citizenName: session.name,
     constituencyId: session.constituencyId,
     category,
-    title: title.trim(),
-    description: description.trim(),
-    location: location.trim(),
+    title,
+    description,
+    location,
   });
 
   return NextResponse.json({ issue }, { status: 201 });

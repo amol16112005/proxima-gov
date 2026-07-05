@@ -5,6 +5,7 @@ import { useState } from "react";
 import AuthPageShell from "@/components/AuthPageShell";
 import OtpAuthFlow from "@/components/OtpAuthFlow";
 import { CONSTITUENCIES } from "@/data/constituencies";
+import { validateRegistrationFields as validateRegistration } from "@/lib/validation";
 import styles from "@/app/shared.module.css";
 
 export default function CitizenRegisterPage() {
@@ -13,29 +14,27 @@ export default function CitizenRegisterPage() {
   const [constituencyId, setConstituencyId] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
 
+  const runValidation = () =>
+    validateRegistration({ name, email, constituencyId });
+
   const validateBeforeSend = (): boolean => {
-    if (!name.trim()) { setFieldError("Please enter your full name."); return false; }
-    if (!email.trim() || !email.includes("@")) { setFieldError("Please enter a valid email."); return false; }
-    if (!constituencyId) { setFieldError("Please select your constituency."); return false; }
+    const result = runValidation();
+    if (!result.ok) {
+      setFieldError(result.error);
+      return false;
+    }
     setFieldError(null);
     return true;
   };
 
   const validateFields = (): Record<string, string> | null => {
-    if (!name.trim()) {
-      setFieldError("Please enter your full name.");
-      return null;
-    }
-    if (!email.trim() || !email.includes("@")) {
-      setFieldError("Please enter a valid email address.");
-      return null;
-    }
-    if (!constituencyId) {
-      setFieldError("Please select your constituency.");
+    const result = runValidation();
+    if (!result.ok) {
+      setFieldError(result.error);
       return null;
     }
     setFieldError(null);
-    return { name: name.trim(), email: email.trim(), constituencyId };
+    return result.data;
   };
 
   return (

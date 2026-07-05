@@ -5,8 +5,17 @@ import type { SessionPayload, SessionUser } from "./types";
 const COOKIE_NAME = "proxima_session";
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60;
 
+const DEV_FALLBACK = "proxima-dev-secret-change-in-production";
+
 function getSecret(): string {
-  return process.env.SESSION_SECRET ?? "proxima-dev-secret-change-in-production";
+  const secret = process.env.SESSION_SECRET;
+  if (secret && secret.length >= 32) return secret;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "SESSION_SECRET must be set to a random string of at least 32 characters in production."
+    );
+  }
+  return secret ?? DEV_FALLBACK;
 }
 
 export function signSession(user: SessionUser): string {
