@@ -6,7 +6,7 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
   color: #e8e8f0;
-  font-family: var(--font-geist-sans, system-ui, sans-serif);
+  font-family: var(--font-sans);
   padding: 2rem 1rem 4rem;
   display: flex;
   flex-direction: column;
@@ -346,4 +346,18 @@
   .successCard {
     padding: 2rem 1.2rem;
   }
+}
+
+:global(html[lang="hi"]) .badge {
+  letter-spacing: normal;
+  line-height: 1.45;
+}
+
+:global(html[lang="hi"]) .subtitle {
+  letter-spacing: normal;
+  line-height: 1.55;
+}
+
+:global(html[lang="hi"]) .title {
+  line-height: 1.35;
 }

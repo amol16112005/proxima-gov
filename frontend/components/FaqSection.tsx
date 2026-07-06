@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { FAQ_CATEGORIES_HI } from "@/data/faqsHi";
+import { useEffect, useState } from "react";
 import type { FaqCategory } from "@/data/faqs";
 import { useAccessibility } from "@/context/AccessibilityContext";
 import faq from "./faq.module.css";
@@ -13,8 +12,21 @@ interface FaqSectionProps {
 
 export default function FaqSection({ categories, defaultOpenId }: FaqSectionProps) {
   const { locale } = useAccessibility();
-  const activeCategories = locale === "hi" ? FAQ_CATEGORIES_HI : categories;
+  const [hiCategories, setHiCategories] = useState<FaqCategory[] | null>(null);
   const [openId, setOpenId] = useState<string | null>(defaultOpenId ?? null);
+
+  useEffect(() => {
+    if (locale !== "hi") return;
+    let cancelled = false;
+    import("@/data/faqsHi").then((mod) => {
+      if (!cancelled) setHiCategories(mod.FAQ_CATEGORIES_HI);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
+
+  const activeCategories = locale === "hi" && hiCategories ? hiCategories : categories;
 
   const toggle = (id: string) => {
     setOpenId((current) => (current === id ? null : id));

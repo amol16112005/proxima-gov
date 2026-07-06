@@ -132,7 +132,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
         id: "issues-vs-grievances",
         question: "What is the difference between Issues and Grievances?",
         answer:
-          "Issues enter the full governance lifecycle: AI triage → MP approval → contractor assignment → live progress → citizen verification → impact analysis. Grievances are structured complaints with AI-assisted routing and department responses — a faster feedback channel, not the full MPLADS execution tracker.",
+          "In Proxima Gov, citizen concerns are filed as Issues via Submit Issue. They enter the full governance lifecycle: AI triage → MP approval → contractor assignment → live progress → citizen verification → impact analysis. Legacy URLs such as /citizen/grievances redirect to the same Issues flow. Activity History may still label older audit entries as \"Grievance\" for record-keeping.",
       },
       {
         id: "track-issue",

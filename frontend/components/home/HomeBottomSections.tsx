@@ -2,17 +2,10 @@
 
 import Link from "next/link";
 import { useAccessibility } from "@/context/AccessibilityContext";
+import { interpolate } from "@/frontend/i18n";
 import { CitizenPortalIcon, MpPortalIcon } from "@/components/icons/ProximaIcons";
 import { CONSTITUENCIES } from "@/data/constituencies";
 import styles from "@/app/page.module.css";
-
-function interpolate(text: string, vars: Record<string, string | number>) {
-  let out = text;
-  for (const [key, value] of Object.entries(vars)) {
-    out = out.replace(`{${key}}`, String(value));
-  }
-  return out;
-}
 
 export default function HomeBottomSections() {
   const { translate: t } = useAccessibility();

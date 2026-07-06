@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { useAccessibility } from "@/context/AccessibilityContext";
+import { interpolate } from "@/frontend/i18n";
+import { subStageLabel } from "@/frontend/i18n/labels";
 import type { DevelopmentIssue } from "@/data/lifecycleTypes";
 import { SUB_STAGE_CONFIG } from "@/data/lifecycleTypes";
 import { compressImageFile } from "@/frontend/lib/imageUpload";
@@ -10,6 +13,7 @@ import styles from "@/app/shared.module.css";
 
 export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
   const router = useRouter();
+  const { locale, translate: t } = useAccessibility();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingUploadRef = useRef<"progress" | "completion" | null>(null);
   const [loading, setLoading] = useState(false);
@@ -28,12 +32,12 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Action failed.");
+        setError(data.error ?? t("mpActions.actionFailed"));
         return;
       }
       router.refresh();
     } catch {
-      setError("Network error. Please try again.");
+      setError(t("common.networkError"));
     } finally {
       setLoading(false);
     }
@@ -70,22 +74,22 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "addImage",
-          label: isCompletion ? "Completion" : `Week ${progressCount + 1}`,
-          caption: isCompletion
-            ? "After-work completion photo (required)"
-            : "Site progress photo",
+          label: isCompletion
+            ? t("lifecycle.completion")
+            : interpolate(t("lifecycle.week"), { week: String(progressCount + 1) }),
+          caption: isCompletion ? t("mpActions.completionCaption") : t("mpActions.progressCaption"),
           isCompletion,
           imageUrl,
         }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Photo upload failed.");
+        setError(data.error ?? t("mpActions.photoUploadFailed"));
         return;
       }
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Photo upload failed.");
+      setError(err instanceof Error ? err.message : t("mpActions.photoUploadFailed"));
     } finally {
       setUploadingKind(null);
       setLoading(false);
@@ -94,7 +98,9 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
 
   return (
     <div className={styles.projectCard} style={{ marginBottom: "1.5rem" }}>
-      <h3 className={styles.sectionTitle}>MP Actions — #{issue.id}</h3>
+      <h3 className={styles.sectionTitle}>
+        {interpolate(t("mpActions.title"), { id: issue.id })}
+      </h3>
 
       {error && (
         <p className={styles.errorMsg} role="alert" style={{ marginBottom: "1rem" }}>
@@ -114,7 +120,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
           }
           type="button"
         >
-          🟢 Approve Project
+          {t("mpActions.approveProject")}
         </button>
       )}
 
@@ -133,19 +139,19 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
           type="button"
           style={{ marginTop: "0.5rem" }}
         >
-          👷 Assign Contractor
+          {t("mpActions.assignContractor")}
         </button>
       )}
 
       {issue.stage === "work-assigned" && (
         <button className={styles.btnPrimary} disabled={loading} onClick={() => act("tender")} type="button">
-          📋 Release Tender
+          {t("mpActions.releaseTender")}
         </button>
       )}
 
       {issue.stage === "tender-released" && (
         <button className={styles.btnPrimary} disabled={loading} onClick={() => act("start")} type="button">
-          🚧 Start Work
+          {t("mpActions.startWork")}
         </button>
       )}
 
@@ -160,8 +166,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
             onChange={onPhotoSelected}
           />
           <p className={styles.infoBox} style={{ marginBottom: "0.75rem" }}>
-            Progress photos are mandatory. Upload site photos during work, then a completion
-            (after-work) photo before marking the project complete for citizen verification.
+            {t("mpActions.progressHint")}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.5rem" }}>
             {SUB_STAGE_CONFIG.filter((s) => s.key !== "completed").map((s) => (
@@ -172,7 +177,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
                 onClick={() => act("progress", { subStage: s.key })}
                 type="button"
               >
-                {s.label} ({s.progress}%)
+                {subStageLabel(locale, s.key)} ({s.progress}%)
               </button>
             ))}
             <button
@@ -181,7 +186,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
               onClick={() => openPhotoPicker("progress")}
               type="button"
             >
-              {loading && uploadingKind === "progress" ? "Uploading…" : "📷 Upload Progress Photo"}
+              {loading && uploadingKind === "progress" ? t("mpActions.uploading") : t("mpActions.uploadProgress")}
             </button>
             <button
               className={styles.btnSecondary}
@@ -190,31 +195,27 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
               type="button"
             >
               {hasCompletion
-                ? "✓ Completion Photo Uploaded"
+                ? t("mpActions.completionUploaded")
                 : loading && uploadingKind === "completion"
-                  ? "Uploading…"
-                  : "📷 Upload Completion Photo (Required)"}
+                  ? t("mpActions.uploading")
+                  : t("mpActions.uploadCompletion")}
             </button>
             <button
               className={styles.btnPrimary}
               disabled={loading || !completionReady}
               onClick={() => act("progress", { subStage: "completed" })}
               type="button"
-              title={
-                completionReady
-                  ? "Send to citizen verification"
-                  : "Upload progress + completion photos first"
-              }
+              title={completionReady ? t("mpActions.sendToVerification") : t("mpActions.uploadPhotosFirst")}
             >
-              ✅ Mark Work Complete → Citizen Verification
+              {t("mpActions.markComplete")}
             </button>
           </div>
           {!completionReady && (
             <p style={{ fontSize: "0.8rem", color: "#fca5a5", marginTop: "0.75rem" }}>
               {!issue.progressImages.length
-                ? "Upload at least one progress photo."
+                ? t("mpActions.needProgressPhoto")
                 : !hasCompletion
-                  ? "Upload a completion (after-work) photo before closing the project."
+                  ? t("mpActions.needCompletionPhoto")
                   : null}
             </p>
           )}
@@ -224,29 +225,33 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
       {issue.stage === "mp-review" && issue.mpReview && (
         <div>
           <p className={styles.infoBox}>
-            Citizen review received:{" "}
+            {t("mpActions.citizenReview")}{" "}
             <strong>
               {issue.mpReview.citizenVerdict === "approved"
-                ? "👍 Work verified"
+                ? t("mpActions.workVerified")
                 : issue.mpReview.citizenVerdict === "rejected"
-                  ? "👎 Work disputed"
-                  : "⚖️ Mixed feedback"}
-            </strong>
-            {" "}({issue.mpReview.yesVotes} yes · {issue.mpReview.noVotes} no).
-            Review the issue and take action against the responsible party before closing.
+                  ? t("mpActions.workDisputed")
+                  : t("mpActions.mixedFeedback")}
+            </strong>{" "}
+            (
+            {interpolate(t("lifecycle.votes"), {
+              yes: String(issue.mpReview.yesVotes),
+              no: String(issue.mpReview.noVotes),
+            })}
+            ). {t("mpActions.reviewBeforeClose")}
           </p>
 
           {issue.workAssignment && (
             <p style={{ fontSize: "0.85rem", color: "#9aa5b8", marginBottom: "1rem" }}>
-              Contractor: <strong>{issue.workAssignment.contractor}</strong>
+              {t("lifecycle.contractor")}: <strong>{issue.workAssignment.contractor}</strong>
               {" · "}
-              Officer: <strong>{issue.workAssignment.officer}</strong>
+              {t("lifecycle.officer")}: <strong>{issue.workAssignment.officer}</strong>
             </p>
           )}
 
           <div className={styles.fieldGroup}>
             <label className={styles.label} htmlFor={`review-note-${issue.id}`}>
-              MP review note (optional)
+              {t("mpActions.reviewNoteLabel")}
             </label>
             <textarea
               id={`review-note-${issue.id}`}
@@ -254,7 +259,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
               rows={3}
               value={reviewNote}
               onChange={(e) => setReviewNote(e.target.value)}
-              placeholder="Record instructions, penalties, or follow-up actions..."
+              placeholder={t("mpActions.reviewNotePlaceholder")}
             />
           </div>
 
@@ -265,7 +270,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
               onClick={() => act("mpReview", { decision: "approve-closure", note: reviewNote })}
               type="button"
             >
-              ✅ Approve Closure & Publish Impact
+              {t("mpActions.approveClosure")}
             </button>
             <button
               className={styles.btnSecondary}
@@ -273,7 +278,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
               onClick={() => act("mpReview", { decision: "reopen-contractor", note: reviewNote })}
               type="button"
             >
-              👷 Reopen — Hold Contractor Responsible
+              {t("mpActions.reopenContractor")}
             </button>
             <button
               className={styles.btnSecondary}
@@ -281,7 +286,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
               onClick={() => act("mpReview", { decision: "escalate-officer", note: reviewNote })}
               type="button"
             >
-              🏢 Escalate Supervising Officer
+              {t("mpActions.escalateOfficer")}
             </button>
             <button
               className={styles.btnSecondary}
@@ -289,17 +294,14 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
               onClick={() => act("mpReview", { decision: "reject-reinspect", note: reviewNote })}
               type="button"
             >
-              🔍 Order Quality Re-inspection
+              {t("mpActions.reinspect")}
             </button>
           </div>
         </div>
       )}
 
       {issue.stage === "citizen-verification" && (
-        <p className={styles.infoBox}>
-          Awaiting citizen verification. The submitting citizen must confirm whether the completed
-          work is satisfactory. You will be notified when it is ready for MP review.
-        </p>
+        <p className={styles.infoBox}>{t("mpActions.awaitingCitizen")}</p>
       )}
     </div>
   );

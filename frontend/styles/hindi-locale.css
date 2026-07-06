@@ -1,0 +1,42 @@
+/* Hindi (Devanagari) typography and layout adjustments */
+
+:root {
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+}
+
+html[lang="hi"] {
+  --font-sans: var(--font-noto-devanagari), "Nirmala UI", "Mangal", "Segoe UI", sans-serif;
+}
+
+html[lang="hi"] body {
+  font-family: var(--font-sans);
+  line-height: 1.65;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+html[lang="hi"] button,
+html[lang="hi"] input,
+html[lang="hi"] select,
+html[lang="hi"] textarea {
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+html[lang="hi"] h1,
+html[lang="hi"] h2,
+html[lang="hi"] h3 {
+  line-height: 1.35;
+}
+
+html[lang="hi"].a11y-large-text {
+  font-size: 118%;
+}
+
+html[lang="hi"].a11y-large-text button,
+html[lang="hi"].a11y-large-text input,
+html[lang="hi"].a11y-large-text select,
+html[lang="hi"].a11y-large-text textarea {
+  font-size: 1.08rem;
+  min-height: 2.85rem;
+}

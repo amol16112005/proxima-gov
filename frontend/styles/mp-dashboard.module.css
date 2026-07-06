@@ -6,7 +6,7 @@
   min-height: 100vh;
   background: linear-gradient(160deg, #0a0a1a 0%, #111827 50%, #0d1117 100%);
   color: #e8e8f0;
-  font-family: var(--font-geist-sans, system-ui, sans-serif);
+  font-family: var(--font-sans);
   padding: 2rem 1rem 5rem;
   display: flex;
   flex-direction: column;
@@ -417,4 +417,35 @@
     min-width: 76px;
     padding: 0.7rem 1rem;
   }
+}
+
+:global(html[lang="hi"]) .badge {
+  letter-spacing: normal;
+  line-height: 1.45;
+}
+
+:global(html[lang="hi"]) .statChip {
+  min-width: 100px;
+  line-height: 1.35;
+  letter-spacing: normal;
+}
+
+:global(html[lang="hi"]) .statusLabel {
+  white-space: normal;
+}
+
+:global(html[lang="hi"]) .statusBadge {
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: 1.4;
+}
+
+:global(html[lang="hi"]) .milestoneTitle {
+  line-height: 1.4;
+}
+
+:global(html[lang="hi"]) .filterBtn {
+  white-space: normal;
+  line-height: 1.4;
+  text-align: center;
 }

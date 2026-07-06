@@ -54,7 +54,7 @@ export default function PortalHeader({ portal, userName, constituencyName }: Por
         <h1 className={styles.title} style={{ fontSize: "1.4rem", marginTop: "0.4rem" }}>
           {portal === "citizen" ? t("nav.citizenPortal") : t("nav.mpDashboard")}
         </h1>
-        <nav className={styles.portalNav} aria-label="Portal sections">
+        <nav className={styles.portalNav} aria-label={t("nav.portalSections")}>
           {navItems.map(({ href, label }) => (
             <Link
               key={href}

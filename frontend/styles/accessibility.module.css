@@ -105,3 +105,21 @@
     max-width: calc(100vw - 1.7rem);
   }
 }
+
+:global(html[lang="hi"]) .title {
+  letter-spacing: normal;
+  text-transform: none;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+:global(html[lang="hi"]) .btn {
+  line-height: 1.4;
+  padding: 0.5rem 0.7rem;
+  white-space: normal;
+  text-align: center;
+}
+
+:global(html[lang="hi"]) .panel {
+  max-width: min(22rem, calc(100vw - 2.5rem));
+}

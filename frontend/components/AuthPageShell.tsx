@@ -42,7 +42,7 @@ export default function AuthPageShell({
 
   return (
     <div className={styles.page}>
-      <nav className={styles.authNav} aria-label="Portal navigation">
+      <nav className={styles.authNav} aria-label={t("nav.portalNavigation")}>
         <Link href="/" className={styles.linkMuted}>
           {t("nav.backHome")}
         </Link>

@@ -1,13 +1,24 @@
 "use client";
 
+import dynamic from "next/dynamic";
+import type { Locale } from "@/frontend/i18n";
 import { AccessibilityProvider } from "@/context/AccessibilityContext";
-import AccessibilityToolbar from "@/components/AccessibilityToolbar";
 import OfflineBanner from "@/components/OfflineBanner";
 import SkipLink from "@/components/SkipLink";
 
-export default function AccessibilityShell({ children }: { children: React.ReactNode }) {
+const AccessibilityToolbar = dynamic(() => import("@/components/AccessibilityToolbar"), {
+  ssr: false,
+});
+
+export default function AccessibilityShell({
+  children,
+  initialLocale,
+}: {
+  children: React.ReactNode;
+  initialLocale: Locale;
+}) {
   return (
-    <AccessibilityProvider>
+    <AccessibilityProvider initialLocale={initialLocale}>
       <SkipLink />
       <OfflineBanner />
       {children}

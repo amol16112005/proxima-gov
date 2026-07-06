@@ -1,3 +1,5 @@
+@import "./hindi-locale.css";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -116,14 +118,21 @@ html.a11y-high-contrast body {
   color: #fff;
 }
 
+html.a11y-high-contrast a,
+html.a11y-high-contrast a:link,
+html.a11y-high-contrast a:visited {
+  color: #fff !important;
+  text-decoration: underline;
+}
+
 html.a11y-high-contrast a:focus-visible,
 html.a11y-high-contrast button:focus-visible {
   outline: 3px solid #facc15;
   outline-offset: 3px;
 }
 
-html[lang="hi"] body {
-  font-family: "Nirmala UI", "Mangal", "Segoe UI", Arial, sans-serif;
+html.a11y-high-contrast [style*="color"] {
+  color: #fff !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

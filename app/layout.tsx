@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_Devanagari } from "next/font/google";
+import { cookies } from "next/headers";
 import AccessibilityShell from "@/components/AccessibilityShell";
+import { isLocale } from "@/frontend/i18n";
+import { LOCALE_COOKIE } from "@/frontend/i18n/constants";
 import "@/app/globals.css";
 
 const geistSans = Geist({
@@ -11,6 +14,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const notoDevanagari = Noto_Sans_Devanagari({
+  variable: "--font-noto-devanagari",
+  subsets: ["devanagari"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -41,15 +51,22 @@ export const viewport: Viewport = {
   themeColor: "#1e3a5f",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const cookieLocale = cookieStore.get(LOCALE_COOKIE)?.value;
+  const lang = cookieLocale && isLocale(cookieLocale) ? cookieLocale : "en";
+
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html
+      lang={lang}
+      className={`${geistSans.variable} ${geistMono.variable} ${notoDevanagari.variable}`}
+    >
       <body>
-        <AccessibilityShell>
+        <AccessibilityShell initialLocale={lang}>
           <main id="main-content">{children}</main>
         </AccessibilityShell>
       </body>

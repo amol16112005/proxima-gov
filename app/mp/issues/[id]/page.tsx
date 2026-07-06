@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import PortalHeader from "@/components/PortalHeader";
+import MpBackLink from "@/components/MpBackLink";
 import LifecycleTracker from "@/components/lifecycle/LifecycleTracker";
 import MpIssueActions from "@/components/lifecycle/MpIssueActions";
 import { getConstituencyById } from "@/data/constituencies";
@@ -32,7 +32,7 @@ export default async function MpIssueDetailPage({
   return (
     <div className={styles.pageWide}>
       <PortalHeader portal="mp" userName={mp?.name ?? session.name} constituencyName={constituency?.name ?? ""} />
-      <Link href="/mp/dashboard" className={styles.linkMuted}>← MP Dashboard</Link>
+      <MpBackLink />
       <MpIssueActions issue={issue} />
       <LifecycleTracker issue={issue} />
     </div>

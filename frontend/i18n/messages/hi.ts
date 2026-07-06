@@ -516,6 +516,8 @@ const hi: Messages = {
   "mpActions.needCompletionPhoto": "परियोजना बंद करने से पहले पूर्णता (बाद की) फोटो अपलोड करें।",
   "mpActions.actionFailed": "कार्रवाई विफल।",
   "mpActions.photoUploadFailed": "फोटो अपलोड विफल।",
+  "mpActions.progressCaption": "साइट प्रगति फोटो",
+  "mpActions.completionCaption": "कार्य के बाद पूर्णता फोटो (अनिवार्य)",
   "mpActions.citizenReview": "नागरिक समीक्षा प्राप्त:",
   "mpActions.workVerified": "👍 कार्य सत्यापित",
   "mpActions.workDisputed": "👎 कार्य विवादित",

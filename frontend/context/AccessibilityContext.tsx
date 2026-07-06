@@ -8,7 +8,8 @@ import {
   useMemo,
   useState,
 } from "react";
-import { getMessages, isLocale, t, type Locale, type MessageKey } from "@/frontend/i18n";
+import { useRouter } from "next/navigation";
+import { isLocale, t, type Locale, type MessageKey } from "@/frontend/i18n";
 import { LOCALE_COOKIE } from "@/frontend/i18n/constants";
 
 const STORAGE_KEY = "proxima_locale";
@@ -43,7 +44,13 @@ const AccessibilityContext = createContext<AccessibilityContextValue | null>(nul
 function readLocale(): Locale {
   if (typeof window === "undefined") return "en";
   const stored = localStorage.getItem(STORAGE_KEY);
-  return stored && isLocale(stored) ? stored : "en";
+  if (stored && isLocale(stored)) {
+    document.cookie = `${LOCALE_COOKIE}=${stored};path=/;max-age=31536000;SameSite=Lax`;
+    return stored;
+  }
+  const match = document.cookie.match(new RegExp(`${LOCALE_COOKIE}=([^;]+)`));
+  if (match?.[1] && isLocale(match[1])) return match[1];
+  return "en";
 }
 
 function readPrefs(): A11yPrefs {
@@ -61,8 +68,15 @@ function readPrefs(): A11yPrefs {
   }
 }
 
-export function AccessibilityProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
+export function AccessibilityProvider({
+  children,
+  initialLocale = "en",
+}: {
+  children: React.ReactNode;
+  initialLocale?: Locale;
+}) {
+  const router = useRouter();
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
   const [largeText, setLargeText] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
@@ -97,13 +111,21 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
     localStorage.setItem(A11Y_KEY, JSON.stringify({ largeText, highContrast }));
   }, [largeText, highContrast]);
 
-  const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next);
-    if (typeof window !== "undefined" && window.speechSynthesis?.speaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-    }
-  }, []);
+  const setLocale = useCallback(
+    (next: Locale) => {
+      setLocaleState((prev) => {
+        if (prev !== next) {
+          queueMicrotask(() => router.refresh());
+        }
+        return next;
+      });
+      if (typeof window !== "undefined" && window.speechSynthesis?.speaking) {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+      }
+    },
+    [router]
+  );
 
   const translate = useCallback((key: MessageKey) => t(locale, key), [locale]);
 
@@ -113,13 +135,31 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
     const main = document.getElementById("main-content");
     const text = main?.innerText?.replace(/\s+/g, " ").trim();
     if (!text) return;
-    const utterance = new SpeechSynthesisUtterance(text.slice(0, 4000));
-    utterance.lang = locale === "hi" ? "hi-IN" : "en-IN";
-    utterance.rate = 0.95;
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+
+    const chunkSize = 4000;
+    const chunks: string[] = [];
+    for (let i = 0; i < text.length; i += chunkSize) {
+      chunks.push(text.slice(i, i + chunkSize));
+    }
+
     setIsSpeaking(true);
-    window.speechSynthesis.speak(utterance);
+    let index = 0;
+    const speakNext = () => {
+      if (index >= chunks.length) {
+        setIsSpeaking(false);
+        return;
+      }
+      const utterance = new SpeechSynthesisUtterance(chunks[index]);
+      utterance.lang = locale === "hi" ? "hi-IN" : "en-IN";
+      utterance.rate = 0.95;
+      utterance.onend = () => {
+        index += 1;
+        speakNext();
+      };
+      utterance.onerror = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+    };
+    speakNext();
   }, [locale]);
 
   const stopSpeaking = useCallback(() => {
@@ -154,8 +194,6 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
       stopSpeaking,
     ]
   );
-
-  void getMessages(locale);
 
   return (
     <AccessibilityContext.Provider value={value}>{children}</AccessibilityContext.Provider>

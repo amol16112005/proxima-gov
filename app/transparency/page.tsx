@@ -29,7 +29,7 @@ export default async function TransparencyPage({
   return (
     <div className={styles.pageWide}>
       <header style={{ marginBottom: "2rem" }}>
-        <nav className={styles.authNav} style={{ maxWidth: "100%" }} aria-label="Site navigation">
+        <nav className={styles.authNav} style={{ maxWidth: "100%" }} aria-label={m("nav.siteNavigation")}>
           <Link href="/" className={styles.linkMuted}>{m("nav.backHome")}</Link>
           <div className={styles.authNavLinks}>
             <Link href="/citizen/login" className={styles.linkMuted}>{m("nav.citizenPortal")}</Link>

@@ -438,3 +438,54 @@
     grid-template-columns: 1fr;
   }
 }
+
+:global(html[lang="hi"]) .stageChip {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  padding: 0.4rem 0.75rem;
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}
+
+:global(html[lang="hi"]) .stageRow {
+  gap: 0.4rem;
+}
+
+:global(html[lang="hi"]) .panelTitle {
+  line-height: 1.45;
+  flex-wrap: wrap;
+}
+
+:global(html[lang="hi"]) .progressLabel {
+  line-height: 1.45;
+}
+
+:global(html[lang="hi"]) .flowStep {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  white-space: normal;
+  text-align: center;
+}
+
+:global(html[lang="hi"]) .verifyButtons {
+  flex-wrap: wrap;
+}
+
+:global(html[lang="hi"]) .verifyYes,
+:global(html[lang="hi"]) .verifyNo {
+  white-space: normal;
+  line-height: 1.4;
+  text-align: center;
+  flex: 1 1 140px;
+}
+
+:global(html[lang="hi"]) .issueListItem {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+:global(html[lang="hi"]) .issueListItem span {
+  line-height: 1.4;
+  text-align: right;
+}

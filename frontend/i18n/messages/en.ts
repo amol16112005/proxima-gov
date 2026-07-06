@@ -515,6 +515,8 @@ const en = {
   "mpActions.needCompletionPhoto": "Upload a completion (after-work) photo before closing the project.",
   "mpActions.actionFailed": "Action failed.",
   "mpActions.photoUploadFailed": "Photo upload failed.",
+  "mpActions.progressCaption": "Site progress photo",
+  "mpActions.completionCaption": "After-work completion photo (required)",
   "mpActions.citizenReview": "Citizen review received:",
   "mpActions.workVerified": "👍 Work verified",
   "mpActions.workDisputed": "👎 Work disputed",

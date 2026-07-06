@@ -9,6 +9,9 @@ import a11y from "@/frontend/styles/accessibility.module.css";
 export default function AccessibilityToolbar() {
   const [open, setOpen] = useState(false);
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const fabRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const wasOpenRef = useRef(false);
   const {
     locale,
     setLocale,
@@ -40,6 +43,17 @@ export default function AccessibilityToolbar() {
     };
   }, [open]);
 
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => {
+        panelRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+      });
+    } else if (wasOpenRef.current) {
+      fabRef.current?.focus();
+    }
+    wasOpenRef.current = open;
+  }, [open]);
+
   return (
     <div
       ref={toolbarRef}
@@ -47,52 +61,58 @@ export default function AccessibilityToolbar() {
       role="region"
       aria-label={translate("toolbarLabel")}
     >
-      {open && (
-        <div id="proxima-a11y-panel" className={a11y.panel}>
-          <p className={a11y.title}>{translate("toolbarLabel")}</p>
-          <div className={a11y.row} role="group" aria-label={translate("language")}>
-            {LOCALES.map((loc) => (
-              <button
-                key={loc.code}
-                type="button"
-                className={`${a11y.btn} ${locale === loc.code ? a11y.btnActive : ""}`}
-                aria-pressed={locale === loc.code}
-                onClick={() => setLocale(loc.code)}
-              >
-                {loc.nativeLabel}
-              </button>
-            ))}
-          </div>
-          <div className={`${a11y.row} ${a11y.panelRow}`}>
+      <div
+        id="proxima-a11y-panel"
+        ref={panelRef}
+        className={a11y.panel}
+        hidden={!open}
+      >
+        <p className={a11y.title}>{translate("toolbarLabel")}</p>
+        <div className={a11y.row} role="group" aria-label={translate("language")}>
+          {LOCALES.map((loc) => (
             <button
+              key={loc.code}
               type="button"
-              className={`${a11y.btn} ${largeText ? a11y.btnActive : ""}`}
-              aria-pressed={largeText}
-              onClick={toggleLargeText}
+              className={`${a11y.btn} ${locale === loc.code ? a11y.btnActive : ""}`}
+              aria-pressed={locale === loc.code}
+              onClick={() => setLocale(loc.code)}
             >
-              {translate("largeText")}
+              {loc.nativeLabel}
             </button>
-            <button
-              type="button"
-              className={`${a11y.btn} ${highContrast ? a11y.btnActive : ""}`}
-              aria-pressed={highContrast}
-              onClick={toggleHighContrast}
-            >
-              {translate("highContrast")}
-            </button>
-          </div>
-          <div className={`${a11y.row} ${a11y.panelRow}`}>
-            <button
-              type="button"
-              className={a11y.btn}
-              onClick={isSpeaking ? stopSpeaking : speakPage}
-            >
-              {isSpeaking ? translate("readAloudStop") : translate("readAloud")}
-            </button>
-          </div>
+          ))}
         </div>
-      )}
+        <div className={`${a11y.row} ${a11y.panelRow}`}>
+          <button
+            type="button"
+            className={`${a11y.btn} ${largeText ? a11y.btnActive : ""}`}
+            aria-pressed={largeText}
+            onClick={toggleLargeText}
+          >
+            {translate("largeText")}
+          </button>
+          <button
+            type="button"
+            className={`${a11y.btn} ${highContrast ? a11y.btnActive : ""}`}
+            aria-pressed={highContrast}
+            onClick={toggleHighContrast}
+          >
+            {translate("highContrast")}
+          </button>
+        </div>
+        <div className={`${a11y.row} ${a11y.panelRow}`}>
+          <button
+            type="button"
+            className={`${a11y.btn} ${isSpeaking ? a11y.btnActive : ""}`}
+            aria-pressed={isSpeaking}
+            aria-label={isSpeaking ? translate("readAloudStop") : translate("readAloud")}
+            onClick={isSpeaking ? stopSpeaking : speakPage}
+          >
+            {isSpeaking ? translate("readAloudStop") : translate("readAloud")}
+          </button>
+        </div>
+      </div>
       <button
+        ref={fabRef}
         type="button"
         className={a11y.toggleFab}
         aria-expanded={open}

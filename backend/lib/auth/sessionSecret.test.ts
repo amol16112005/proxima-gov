@@ -14,11 +14,11 @@ describe("sessionSecret", () => {
     expect(isSessionSecretConfigured()).toBe(true);
   });
 
-  it("uses Vercel demo fallback in production on Vercel without secret", () => {
+  it("throws in production without a configured secret", () => {
     process.env.NODE_ENV = "production";
     process.env.VERCEL = "1";
     delete process.env.SESSION_SECRET;
-    expect(getSessionSecret()).toContain("proxima-vercel-demo");
+    expect(() => getSessionSecret()).toThrow(/SESSION_SECRET/);
     expect(isSessionSecretConfigured()).toBe(false);
   });
 });
