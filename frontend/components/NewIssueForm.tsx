@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useAccessibility } from "@/context/AccessibilityContext";
 import type { MessageKey } from "@/frontend/i18n";
+import { mergeTranscript, type SpeechField } from "@/frontend/lib/speechRecognition";
+import { useSpeechInput } from "@/frontend/lib/useSpeechInput";
+import { MicIcon } from "@/frontend/components/icons/ProximaIcons";
 import styles from "@/app/shared.module.css";
 
 const CATEGORY_OPTIONS: { value: string; labelKey: MessageKey }[] = [
@@ -18,18 +21,96 @@ const CATEGORY_OPTIONS: { value: string; labelKey: MessageKey }[] = [
   { value: "other", labelKey: "cat.other" },
 ];
 
+const VOICE_LABEL_KEYS: Record<
+  SpeechField,
+  { idle: MessageKey; listening: MessageKey }
+> = {
+  title: { idle: "issuesNew.voiceInputTitle", listening: "issuesNew.voiceListeningTitle" },
+  location: {
+    idle: "issuesNew.voiceInputLocation",
+    listening: "issuesNew.voiceListeningLocation",
+  },
+  description: {
+    idle: "issuesNew.voiceInputDescription",
+    listening: "issuesNew.voiceListeningDescription",
+  },
+};
+
+function VoiceMicButton({
+  field,
+  listeningField,
+  disabled,
+  onToggle,
+  label,
+}: {
+  field: SpeechField;
+  listeningField: SpeechField | null;
+  disabled?: boolean;
+  onToggle: (field: SpeechField) => void;
+  label: string;
+}) {
+  const isListening = listeningField === field;
+
+  return (
+    <button
+      type="button"
+      className={`${styles.voiceBtn} ${isListening ? styles.voiceBtnActive : ""}`}
+      onClick={() => onToggle(field)}
+      disabled={disabled}
+      aria-label={label}
+      aria-pressed={isListening}
+    >
+      <MicIcon />
+    </button>
+  );
+}
+
 export default function NewIssueForm() {
   const router = useRouter();
-  const { translate: t } = useAccessibility();
+  const { translate: t, locale, stopSpeaking } = useAccessibility();
   const [category, setCategory] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fieldBaseRef = useRef<Record<SpeechField, string>>({
+    title: "",
+    location: "",
+    description: "",
+  });
+
+  const applyFieldValue = useCallback((field: SpeechField, value: string) => {
+    if (field === "title") setTitle(value);
+    else if (field === "location") setLocation(value);
+    else setDescription(value);
+  }, []);
+
+  const handleTranscript = useCallback(
+    (field: SpeechField, spoken: string) => {
+      applyFieldValue(field, mergeTranscript(fieldBaseRef.current[field], spoken));
+    },
+    [applyFieldValue]
+  );
+
+  const handleListeningStart = useCallback(
+    (field: SpeechField) => {
+      stopSpeaking();
+      fieldBaseRef.current[field] =
+        field === "title" ? title : field === "location" ? location : description;
+    },
+    [description, location, stopSpeaking, title]
+  );
+
+  const { isSupported, listeningField, errorKey, toggle, stop, clearError } = useSpeechInput({
+    locale,
+    onTranscript: handleTranscript,
+    onListeningStart: handleListeningStart,
+  });
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    stop();
     setError(null);
     setLoading(true);
     try {
@@ -51,12 +132,18 @@ export default function NewIssueForm() {
     }
   };
 
+  const voiceLabel = (field: SpeechField) => {
+    const keys = VOICE_LABEL_KEYS[field];
+    return t(listeningField === field ? keys.listening : keys.idle);
+  };
+
   return (
     <div className={styles.card} style={{ maxWidth: "100%" }}>
       <h1 className={styles.title}>{t("issuesNew.title")}</h1>
       <p className={styles.subtitle} style={{ marginBottom: "1.5rem" }}>
         {t("issuesNew.aiHint")}
       </p>
+      <p className={styles.voiceHint}>{t("issuesNew.voiceHint")}</p>
       <form onSubmit={submit} aria-busy={loading}>
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="issue-category">
@@ -77,9 +164,21 @@ export default function NewIssueForm() {
           </select>
         </div>
         <div className={styles.fieldGroup}>
-          <label className={styles.label} htmlFor="issue-title">
-            {t("issuesNew.titleField")}<span className={styles.required}>*</span>
-          </label>
+          <div className={styles.fieldLabelRow}>
+            <label className={styles.label} htmlFor="issue-title">
+              {t("issuesNew.titleField")}<span className={styles.required}>*</span>
+            </label>
+            <VoiceMicButton
+              field="title"
+              listeningField={listeningField}
+              disabled={!isSupported || loading}
+              onToggle={(field) => {
+                clearError();
+                toggle(field);
+              }}
+              label={voiceLabel("title")}
+            />
+          </div>
           <input
             id="issue-title"
             className={styles.input}
@@ -90,9 +189,21 @@ export default function NewIssueForm() {
           />
         </div>
         <div className={styles.fieldGroup}>
-          <label className={styles.label} htmlFor="issue-location">
-            {t("issuesNew.location")}<span className={styles.required}>*</span>
-          </label>
+          <div className={styles.fieldLabelRow}>
+            <label className={styles.label} htmlFor="issue-location">
+              {t("issuesNew.location")}<span className={styles.required}>*</span>
+            </label>
+            <VoiceMicButton
+              field="location"
+              listeningField={listeningField}
+              disabled={!isSupported || loading}
+              onToggle={(field) => {
+                clearError();
+                toggle(field);
+              }}
+              label={voiceLabel("location")}
+            />
+          </div>
           <input
             id="issue-location"
             className={styles.input}
@@ -103,9 +214,21 @@ export default function NewIssueForm() {
           />
         </div>
         <div className={styles.fieldGroup}>
-          <label className={styles.label} htmlFor="issue-description">
-            {t("issuesNew.detailedDesc")}<span className={styles.required}>*</span>
-          </label>
+          <div className={styles.fieldLabelRow}>
+            <label className={styles.label} htmlFor="issue-description">
+              {t("issuesNew.detailedDesc")}<span className={styles.required}>*</span>
+            </label>
+            <VoiceMicButton
+              field="description"
+              listeningField={listeningField}
+              disabled={!isSupported || loading}
+              onToggle={(field) => {
+                clearError();
+                toggle(field);
+              }}
+              label={voiceLabel("description")}
+            />
+          </div>
           <textarea
             id="issue-description"
             className={styles.textarea}
@@ -116,6 +239,21 @@ export default function NewIssueForm() {
             required
           />
         </div>
+        {!isSupported && (
+          <p className={styles.voiceStatus} role="status">
+            {t("issuesNew.voiceUnsupported")}
+          </p>
+        )}
+        {listeningField && (
+          <p className={styles.voiceStatus} role="status" aria-live="polite">
+            {voiceLabel(listeningField)}
+          </p>
+        )}
+        {errorKey && (
+          <p className={styles.errorMsg} role="alert">
+            {t(errorKey)}
+          </p>
+        )}
         {error && <p className={styles.errorMsg} role="alert">{error}</p>}
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
           <button type="submit" className={styles.btnPrimary} disabled={loading} aria-busy={loading}>

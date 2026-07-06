@@ -137,20 +137,30 @@ Module: `backend/lib/priorityEngine.ts`
 
 MP dashboard consumes `getMpPriorityClusters()` and `getMpPendingApprovalsRanked()`.
 
-### Multimodal ingestion (architecture — Phase 2 channels)
+### Multimodal ingestion
 
-The engine operates on **normalized text + metadata**, not a specific UI widget:
+The engine operates on **normalized text + metadata**, not a specific UI widget.
+
+**Live today (web):**
 
 ```
-WhatsApp / SMS / Voice note
+/citizen/issues/new
+    → Web Speech API (Chrome/Edge) — mic buttons on title, location, description
+    → locale-aware STT (en-IN / hi-IN)
+    → POST /api/issues → assessIssueScope() + priorityEngine enrichment
+```
+
+**Phase 2 (messaging adapters):**
+
+```
+WhatsApp / SMS / voice note attachment
     → channel adapter (Twilio / Meta Cloud API)
-    → Speech-to-Text (Google Cloud STT / Whisper) if audio
+    → server-side STT (Google Cloud STT / Whisper) if audio
     → { title, description, location, category, locale }
-    → assessIssueScope() + priorityEngine enrichment
-    → same clustering & MP ranked roadmap
+    → same triage, clustering & MP ranked roadmap
 ```
 
-Web form submissions already feed this pipeline. Adding WhatsApp or voice is an **adapter layer**, not a rewrite.
+Adding WhatsApp is an **adapter layer**, not a rewrite — it feeds the same pipeline as the web form.
 
 ### data.gov.in fallback
 

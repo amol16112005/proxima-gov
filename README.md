@@ -126,7 +126,8 @@ Proxima Gov is framed as a **Digital India / Lok Sabha** initiative demo (FY 202
 
 - **Issue triage** — constituency reach and MP mandate checks before MP dashboard
 - **AI Priority & Data Engine** — clusters citizen submissions by theme + geographic hotspot, cross-references constituency demographics and data.gov.in signals (with safe demographic fallback when API key absent), ranks a development roadmap on the MP dashboard: `Priority = (Demand × 0.4) + (Gap × 0.6) + Urgency Boost` (+20 life-safety, +15 high urgency)
-- **Multimodal-ready ingestion** — `priorityEngine.ts` accepts generic text + metadata; WhatsApp/voice notes map through Speech-to-Text → same triage and clustering pipeline (web UI live today; messaging channels Phase 2)
+- **Voice input (web)** — browser speech-to-text on `/citizen/issues/new` (Chrome/Edge Web Speech API; respects English/Hindi locale)
+- **Multimodal-ready ingestion** — `priorityEngine.ts` accepts generic text + metadata; WhatsApp voice notes would use the same STT → triage pipeline (WhatsApp adapter Phase 2)
 - **Gemini AI** — grievance acknowledgement and routing (when `NEXT_PUBLIC_GEMINI_API_KEY` is set)
 - **data.gov.in** — live MPLADS / scheme project enrichment (when `DATAGOVINDIA_API_KEY` is set)
 

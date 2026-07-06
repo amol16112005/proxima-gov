@@ -43,3 +43,17 @@ export function ChevronDownIcon({ size = 16 }: { size?: number }) {
     </svg>
   );
 }
+
+export function MicIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" strokeWidth="2" />
+      <path
+        d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}

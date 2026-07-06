@@ -345,6 +345,21 @@ const en = {
   "issuesNew.readFaqs": "Read issue submission FAQs",
   "issuesNew.submissionFailed": "Submission failed.",
   "issuesNew.backIssues": "← My Issues",
+  "issuesNew.voiceHint":
+    "Use the microphone buttons to dictate title, location, or description. Works in Chrome and Edge; uses your selected language.",
+  "issuesNew.voiceInputTitle": "Dictate issue title",
+  "issuesNew.voiceInputLocation": "Dictate location",
+  "issuesNew.voiceInputDescription": "Dictate description",
+  "issuesNew.voiceListeningTitle": "Listening for title — tap mic to stop",
+  "issuesNew.voiceListeningLocation": "Listening for location — tap mic to stop",
+  "issuesNew.voiceListeningDescription": "Listening for description — tap mic to stop",
+  "issuesNew.voiceUnsupported":
+    "Voice input is not supported in this browser. Try Chrome or Edge, or type your issue.",
+  "issuesNew.voiceMicDenied": "Microphone access was denied. Allow the mic in browser settings and try again.",
+  "issuesNew.voiceNoSpeech": "No speech detected. Try speaking closer to the microphone.",
+  "issuesNew.voiceNetwork": "Voice recognition needs a network connection. Check your connection and retry.",
+  "issuesNew.voiceLangUnsupported": "Speech recognition is not available for the selected language in this browser.",
+  "issuesNew.voiceError": "Voice input failed. Please type your issue instead.",
 
   "notifications.subtitleAlerts": "Alerts whenever your project status changes.",
   "notifications.emptyHint": "No notifications yet. Submit an issue to start receiving updates.",

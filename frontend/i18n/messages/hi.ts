@@ -346,6 +346,21 @@ const hi: Messages = {
   "issuesNew.readFaqs": "मुद्दा दर्ज FAQ पढ़ें",
   "issuesNew.submissionFailed": "दर्ज करना विफल।",
   "issuesNew.backIssues": "← मेरे मुद्दे",
+  "issuesNew.voiceHint":
+    "शीर्षक, स्थान या विवरण बोलकर भरने के लिए माइक्रोफ़ोन बटन का उपयोग करें। Chrome और Edge में काम करता है; आपकी चुनी भाषा का उपयोग होता है।",
+  "issuesNew.voiceInputTitle": "मुद्दे का शीर्षक बोलकर लिखें",
+  "issuesNew.voiceInputLocation": "स्थान बोलकर लिखें",
+  "issuesNew.voiceInputDescription": "विवरण बोलकर लिखें",
+  "issuesNew.voiceListeningTitle": "शीर्षक सुन रहे हैं — रोकने के लिए माइक दबाएँ",
+  "issuesNew.voiceListeningLocation": "स्थान सुन रहे हैं — रोकने के लिए माइक दबाएँ",
+  "issuesNew.voiceListeningDescription": "विवरण सुन रहे हैं — रोकने के लिए माइक दबाएँ",
+  "issuesNew.voiceUnsupported":
+    "इस ब्राउज़र में आवाज़ इनपुट समर्थित नहीं है। Chrome या Edge आज़माएँ, या टाइप करें।",
+  "issuesNew.voiceMicDenied": "माइक्रोफ़ोन की अनुमति नहीं मिली। ब्राउज़र सेटिंग में अनुमति दें और पुनः प्रयास करें।",
+  "issuesNew.voiceNoSpeech": "कोई आवाज़ नहीं मिली। माइक्रोफ़ोन के पास बोलकर पुनः प्रयास करें।",
+  "issuesNew.voiceNetwork": "आवाज़ पहचान के लिए इंटरनेट ज़रूरी है। कनेक्शन जाँचें और पुनः प्रयास करें।",
+  "issuesNew.voiceLangUnsupported": "इस ब्राउज़र में चुनी भाषा के लिए आवाज़ पहचान उपलब्ध नहीं है।",
+  "issuesNew.voiceError": "आवाज़ इनपुट विफल। कृपया टाइप करके दर्ज करें।",
 
   "notifications.subtitleAlerts": "जब भी आपकी परियोजना स्थिति बदले, अलर्ट।",
   "notifications.emptyHint": "अभी कोई सूचना नहीं। अपडेट पाने के लिए मुद्दा दर्ज करें।",
