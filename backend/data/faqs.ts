@@ -70,32 +70,32 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
         id: "low-literacy-help",
         question: "Is there help for users who prefer Hindi or need larger text?",
         answer:
-          "Yes. Tap the ♿ accessibility button at the bottom-left of every page. See the Accessibility & Language section in these FAQs for full details on Hindi, larger text, high contrast, and read-aloud.",
+          "Yes. Look for the round blue–purple button with a white accessibility icon at the bottom-left of every page. Tap it to open Accessibility options. See the Accessibility & Language section in these FAQs for full details on Hindi, larger text, high contrast, and read-aloud.",
       },
     ],
   },
   {
     id: "accessibility",
     title: "Accessibility & Language",
-    icon: "♿",
+    icon: "🌐",
     items: [
       {
         id: "a11y-button",
-        question: "What is the ♿ button at the bottom-left of the screen?",
+        question: "What is the round button at the bottom-left of the screen?",
         answer:
-          "It is the Proxima Gov accessibility button. It stays fixed at the bottom-left on every page (home, citizen portal, MP portal, transparency, and FAQs). Tap it to open the accessibility menu. Tap again or press Escape to close. It is designed for citizens who prefer Hindi, need larger or higher-contrast text, or want the page read aloud.",
+          "It is the Proxima Gov accessibility button — a circular blue-to-purple button with a white person/accessibility icon (this is not the ♿ emoji symbol). It stays fixed at the bottom-left on every page (home, citizen portal, MP portal, transparency, and FAQs). Tap it to open a small panel titled \"Accessibility options\" above the button. Tap the round button again or press Escape to close. It is for citizens who prefer Hindi, need larger or higher-contrast text, or want the page read aloud.",
       },
       {
         id: "a11y-features",
         question: "What can I do from the accessibility menu?",
         answer:
-          "Four options are available: (1) Language — switch between English and हिन्दी; menus, buttons, and page labels update to your choice. (2) Larger text — increases font size across the portal for easier reading. (3) High contrast — switches to a high-contrast black-and-white view. (4) Read page aloud — uses your browser to read the main page content aloud (works best in Hindi when हिन्दी is selected). Toggle any option on or off at any time.",
+          "After tapping the round button, a dark panel opens with four controls: (1) Language — two buttons labeled English and हिन्दी; the active language is highlighted in green. (2) Larger text — toggles bigger fonts across the portal. (3) High contrast — switches to a high-contrast black-and-white view. (4) Read page aloud / Stop reading — uses your browser to read the main page content (works best when हिन्दी is selected). Toggle any option on or off at any time.",
       },
       {
         id: "a11y-hindi",
         question: "How do I switch the entire portal to Hindi?",
         answer:
-          "Open the ♿ menu and tap हिन्दी. The page refreshes with Hindi labels for navigation, forms, dashboards, and FAQs. Your language choice is remembered on this device. Note: issue titles and MP project descriptions from government data may still appear in English; all portal controls and help text are translated.",
+          "Tap the round blue–purple accessibility button at the bottom-left, then tap the हिन्दी button in the panel. The page refreshes with Hindi labels for navigation, forms, dashboards, and FAQs. Your language choice is remembered on this device. Note: issue titles and MP project descriptions from government data may still appear in English; all portal controls and help text are translated.",
       },
       {
         id: "a11y-saved",

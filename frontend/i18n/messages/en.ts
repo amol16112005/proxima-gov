@@ -107,7 +107,7 @@ const en = {
     "Restricted access for Lok Sabha Members of Parliament. Log in with your official constituency username and 6-digit PIN to view your personalized dashboard.",
   "home.transparency": "View Public Transparency Dashboard",
   "home.footer": "Proxima Digital Governance Initiative · Ministry of Electronics & IT · Government of India · FY 2026–27",
-  "home.footerA11y": "Use the accessibility button for Hindi, large text, high contrast, and read-aloud",
+  "home.footerA11y": "Round blue–purple button (bottom-left) for Hindi, large text, high contrast, and read-aloud",
 
   "value.transparency.title": "Transparency",
   "value.transparency.text":
@@ -180,8 +180,8 @@ const en = {
   "faq.mpLoginText": "Separate account — log out of Citizen Portal first.",
   "faq.stillNeedHelp": "Still need help?",
   "faq.loading": "Loading FAQs…",
-  "faq.a11yHelp": "♿ Accessibility button?",
-  "faq.a11yHelpText": "Switch to Hindi, enlarge text, enable high contrast, or hear the page read aloud.",
+  "faq.a11yHelp": "Accessibility button (bottom-left)?",
+  "faq.a11yHelpText": "Round blue–purple button with a white icon — Hindi, larger text, high contrast, read-aloud.",
 
   "dash.welcome": "Welcome",
   "dash.trackIn": "Track the full development lifecycle — from your complaint to measurable impact — in",
