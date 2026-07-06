@@ -15,6 +15,7 @@
     "test:e2e": "playwright test",
     "test:all": "npm run test && npm run test:e2e",
     "verify:storage": "node devops/scripts/verify-storage.mjs",
+    "docs:generate": "node devops/scripts/generate-project-doc.mjs",
     "docker:up": "docker compose --env-file .env.docker up --build -d",
     "docker:down": "docker compose down",
     "deploy:vercel": "vercel --prod"
@@ -28,14 +29,15 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.1",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "docx": "^9.7.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "typescript": "^5",
-    "@playwright/test": "^1.54.1",
     "vitest": "^3.2.4"
   }
 }

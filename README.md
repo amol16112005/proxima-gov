@@ -33,6 +33,7 @@ The name **Proxima** reflects *proximity*: bringing government closer to the peo
 | **[API.md](API.md)** | REST API reference |
 | **[DEPLOYMENT.md](DEPLOYMENT.md)** | Docker, pilot rollout, scaling, and security checklist |
 | **[DEVELOPER_MP_CREDENTIALS.md](DEVELOPER_MP_CREDENTIALS.md)** | Demo MP usernames & PINs |
+| **[PROXIMA_GOV_PROJECT_DOCUMENTATION.docx](PROXIMA_GOV_PROJECT_DOCUMENTATION.docx)** | Complete project document (Word, all topics) |
 | **[/faq](https://proxima-gov.vercel.app/faq)** | End-user FAQ (English + Hindi) |
 
 **Live demo:** [https://proxima-gov.vercel.app](https://proxima-gov.vercel.app)
@@ -361,6 +362,7 @@ Usernames follow the pattern `mp.<constituency-id>` (e.g. `mp.new-delhi`, `mp.mu
 | `npm run test:e2e` | Playwright E2E (FAQ, Hindi locale, a11y panel) |
 | `npm run verify:storage` | Test SQLite or MongoDB connection |
 | `npm run deploy:vercel` | Deploy to Vercel production (`vercel --prod`) |
+| `npm run docs:generate` | Regenerate `PROXIMA_GOV_PROJECT_DOCUMENTATION.docx` |
 
 ---
 
