@@ -66,6 +66,43 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
         answer:
           "Yes. Open Citizen Portal → Profile and use the change constituency form. Your dashboard, issues, and notifications will follow your updated constituency.",
       },
+      {
+        id: "low-literacy-help",
+        question: "Is there help for users who prefer Hindi or need larger text?",
+        answer:
+          "Yes. Tap the ♿ accessibility button at the bottom-left of every page. See the Accessibility & Language section in these FAQs for full details on Hindi, larger text, high contrast, and read-aloud.",
+      },
+    ],
+  },
+  {
+    id: "accessibility",
+    title: "Accessibility & Language",
+    icon: "♿",
+    items: [
+      {
+        id: "a11y-button",
+        question: "What is the ♿ button at the bottom-left of the screen?",
+        answer:
+          "It is the Proxima Gov accessibility button. It stays fixed at the bottom-left on every page (home, citizen portal, MP portal, transparency, and FAQs). Tap it to open the accessibility menu. Tap again or press Escape to close. It is designed for citizens who prefer Hindi, need larger or higher-contrast text, or want the page read aloud.",
+      },
+      {
+        id: "a11y-features",
+        question: "What can I do from the accessibility menu?",
+        answer:
+          "Four options are available: (1) Language — switch between English and हिन्दी; menus, buttons, and page labels update to your choice. (2) Larger text — increases font size across the portal for easier reading. (3) High contrast — switches to a high-contrast black-and-white view. (4) Read page aloud — uses your browser to read the main page content aloud (works best in Hindi when हिन्दी is selected). Toggle any option on or off at any time.",
+      },
+      {
+        id: "a11y-hindi",
+        question: "How do I switch the entire portal to Hindi?",
+        answer:
+          "Open the ♿ menu and tap हिन्दी. The page refreshes with Hindi labels for navigation, forms, dashboards, and FAQs. Your language choice is remembered on this device. Note: issue titles and MP project descriptions from government data may still appear in English; all portal controls and help text are translated.",
+      },
+      {
+        id: "a11y-saved",
+        question: "Will the portal remember my accessibility settings?",
+        answer:
+          "Yes. Your language, larger-text, and high-contrast choices are saved in your browser on this device, so they apply the next time you visit Proxima Gov. Clearing browser data or using a different device or browser will reset them. No account or login is required to use accessibility features.",
+      },
     ],
   },
   {

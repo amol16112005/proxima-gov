@@ -180,6 +180,8 @@ const en = {
   "faq.mpLoginText": "Separate account — log out of Citizen Portal first.",
   "faq.stillNeedHelp": "Still need help?",
   "faq.loading": "Loading FAQs…",
+  "faq.a11yHelp": "♿ Accessibility button?",
+  "faq.a11yHelpText": "Switch to Hindi, enlarge text, enable high contrast, or hear the page read aloud.",
 
   "dash.welcome": "Welcome",
   "dash.trackIn": "Track the full development lifecycle — from your complaint to measurable impact — in",

@@ -40,6 +40,10 @@ export default function FaqPageContent() {
             <p className={faq.teaserTitle}>{t("faq.mpLoginHelp")}</p>
             <p className={faq.teaserText}>{t("faq.mpLoginText")}</p>
           </Link>
+          <Link href="#faq-accessibility" className={faq.teaserCard}>
+            <p className={faq.teaserTitle}>{t("faq.a11yHelp")}</p>
+            <p className={faq.teaserText}>{t("faq.a11yHelpText")}</p>
+          </Link>
         </div>
         <FaqSection categories={FAQ_CATEGORIES} defaultOpenId="wrong-portal-login" />
       </section>
