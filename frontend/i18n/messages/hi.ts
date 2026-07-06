@@ -364,6 +364,7 @@ const hi: Messages = {
   "issuesNew.photoLabel": "फोटो (वैकल्पिक)",
   "issuesNew.photoHint":
     "स्थल की फोटो से सांसद को समस्या जल्दी समझने में मदद मिलती है और छोटा प्राथमिकता बूस्ट (+5) मिलता है। बिना फोटो भी दर्ज कर सकते हैं।",
+  "photo.uploadLimits": "स्वीकृत: JPG, PNG या WebP · अधिकतम 8 MB प्रति फ़ाइल · ऑटो-कंप्रेस ~700 KB तक",
   "issuesNew.photoAdd": "फोटो जोड़ें",
   "issuesNew.photoChange": "फोटो बदलें",
   "issuesNew.photoRemove": "फोटो हटाएँ",

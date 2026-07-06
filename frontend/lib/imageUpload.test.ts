@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { validateImageFile } from "./imageUpload";
+import {
+  PHOTO_MAX_COMPRESSED_KB,
+  PHOTO_MAX_FILE_SIZE_MB,
+  validateImageFile,
+} from "./imageUpload";
+
+describe("photo upload limits", () => {
+  it("documents shared size limits for citizen and MP portals", () => {
+    expect(PHOTO_MAX_FILE_SIZE_MB).toBe(8);
+    expect(PHOTO_MAX_COMPRESSED_KB).toBe(700);
+  });
+});
 
 describe("validateImageFile", () => {
   it("accepts supported image types under size limit", () => {

@@ -7,7 +7,7 @@ import { interpolate } from "@/frontend/i18n";
 import { subStageLabel } from "@/frontend/i18n/labels";
 import type { DevelopmentIssue } from "@/data/lifecycleTypes";
 import { SUB_STAGE_CONFIG } from "@/data/lifecycleTypes";
-import { compressImageFile } from "@/frontend/lib/imageUpload";
+import { compressImageFile, PHOTO_ACCEPT_ATTRIBUTE } from "@/frontend/lib/imageUpload";
 import { canMarkWorkComplete, hasCompletionPhoto } from "@/lib/lifecycleRules";
 import styles from "@/app/shared.module.css";
 
@@ -160,13 +160,16 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept={PHOTO_ACCEPT_ATTRIBUTE}
             capture="environment"
             style={{ display: "none" }}
             onChange={onPhotoSelected}
           />
-          <p className={styles.infoBox} style={{ marginBottom: "0.75rem" }}>
+          <p className={styles.infoBox} style={{ marginBottom: "0.5rem" }}>
             {t("mpActions.progressHint")}
+          </p>
+          <p className={styles.photoSizeLimit} style={{ marginBottom: "0.75rem" }}>
+            {t("photo.uploadLimits")}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.5rem" }}>
             {SUB_STAGE_CONFIG.filter((s) => s.key !== "completed").map((s) => (

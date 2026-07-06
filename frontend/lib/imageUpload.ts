@@ -1,19 +1,24 @@
-const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const MAX_INPUT_BYTES = 8 * 1024 * 1024;
+export const PHOTO_ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+export const PHOTO_ACCEPT_ATTRIBUTE = PHOTO_ACCEPTED_MIME_TYPES.join(",");
+export const PHOTO_MAX_FILE_SIZE_MB = 8;
+export const PHOTO_MAX_FILE_SIZE_BYTES = PHOTO_MAX_FILE_SIZE_MB * 1024 * 1024;
+export const PHOTO_MAX_COMPRESSED_BYTES = 700_000;
+export const PHOTO_MAX_COMPRESSED_KB = 700;
+export const PHOTO_MAX_WIDTH_PX = 900;
 
 export function validateImageFile(file: File): string | null {
-  if (!ACCEPTED_TYPES.includes(file.type)) {
+  if (!PHOTO_ACCEPTED_MIME_TYPES.includes(file.type as (typeof PHOTO_ACCEPTED_MIME_TYPES)[number])) {
     return "Please choose a JPG, PNG, or WebP photo.";
   }
-  if (file.size > MAX_INPUT_BYTES) {
-    return "Photo is too large. Please use an image under 8 MB.";
+  if (file.size > PHOTO_MAX_FILE_SIZE_BYTES) {
+    return `Photo is too large. Please use an image under ${PHOTO_MAX_FILE_SIZE_MB} MB.`;
   }
   return null;
 }
 
 export function compressImageFile(
   file: File,
-  maxWidth = 900,
+  maxWidth = PHOTO_MAX_WIDTH_PX,
   quality = 0.82
 ): Promise<string> {
   const validationError = validateImageFile(file);
@@ -46,8 +51,12 @@ export function compressImageFile(
         const outputType = file.type === "image/png" ? "image/png" : "image/jpeg";
         const dataUrl = canvas.toDataURL(outputType, quality);
 
-        if (dataUrl.length > 700_000) {
-          reject(new Error("Photo is still too large after compression. Try a smaller image."));
+        if (dataUrl.length > PHOTO_MAX_COMPRESSED_BYTES) {
+          reject(
+            new Error(
+              `Photo is still too large after compression. Try a smaller image (max ~${PHOTO_MAX_COMPRESSED_KB} KB after compression).`
+            )
+          );
           return;
         }
 

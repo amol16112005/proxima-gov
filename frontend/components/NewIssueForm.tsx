@@ -8,7 +8,7 @@ import type { MessageKey } from "@/frontend/i18n";
 import { mergeTranscript, type SpeechField } from "@/frontend/lib/speechRecognition";
 import { useSpeechInput } from "@/frontend/lib/useSpeechInput";
 import { MicIcon } from "@/frontend/components/icons/ProximaIcons";
-import { compressImageFile } from "@/frontend/lib/imageUpload";
+import { compressImageFile, PHOTO_ACCEPT_ATTRIBUTE } from "@/frontend/lib/imageUpload";
 import styles from "@/app/shared.module.css";
 
 const CATEGORY_OPTIONS: { value: string; labelKey: MessageKey }[] = [
@@ -272,11 +272,12 @@ export default function NewIssueForm() {
           </label>
           <div className={styles.photoField}>
             <p className={styles.photoHint}>{t("issuesNew.photoHint")}</p>
+            <p className={styles.photoSizeLimit}>{t("photo.uploadLimits")}</p>
             <input
               ref={photoInputRef}
               id="issue-photo"
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept={PHOTO_ACCEPT_ATTRIBUTE}
               onChange={onPhotoSelected}
               className="sr-only"
             />

@@ -363,6 +363,7 @@ const en = {
   "issuesNew.photoLabel": "Photo (optional)",
   "issuesNew.photoHint":
     "A site photo helps your MP understand the issue faster and adds a small priority boost (+5). You can submit without a photo.",
+  "photo.uploadLimits": "Accepted: JPG, PNG, or WebP · max 8 MB per file · auto-compressed to about 700 KB",
   "issuesNew.photoAdd": "Add photo",
   "issuesNew.photoChange": "Change photo",
   "issuesNew.photoRemove": "Remove photo",
