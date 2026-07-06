@@ -67,8 +67,8 @@ NEXT_PUBLIC_GEMINI_API_KEY=your_key_here
 # data.gov.in — live project enrichment
 DATAGOVINDIA_API_KEY=your_key_here
 
-# Session signing (production)
-SESSION_SECRET=replace-with-long-random-string
+# Session signing — required for production (32+ characters)
+SESSION_SECRET=replace-with-long-random-string-min-32-chars
 ```
 
 ### MongoDB Atlas (cloud persistence)
@@ -158,14 +158,21 @@ npm run verify:storage
 ### Public
 
 - `/transparency` — constituency project view
-- `/faq` — help content
+- `/faq` — help content (English; switch to Hindi via accessibility button)
+
+### Accessibility & Hindi
+
+1. Tap the **round blue–purple button** at bottom-left
+2. Select **हिन्दी** — page refreshes with Hindi labels
+3. Toggle **Larger text** / **High contrast** / **Read page aloud**
+4. FAQ Hindi content: `/faq` with Hindi selected
 
 ---
 
 ## 6. Production build (local test)
 
 ```bash
-npm run build
+npm run build        # or npm run build:clean to wipe .next first
 npm start
 ```
 
@@ -211,6 +218,14 @@ npm rebuild better-sqlite3
 
 Or use MongoDB-only mode with `MONGODB_URI` set.
 
+### False “You are offline” banner
+
+Hard-refresh (**Ctrl + Shift + R**). On Vercel, redeploy **without build cache**. The app verifies `/api/health` before showing the offline banner.
+
+### Vercel auth fails
+
+Set `SESSION_SECRET` (32+ chars) in Vercel environment variables and redeploy. Check `/api/health` → `sessionSecretConfigured: true`.
+
 ---
 
 ## Environment variable reference
@@ -221,7 +236,7 @@ Or use MongoDB-only mode with `MONGODB_URI` set.
 | `MONGODB_DB` | No | `proxima_gov` | Database name |
 | `PROXIMA_DB_PATH` | No | `backend/data/proxima.sqlite` | SQLite file path |
 | `PROXIMA_STORAGE` | No | enabled | Set `off` for memory-only |
-| `SESSION_SECRET` | No | dev fallback | HMAC session signing |
+| `SESSION_SECRET` | **Yes (production)** | dev fallback locally | HMAC session signing; **required** on Vercel (32+ chars) |
 | `NEXT_PUBLIC_GEMINI_API_KEY` | No | — | Gemini AI for grievances |
 | `DATAGOVINDIA_API_KEY` | No | — | data.gov.in API key |
 

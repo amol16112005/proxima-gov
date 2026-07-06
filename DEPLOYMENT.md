@@ -27,7 +27,8 @@ curl http://localhost:3000/api/health
 ## Build artifacts
 
 ```bash
-npm run build
+npm run build          # standard build
+npm run build:clean    # wipe .next cache first (use after stale deploy issues)
 npm start
 ```
 
@@ -151,6 +152,18 @@ Proxima Gov is configured for Vercel with region **`bom1`** (Mumbai).
 
 5. Click **Deploy**
 
+**Production site:** [https://proxima-gov.vercel.app](https://proxima-gov.vercel.app)
+
+### Redeploy after fixes (clear build cache)
+
+If the live site shows stale UI (e.g. false “You are offline” banner):
+
+1. Vercel → **Deployments** → latest → **⋯** → **Redeploy**
+2. **Uncheck** “Use existing Build Cache”
+3. Wait for **Ready**, then hard-refresh browser (**Ctrl + Shift + R**)
+
+Locally you can also run `npm run build:clean` before pushing.
+
 ### Option B — Vercel CLI
 
 ```bash
@@ -166,13 +179,17 @@ npm run deploy:vercel
 1. Atlas cluster → **Network Access** → allow `0.0.0.0/0` (or Vercel IP ranges for production)
 2. Atlas → **Database Access** → app user with read/write on `proxima_gov`
 3. Copy connection string into Vercel `MONGODB_URI`
-4. After deploy, open `https://YOUR-APP.vercel.app/api/health` and `/api/cloud/status`
+4. After deploy, verify:
+   - `https://proxima-gov.vercel.app/api/health` → `"status":"ok"`, `"sessionSecretConfigured":true`
+   - `https://proxima-gov.vercel.app/api/cloud/status` → `"provider":"mongodb"`
 
 ### Important
 
 - **SQLite does not work on Vercel** — you must set `MONGODB_URI`
+- **`SESSION_SECRET` is required** in production (32+ chars). There is no demo fallback — auth fails without it.
 - Without `MONGODB_URI`, the app runs in **memory demo mode** (data resets per cold start)
 - `better-sqlite3` is lazy-loaded and externalized — local dev still uses SQLite when `MONGODB_URI` is unset
+- Root layout reads locale cookie → all routes are **dynamic** (`ƒ`); `revalidate` on `/faq` has limited effect
 
 Build command: `npm run build` (default)  
 Output: automatic
@@ -182,7 +199,8 @@ Output: automatic
 ## Pre-deployment verification
 
 ```bash
-npm run build
+npm run build:clean
+npm run test
 npm run verify:storage
 ```
 
@@ -220,18 +238,22 @@ Every record is keyed by `constituencyId` — no code fork per MP. Onboard a new
 
 ---
 
-## Inclusivity & low-connectivity (built-in)
+## Inclusivity & accessibility (built-in)
 
 | Feature | Location |
 |---------|----------|
-| **Hindi UI** | ♿ toolbar → हिन्दी (home, FAQ, skip link) |
-| **Large text / high contrast** | ♿ toolbar toggles |
-| **Read aloud** | Browser TTS (`hi-IN` / `en-IN`) |
-| **Offline notice** | Banner when `navigator.onLine` is false |
+| **Accessibility button** | Round blue–purple FAB, bottom-left (`AccessibilityToolbar.tsx`) |
+| **Hindi UI** | Panel → **हिन्दी** — ~470 keys (`frontend/i18n/messages/hi.ts`) |
+| **Large text / high contrast** | Panel toggles; high contrast restyles inline link colours |
+| **Read aloud** | Browser TTS in chunks (`hi-IN` / `en-IN`) |
+| **Offline notice** | Banner only after `/api/health` check fails or `offline` event |
+| **Skip link** | “Skip to main content” (`SkipLink.tsx`) |
 | **PWA manifest** | `public/manifest.json` — add-to-home-screen on mobile |
 | **OTP-first** | No password literacy barrier |
 
-Roadmap: SMS short-code issue filing, WhatsApp bot, full Kannada/Tamil locales.
+FAQ section: `/faq#faq-accessibility` (English + Hindi content in `faqs.ts` / `faqsHi.ts`).
+
+Roadmap: SMS short-code issue filing, WhatsApp bot, Kannada/Tamil locales.
 
 ---
 

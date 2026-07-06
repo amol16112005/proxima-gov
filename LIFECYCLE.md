@@ -8,14 +8,19 @@ See also: [ARCHITECTURE.md](ARCHITECTURE.md) · [API.md](API.md)
 
 ## Issues vs Grievances
 
-| | **Issues** | **Grievances** |
+**Citizen-facing flow:** all new concerns are filed as **Issues** via `/citizen/issues/new`. Legacy URLs `/citizen/grievances` and `/citizen/grievances/new` redirect to the Issues list.
+
+| | **Issues (primary)** | **Grievances (legacy/API)** |
 |---|-----------|----------------|
-| Purpose | Full MPLADS-style development lifecycle | Faster complaint channel |
-| MP involvement | Required (approval → execution) | Optional routing |
-| AI | Jurisdiction triage + priority score | Gemini department response |
+| UI entry | Submit Issue | Redirects to Issues |
+| Purpose | Full MPLADS-style development lifecycle | Historical audit labels + `/api/grievances` API |
+| MP involvement | Required (approval → execution) | Not used in current MP dashboard UI |
+| AI | Jurisdiction triage + priority score | Gemini response when API called directly |
 | Stages | 12+ lifecycle stages | Status updates only |
 | Photos | Mandatory progress + completion | Not required |
 | Public transparency | Yes (active stages) | Limited |
+
+Activity History may still show `grievance.created` / `grievance.status_changed` for older audit entries.
 
 ---
 

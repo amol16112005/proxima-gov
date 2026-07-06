@@ -66,7 +66,7 @@ Next.js requires `app/` at the project root — pages and API routes cannot be m
 
 - Cookie name: `proxima_session`
 - Payload: HMAC-SHA256 signed JSON (`SessionUser` + expiry)
-- Secret: `SESSION_SECRET` env var (dev fallback in code)
+- Secret: `SESSION_SECRET` env var (32+ chars; **required** in production — throws if missing)
 - Max age: 7 days
 
 ### Citizen auth
@@ -92,6 +92,32 @@ Demo mode may return OTP in the API response (no SMS).
 
 - `backend/lib/auth/session-edge.ts` — middleware (Edge runtime)
 - `backend/lib/auth/session.ts` — server components and API routes (Node)
+
+---
+
+## Internationalisation & Accessibility
+
+### Locale (`frontend/i18n/`)
+
+| Piece | Role |
+|-------|------|
+| `messages/en.ts`, `hi.ts` | ~470 UI strings per locale |
+| `server.ts` | `getServerTranslator()` for RSC pages (reads `proxima_locale` cookie) |
+| `AccessibilityContext` | Client locale + `translate()`; receives `initialLocale` from root layout |
+| Cookie `proxima_locale` | Synced with `localStorage`; triggers `router.refresh()` on change |
+
+Root layout (`app/layout.tsx`) sets `<html lang={cookieLocale}>` and passes `initialLocale` to `AccessibilityShell` to avoid Hindi/English hydration flash.
+
+### Accessibility shell
+
+`AccessibilityShell` wraps every page:
+
+- `SkipLink`, `OfflineBanner`, `AccessibilityToolbar` (lazy-loaded)
+- Toolbar: language, larger text, high contrast, read-aloud
+- Offline detection: probes `GET /api/health` (not `navigator.onLine` alone)
+- Hindi typography: `Noto_Sans_Devanagari` + `frontend/styles/hindi-locale.css`
+
+FAQ content: English in `backend/data/faqs.ts`; Hindi lazy-imported from `faqsHi.ts` when locale is `hi`.
 
 ---
 

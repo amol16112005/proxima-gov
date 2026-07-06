@@ -33,7 +33,9 @@ The name **Proxima** reflects *proximity*: bringing government closer to the peo
 | **[API.md](API.md)** | REST API reference |
 | **[DEPLOYMENT.md](DEPLOYMENT.md)** | Docker, pilot rollout, scaling, and security checklist |
 | **[DEVELOPER_MP_CREDENTIALS.md](DEVELOPER_MP_CREDENTIALS.md)** | Demo MP usernames & PINs |
-| **[/faq](http://localhost:3000/faq)** | End-user FAQ (runtime page) |
+| **[/faq](https://proxima-gov.vercel.app/faq)** | End-user FAQ (English + Hindi) |
+
+**Live demo:** [https://proxima-gov.vercel.app](https://proxima-gov.vercel.app)
 
 ---
 
@@ -68,7 +70,7 @@ The name **Proxima** reflects *proximity*: bringing government closer to the peo
 | **Accountability** | MPs act on citizen-verified work; disputed completions trigger review and contractor/officer accountability. |
 | **Proximity** | Constituency-scoped access — citizens see *their* MP, *their* seat, and *their* local issues. |
 | **Security** | OTP-based citizen auth; separate MP portal with constituency username + PIN. |
-| **Inclusivity** | Hindi UI, large text, high contrast, read-aloud, offline banner (♿ toolbar). |
+| **Inclusivity** | Hindi UI (हिन्दी), larger text, high contrast, read-aloud — via the round blue–purple accessibility button (bottom-left on every page). |
 | **Intelligence** | AI triages issues for jurisdiction and priority before they reach an MP's desk. |
 
 Proxima Gov is framed as a **Digital India / Lok Sabha** initiative demo (FY 2026–27) for hackathons, judging, and local development — not a production government deployment without further hardening.
@@ -105,8 +107,7 @@ Proxima Gov is framed as a **Digital India / Lok Sabha** initiative demo (FY 202
 
 - Registration and OTP login
 - Dashboard with constituency projects, MPLADS summaries, and MP profile
-- Issue submission with AI jurisdiction scan
-- Grievance filing with AI-assisted department routing
+- Issue submission with AI jurisdiction scan (all citizen concerns filed as **Issues**)
 - Notifications, activity history, and profile (including constituency change)
 
 ### MP Portal (`/mp/*`)
@@ -139,7 +140,24 @@ Submit → AI Analysis → MP Approval → Work Assigned → Tender Released
   → MP Review & Accountability → Completed → Impact Analysis
 ```
 
-**Grievances** are a separate, faster channel: structured complaints with AI-assisted responses — they do not replace the full MPLADS execution tracker used by Issues.
+Legacy `/citizen/grievances` URLs redirect to the same **Issues** flow. Activity History may still label older audit entries as “Grievance” for record-keeping. The `/api/grievances` API remains for backward compatibility.
+
+---
+
+## Accessibility & Hindi (i18n)
+
+| Feature | How to use |
+|---------|------------|
+| **Language** | Tap the round blue–purple button (bottom-left) → **हिन्दी** or **English** |
+| **Larger text** | Same panel → **Larger text** toggle |
+| **High contrast** | Same panel → **High contrast** toggle |
+| **Read aloud** | Same panel → **Read page aloud** (chunks long pages; uses `hi-IN` / `en-IN`) |
+| **FAQ help** | [/faq#faq-accessibility](https://proxima-gov.vercel.app/faq#faq-accessibility) |
+
+- **470+ UI strings** in English and Hindi (`frontend/i18n/messages/en.ts`, `hi.ts`)
+- Hindi FAQ content lazy-loads when Hindi is selected (`frontend/components/FaqSection.tsx`)
+- Locale stored in cookie `proxima_locale` + `localStorage` for persistence across visits
+- **Noto Sans Devanagari** font applied when `html[lang="hi"]`
 
 ---
 
@@ -205,10 +223,11 @@ proxima-gov/
 │   ├── faq/                # FAQ page
 │   └── api/                # REST API routes
 ├── frontend/
-│   ├── components/         # React UI (auth, lifecycle, MP actions, FAQ)
-│   ├── context/            # React context providers
+│   ├── components/         # React UI (auth, lifecycle, MP actions, FAQ, a11y toolbar)
+│   ├── context/            # AccessibilityContext (locale, a11y prefs, read-aloud)
+│   ├── i18n/               # English + Hindi message catalogs (~470 keys each)
 │   ├── lib/                # Client utilities (e.g. image upload)
-│   └── styles/             # Global and shared CSS modules
+│   └── styles/             # Global and shared CSS modules (+ hindi-locale.css)
 ├── backend/
 │   ├── data/               # Constituencies, seed issues, FAQs, types
 │   └── lib/                # Business logic, auth, cloud storage, AI triage
@@ -226,9 +245,17 @@ Path aliases (see `tsconfig.json`): `@/components`, `@/lib`, `@/data`, `@/fronte
 
 ## Deploy on Vercel
 
+**Production URL:** [https://proxima-gov.vercel.app](https://proxima-gov.vercel.app)
+
 1. Import [github.com/amol16112005/proxima-gov](https://github.com/amol16112005/proxima-gov) at [vercel.com/new](https://vercel.com/new)
-2. Set env vars from **`.env.vercel.example`** (`MONGODB_URI`, `MONGODB_DB`, `SESSION_SECRET`)
+2. Set env vars from **`.env.vercel.example`** — all three are **required** on Vercel:
+   - `MONGODB_URI` — Atlas connection string (SQLite does not work on serverless)
+   - `MONGODB_DB` — e.g. `proxima_gov`
+   - `SESSION_SECRET` — 32+ random characters (`openssl rand -base64 48`)
 3. Deploy — region defaults to **Mumbai (bom1)** via `vercel.json`
+4. After major fixes, **Redeploy → uncheck “Use Build Cache”** once, then hard-refresh the browser
+
+Verify: `GET /api/health` → `"status":"ok"` and `"sessionSecretConfigured":true`
 
 Full steps: **[DEPLOYMENT.md](DEPLOYMENT.md#vercel-deployment-recommended)**
 
@@ -273,11 +300,11 @@ MONGODB_DB=proxima_gov
 # Optional — disable all persistence (demo mode, data resets on restart)
 # PROXIMA_STORAGE=off
 
-# Optional — production session signing
-# SESSION_SECRET=long-random-string
+# Required in production (Vercel, Docker, VPS)
+# SESSION_SECRET=long-random-string-at-least-32-chars
 ```
 
-If `MONGODB_URI` is unset, data is stored in **`backend/data/proxima.sqlite`** automatically.
+If `MONGODB_URI` is unset locally, data is stored in **`backend/data/proxima.sqlite`** automatically. **Vercel requires MongoDB.**
 
 ---
 
@@ -327,9 +354,13 @@ Usernames follow the pattern `mp.<constituency-id>` (e.g. `mp.new-delhi`, `mp.mu
 |---------|-------------|
 | `npm run dev` | Start dev server (Turbopack) |
 | `npm run build` | Production build |
+| `npm run build:clean` | Delete `.next` cache, then production build |
 | `npm start` | Run production server |
 | `npm run lint` | ESLint |
+| `npm run test` | Vitest unit tests (39 tests) |
+| `npm run test:e2e` | Playwright E2E (FAQ, Hindi locale, a11y panel) |
 | `npm run verify:storage` | Test SQLite or MongoDB connection |
+| `npm run deploy:vercel` | Deploy to Vercel production (`vercel --prod`) |
 
 ---
 
@@ -358,9 +389,10 @@ Usernames follow the pattern `mp.<constituency-id>` (e.g. `mp.new-delhi`, `mp.mu
 
 Common questions (wrong portal login, declined issues, photo uploads, MPLADS scope, storage) are answered at:
 
-**[http://localhost:3000/faq](http://localhost:3000/faq)**
+- **Live:** [https://proxima-gov.vercel.app/faq](https://proxima-gov.vercel.app/faq)
+- **Local:** [http://localhost:3000/faq](http://localhost:3000/faq)
 
-Source: `backend/data/faqs.ts`
+Source: `backend/data/faqs.ts` (English) · `backend/data/faqsHi.ts` (Hindi)
 
 ---
 
@@ -393,6 +425,14 @@ Log out of the Citizen Portal first, or use the **Log out** button on the yellow
 ### Photo upload does nothing
 
 Ensure the issue is in **Work Started** or **In Progress**. Click **Upload Progress Photo** — a file picker should open. JPG/PNG/WebP supported.
+
+### “You are offline” banner on Vercel (but you have internet)
+
+Usually stale browser cache or an old deployment. **Redeploy without build cache** on Vercel, then **Ctrl + Shift + R**. The app now verifies connectivity via `/api/health` instead of trusting `navigator.onLine` alone.
+
+### Vercel login or auth fails after deploy
+
+Confirm `SESSION_SECRET` (32+ chars) is set in Vercel → Settings → Environment Variables for **Production**, then redeploy.
 
 ---
 

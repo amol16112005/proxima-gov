@@ -32,10 +32,13 @@ proxima-gov/
 ├── frontend/                 # PRESENTATION LAYER
 │   ├── components/          # React components
 │   │   ├── lifecycle/       # LifecycleTracker, MpIssueActions, etc.
+│   │   ├── faq/             # FaqPageContent, FaqSection
+│   │   ├── AccessibilityToolbar.tsx, AccessibilityShell.tsx
 │   │   └── ...
-│   ├── context/             # React context (ProjectContext)
+│   ├── context/             # AccessibilityContext (locale, a11y prefs)
+│   ├── i18n/                # en.ts, hi.ts, server.ts, interpolate()
 │   ├── lib/                 # Browser-only utilities (imageUpload)
-│   └── styles/              # CSS modules (shared, page, globals)
+│   └── styles/              # CSS modules (shared, page, globals, hindi-locale)
 │
 ├── backend/                  # APPLICATION LAYER
 │   ├── data/                # Static/seed data & TypeScript types
@@ -107,7 +110,17 @@ Always use `@/` aliases — do not use deep relative paths across layers.
 2. Implement handler in `backend/lib/lifecycleStore.ts`
 3. Add button in `frontend/components/lifecycle/MpIssueActions.tsx`
 4. Update `LIFECYCLE.md` stage documentation
-5. Add FAQ entry in `backend/data/faqs.ts` if user-facing
+5. Add FAQ entry in `backend/data/faqs.ts` **and** `backend/data/faqsHi.ts` if user-facing
+
+---
+
+## Adding or changing UI text (i18n)
+
+1. Add the key to `frontend/i18n/messages/en.ts` and `frontend/i18n/messages/hi.ts` (keep key parity)
+2. **Server pages:** use `getServerTranslator()` from `frontend/i18n/server.ts`
+3. **Client components:** use `useAccessibility().translate` or `const { translate: t } = useAccessibility()`
+4. Placeholders: `interpolate(t("key"), { name: value })` from `frontend/i18n`
+5. Run `npm run test` — `frontend/i18n/index.test.ts` checks key parity
 
 ---
 
@@ -168,7 +181,8 @@ Colour palette: dark purple gradient backgrounds (`#0f0c29` → `#302b63`), acce
 After significant changes:
 
 ```bash
-npm run build          # TypeScript + compile
+npm run build:clean    # TypeScript + compile (fresh .next)
+npm run test           # Vitest (39 tests)
 npm run verify:storage # DB connectivity
 npm run dev            # Smoke test flows
 ```
@@ -180,8 +194,10 @@ Test matrix:
 - [ ] MP login + approve + photo upload
 - [ ] Citizen verification
 - [ ] Wrong-portal logout notice
-- [ ] `/faq` renders
+- [ ] `/faq` renders (English + Hindi via accessibility button)
+- [ ] Accessibility panel: language, large text, high contrast, read-aloud
 - [ ] `/transparency` public view
+- [ ] Vercel: `/api/health` returns `sessionSecretConfigured: true`
 
 ---
 
@@ -214,4 +230,5 @@ Test matrix:
 | [API.md](API.md) | Integrators | REST reference |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | Ops | Hosting |
 | `DEVELOPER_MP_CREDENTIALS.md` | Judges/demo | MP logins |
-| `/faq` (runtime) | End users | Portal help |
+| `/faq` (runtime) | End users | Portal help (EN + HI) |
+| `backend/data/faqsHi.ts` | Contributors | Hindi FAQ content |
