@@ -115,14 +115,33 @@ export async function PATCH(
     case "start":
       updated = await mpStartWork(id);
       break;
-    case "progress":
-      updated = await updateProgress(id, body.subStage as ProgressSubStage);
-      if (!updated && body.subStage === "completed") {
+    case "progress": {
+      const subStage = body.subStage as ProgressSubStage;
+      updated = await updateProgress(id, subStage);
+      if (!updated && subStage === "completed") {
         return NextResponse.json(
           {
             error:
-              "Upload before-work and after-work site photos before submitting for citizen verification.",
+              "Complete all work steps and upload before-work and after-work photos before citizen verification.",
             code: "PHOTOS_REQUIRED",
+          },
+          { status: 400 }
+        );
+      }
+      if (!updated && subStage === "construction") {
+        return NextResponse.json(
+          {
+            error: "Upload the before-work photo before confirming work in progress.",
+            code: "BEFORE_PHOTO_REQUIRED",
+          },
+          { status: 400 }
+        );
+      }
+      if (!updated && subStage === "quality-inspection") {
+        return NextResponse.json(
+          {
+            error: "Confirm work in progress before completing inspection.",
+            code: "WORK_IN_PROGRESS_REQUIRED",
           },
           { status: 400 }
         );
@@ -130,14 +149,14 @@ export async function PATCH(
       if (!updated) {
         return NextResponse.json(
           {
-            error:
-              "Upload before-work and after-work photos, then mark work complete.",
-            code: "PLANNING_PHOTO_REQUIRED",
+            error: "This work step cannot be completed yet.",
+            code: "STEP_NOT_ALLOWED",
           },
           { status: 400 }
         );
       }
       break;
+    }
     case "addImage": {
       const imageUrl = body.imageUrl as string | undefined;
       if (!imageUrl || !/^data:image\/(jpeg|png|webp);base64,/.test(imageUrl)) {
@@ -161,7 +180,7 @@ export async function PATCH(
       });
       if (!updated) {
         const error = isCompletion
-          ? "Upload the before-work photo first, then add the after-work photo."
+          ? "Complete inspection before uploading the after-work photo."
           : milestone === "planning"
             ? "Before-work photo can only be uploaded once work has started."
             : "Upload a before-work or after-work site photo.";

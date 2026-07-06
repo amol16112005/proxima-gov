@@ -62,9 +62,36 @@ export function canUploadPlanningPhoto(issue: DevelopmentIssue): boolean {
   return canUploadBeforeWorkPhoto(issue);
 }
 
+export function hasWorkInProgressConfirmed(issue: DevelopmentIssue): boolean {
+  const stage = issue.progressSubStage;
+  return stage === "construction" || stage === "quality-inspection" || stage === "completed";
+}
+
+export function hasInspectionConfirmed(issue: DevelopmentIssue): boolean {
+  const stage = issue.progressSubStage;
+  return stage === "quality-inspection" || stage === "completed";
+}
+
+export function canConfirmWorkInProgress(issue: DevelopmentIssue): boolean {
+  return (
+    isActiveWorkStage(issue) &&
+    hasBeforeWorkPhoto(issue) &&
+    !hasWorkInProgressConfirmed(issue)
+  );
+}
+
+export function canConfirmInspection(issue: DevelopmentIssue): boolean {
+  return (
+    isActiveWorkStage(issue) &&
+    hasWorkInProgressConfirmed(issue) &&
+    !hasInspectionConfirmed(issue)
+  );
+}
+
 export function canUploadAfterWorkPhoto(issue: DevelopmentIssue): boolean {
   return (
     hasBeforeWorkPhoto(issue) &&
+    hasInspectionConfirmed(issue) &&
     !hasAfterWorkPhoto(issue) &&
     isActiveWorkStage(issue)
   );
@@ -84,9 +111,12 @@ export function requiresPlanningPhotoForSubStage(_subStage: ProgressSubStage): b
   return false;
 }
 
-/** MPs no longer advance sub-stages manually — only mark complete when photos are ready. */
+/** MPs advance only the two work-process checkpoints, then mark complete when photos are ready. */
 export function canAdvanceToSubStage(issue: DevelopmentIssue, target: ProgressSubStage): boolean {
-  return target === "completed" && canMarkWorkComplete(issue);
+  if (target === "construction") return canConfirmWorkInProgress(issue);
+  if (target === "quality-inspection") return canConfirmInspection(issue);
+  if (target === "completed") return canMarkWorkComplete(issue);
+  return false;
 }
 
 export function shouldRevertWorkCompletion(stage: LifecycleStage, canComplete: boolean): boolean {
@@ -95,8 +125,13 @@ export function shouldRevertWorkCompletion(stage: LifecycleStage, canComplete: b
 
 export function applyWorkCompletionRevert(issue: DevelopmentIssue): void {
   issue.stage = "in-progress";
-  issue.progressSubStage = "planning";
-  issue.currentProgress = hasBeforeWorkPhoto(issue) ? 50 : 0;
+  if (!hasBeforeWorkPhoto(issue)) {
+    issue.progressSubStage = "planning";
+    issue.currentProgress = 0;
+  } else {
+    issue.progressSubStage = "quality-inspection";
+    issue.currentProgress = 90;
+  }
   issue.afterImageLabel = undefined;
   if (issue.budget && issue.approval) {
     const pct = issue.currentProgress / 100;

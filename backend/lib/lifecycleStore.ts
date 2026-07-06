@@ -26,8 +26,10 @@ import {
   canUploadCompletionPhoto,
   canUploadPlanningPhoto,
   canUploadQualityInspectionPhoto,
+  hasBeforeWorkPhoto,
   hasCompletionPhoto,
   hasMilestonePhoto,
+  isActiveWorkStage,
   renumberProgressImageWeeks,
   shouldRevertWorkCompletion,
 } from "./lifecycleRules";
@@ -36,6 +38,8 @@ import { addNotification } from "./notifications";
 export {
   applyWorkCompletionRevert,
   canAdvanceToSubStage,
+  canConfirmInspection,
+  canConfirmWorkInProgress,
   canMarkWorkComplete,
   canUploadAfterWorkPhoto,
   canUploadBeforeWorkPhoto,
@@ -45,8 +49,10 @@ export {
   hasAfterWorkPhoto,
   hasBeforeWorkPhoto,
   hasCompletionPhoto,
+  hasInspectionConfirmed,
   hasPlanningPhoto,
   hasQualityInspectionPhoto,
+  hasWorkInProgressConfirmed,
   shouldRevertWorkCompletion,
 } from "./lifecycleRules";
 export { isMpActionableIssue } from "./issueTriage";
@@ -465,9 +471,10 @@ export async function addProgressImage(
     issue.afterImageLabel = `After — ${issue.title}`;
   } else if (milestone === "planning") {
     issue.stage = "in-progress";
-    issue.currentProgress = 50;
+    issue.progressSubStage = "planning";
+    issue.currentProgress = 20;
     if (issue.budget && issue.approval) {
-      issue.budget.spent = Math.round(issue.approval.budget * 0.5);
+      issue.budget.spent = Math.round(issue.approval.budget * 0.2);
     }
   }
 
@@ -495,6 +502,14 @@ export async function removeProgressImage(
 
   if (!hasCompletionPhoto(issue)) {
     issue.afterImageLabel = undefined;
+  }
+
+  if (!hasBeforeWorkPhoto(issue) && isActiveWorkStage(issue)) {
+    issue.progressSubStage = "planning";
+    issue.currentProgress = 0;
+    if (issue.budget && issue.approval) {
+      issue.budget.spent = 0;
+    }
   }
 
   const reverted = shouldRevertWorkCompletion(issue.stage, canMarkWorkComplete(issue));

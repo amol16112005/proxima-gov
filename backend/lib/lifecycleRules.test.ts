@@ -3,12 +3,16 @@ import type { DevelopmentIssue } from "@/data/lifecycleTypes";
 import {
   applyWorkCompletionRevert,
   canAdvanceToSubStage,
+  canConfirmInspection,
+  canConfirmWorkInProgress,
   canMarkWorkComplete,
   canUploadAfterWorkPhoto,
   canUploadBeforeWorkPhoto,
   canUploadQualityInspectionPhoto,
   hasAfterWorkPhoto,
   hasBeforeWorkPhoto,
+  hasInspectionConfirmed,
+  hasWorkInProgressConfirmed,
   shouldRevertWorkCompletion,
 } from "./lifecycleRules";
 
@@ -73,20 +77,57 @@ describe("lifecycleRules", () => {
     expect(canUploadBeforeWorkPhoto(issueWithImages([], { stage: "approved" }))).toBe(false);
   });
 
-  it("allows after-work photo only after before-work photo", () => {
-    expect(canUploadAfterWorkPhoto(issueWithImages([beforeWorkPhoto]))).toBe(true);
+  it("requires work in progress and inspection before after-work photo", () => {
+    expect(canUploadAfterWorkPhoto(issueWithImages([beforeWorkPhoto]))).toBe(false);
+    expect(
+      canUploadAfterWorkPhoto(
+        issueWithImages([beforeWorkPhoto], { progressSubStage: "construction" })
+      )
+    ).toBe(false);
+    expect(
+      canUploadAfterWorkPhoto(
+        issueWithImages([beforeWorkPhoto], { progressSubStage: "quality-inspection" })
+      )
+    ).toBe(true);
     expect(canUploadAfterWorkPhoto(issueWithImages([]))).toBe(false);
     expect(
       canUploadAfterWorkPhoto(issueWithImages([beforeWorkPhoto, afterWorkPhoto]))
     ).toBe(false);
   });
 
-  it("disables QA milestone and manual sub-stage advancement", () => {
+  it("gates work process confirmations in order", () => {
+    const base = issueWithImages([beforeWorkPhoto]);
+    expect(canConfirmWorkInProgress(base)).toBe(true);
+    expect(canConfirmInspection(base)).toBe(false);
+
+    const wip = issueWithImages([beforeWorkPhoto], { progressSubStage: "construction" });
+    expect(hasWorkInProgressConfirmed(wip)).toBe(true);
+    expect(canConfirmWorkInProgress(wip)).toBe(false);
+    expect(canConfirmInspection(wip)).toBe(true);
+
+    const inspected = issueWithImages([beforeWorkPhoto], {
+      progressSubStage: "quality-inspection",
+    });
+    expect(hasInspectionConfirmed(inspected)).toBe(true);
+    expect(canConfirmInspection(inspected)).toBe(false);
+  });
+
+  it("allows only the two process checkpoints and completion advancement", () => {
     expect(canUploadQualityInspectionPhoto(issueWithImages([beforeWorkPhoto]))).toBe(false);
+    expect(
+      canAdvanceToSubStage(issueWithImages([beforeWorkPhoto]), "construction")
+    ).toBe(true);
     expect(canAdvanceToSubStage(issueWithImages([]), "construction")).toBe(false);
+    expect(
+      canAdvanceToSubStage(
+        issueWithImages([beforeWorkPhoto], { progressSubStage: "construction" }),
+        "quality-inspection"
+      )
+    ).toBe(true);
     expect(
       canAdvanceToSubStage(issueWithImages([beforeWorkPhoto, afterWorkPhoto]), "completed")
     ).toBe(true);
+    expect(canAdvanceToSubStage(issueWithImages([]), "material-procurement")).toBe(false);
   });
 
   it("reverts completion when required photos are missing in post-work stages", () => {
@@ -94,8 +135,8 @@ describe("lifecycleRules", () => {
     expect(shouldRevertWorkCompletion("in-progress", false)).toBe(false);
   });
 
-  it("applies in-progress state when work completion is reverted", () => {
-    const issue = issueWithImages([beforeWorkPhoto, afterWorkPhoto], {
+  it("restores post-inspection state when work completion is reverted with before photo", () => {
+    const issue = issueWithImages([beforeWorkPhoto], {
       stage: "citizen-verification",
       progressSubStage: "completed",
       currentProgress: 100,
@@ -105,9 +146,23 @@ describe("lifecycleRules", () => {
     applyWorkCompletionRevert(issue);
 
     expect(issue.stage).toBe("in-progress");
-    expect(issue.progressSubStage).toBe("planning");
-    expect(issue.currentProgress).toBe(50);
+    expect(issue.progressSubStage).toBe("quality-inspection");
+    expect(issue.currentProgress).toBe(90);
     expect(issue.afterImageLabel).toBeUndefined();
+  });
+
+  it("resets to planning when work completion is reverted without before photo", () => {
+    const issue = issueWithImages([], {
+      stage: "citizen-verification",
+      progressSubStage: "completed",
+      currentProgress: 100,
+    });
+
+    applyWorkCompletionRevert(issue);
+
+    expect(issue.stage).toBe("in-progress");
+    expect(issue.progressSubStage).toBe("planning");
+    expect(issue.currentProgress).toBe(0);
   });
 
   it("detects before and after work photos", () => {

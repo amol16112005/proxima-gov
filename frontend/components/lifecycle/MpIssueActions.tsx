@@ -9,11 +9,15 @@ import type { DevelopmentIssue } from "@/data/lifecycleTypes";
 import { compressImageFile, PHOTO_ACCEPT_ATTRIBUTE } from "@/frontend/lib/imageUpload";
 import MpProgressPhotoManager from "@/components/mp/MpProgressPhotoManager";
 import {
+  canConfirmInspection,
+  canConfirmWorkInProgress,
   canMarkWorkComplete,
   canUploadAfterWorkPhoto,
   canUploadBeforeWorkPhoto,
   hasAfterWorkPhoto,
   hasBeforeWorkPhoto,
+  hasInspectionConfirmed,
+  hasWorkInProgressConfirmed,
 } from "@/lib/lifecycleRules";
 import styles from "@/app/shared.module.css";
 
@@ -68,8 +72,12 @@ export default function MpIssueActions({
   const completionReady = canMarkWorkComplete(issue);
   const beforeWorkReady = canUploadBeforeWorkPhoto(issue);
   const afterWorkReady = canUploadAfterWorkPhoto(issue);
+  const workInProgressReady = canConfirmWorkInProgress(issue);
+  const inspectionReady = canConfirmInspection(issue);
   const hasBefore = hasBeforeWorkPhoto(issue);
   const hasAfter = hasAfterWorkPhoto(issue);
+  const hasWip = hasWorkInProgressConfirmed(issue);
+  const hasInspection = hasInspectionConfirmed(issue);
 
   const openPhotoPicker = (kind: PhotoUploadKind) => {
     setError(null);
@@ -289,8 +297,16 @@ export default function MpIssueActions({
               {hasBefore ? "✓ " : "1. "}
               {t("mpActions.milestoneBeforeWork")}
             </li>
+            <li className={hasWip ? styles.photoMilestoneDone : styles.photoMilestonePending}>
+              {hasWip ? "✓ " : "2. "}
+              {t("mpActions.milestoneWorkInProgress")}
+            </li>
+            <li className={hasInspection ? styles.photoMilestoneDone : styles.photoMilestonePending}>
+              {hasInspection ? "✓ " : "3. "}
+              {t("mpActions.milestoneInspection")}
+            </li>
             <li className={hasAfter ? styles.photoMilestoneDone : styles.photoMilestonePending}>
-              {hasAfter ? "✓ " : "2. "}
+              {hasAfter ? "✓ " : "4. "}
               {t("mpActions.milestoneAfterWork")}
             </li>
           </ol>
@@ -309,10 +325,28 @@ export default function MpIssueActions({
             </button>
             <button
               className={styles.btnSecondary}
+              disabled={busy || !workInProgressReady}
+              onClick={() => act("progress", { subStage: "construction" })}
+              type="button"
+              title={!hasBefore ? t("mpActions.needBeforeWorkPhoto") : undefined}
+            >
+              {hasWip ? t("mpActions.workInProgressConfirmed") : t("mpActions.confirmWorkInProgress")}
+            </button>
+            <button
+              className={styles.btnSecondary}
+              disabled={busy || !inspectionReady}
+              onClick={() => act("progress", { subStage: "quality-inspection" })}
+              type="button"
+              title={!hasWip ? t("mpActions.needWorkInProgressFirst") : undefined}
+            >
+              {hasInspection ? t("mpActions.inspectionConfirmed") : t("mpActions.confirmInspection")}
+            </button>
+            <button
+              className={styles.btnSecondary}
               disabled={photoLoading || !afterWorkReady}
               onClick={() => openPhotoPicker("after-work")}
               type="button"
-              title={!hasBefore ? t("mpActions.needBeforeWorkPhoto") : undefined}
+              title={!hasInspection ? t("mpActions.needInspectionFirst") : undefined}
             >
               {hasAfter
                 ? t("mpActions.afterWorkPhotoUploaded")
@@ -334,9 +368,13 @@ export default function MpIssueActions({
             <p style={{ fontSize: "0.8rem", color: "#fca5a5", marginTop: "0.75rem" }}>
               {!hasBefore
                 ? t("mpActions.needBeforeWorkPhoto")
-                : !hasAfter
-                  ? t("mpActions.needAfterWorkPhoto")
-                  : null}
+                : !hasWip
+                  ? t("mpActions.needWorkInProgressFirst")
+                  : !hasInspection
+                    ? t("mpActions.needInspectionFirst")
+                    : !hasAfter
+                      ? t("mpActions.needAfterWorkPhoto")
+                      : null}
             </p>
           )}
         </>

@@ -103,6 +103,21 @@
   font-size: 0.75rem;
 }
 
+.processStepList {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.processStepDone {
+  color: #86efac;
+}
+
+.processStepPending {
+  color: #9aa5b8;
+}
+
 .progressStages {
   display: flex;
   flex-direction: column;

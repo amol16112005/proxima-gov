@@ -11,6 +11,10 @@ import {
   type DevelopmentIssue,
   type LifecycleStage,
 } from "@/data/lifecycleTypes";
+import {
+  hasInspectionConfirmed,
+  hasWorkInProgressConfirmed,
+} from "@/lib/lifecycleRules";
 import { formatINR } from "@/data/constituencies";
 import ls from "./lifecycle.module.css";
 
@@ -273,9 +277,21 @@ export default function LifecycleTracker({
             </div>
           )}
           {(issue.stage === "work-started" || issue.stage === "in-progress") && (
-            <p style={{ fontSize: "0.88rem", color: "#9aa5b8", marginBottom: "0.5rem" }}>
-              {t("lifecycle.simpleWorkNote")}
-            </p>
+            <>
+              <p style={{ fontSize: "0.88rem", color: "#9aa5b8", marginBottom: "0.5rem" }}>
+                {t("lifecycle.simpleWorkNote")}
+              </p>
+              <ol className={ls.processStepList}>
+                <li className={hasWorkInProgressConfirmed(issue) ? ls.processStepDone : ls.processStepPending}>
+                  {hasWorkInProgressConfirmed(issue) ? "✓ " : ""}
+                  {t("lifecycle.processWorkInProgress")}
+                </li>
+                <li className={hasInspectionConfirmed(issue) ? ls.processStepDone : ls.processStepPending}>
+                  {hasInspectionConfirmed(issue) ? "✓ " : ""}
+                  {t("lifecycle.processInspection")}
+                </li>
+              </ol>
+            </>
           )}
 
           {issue.budget && (
