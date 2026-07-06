@@ -271,9 +271,11 @@ export default function NewIssueForm() {
             {t("issuesNew.photoLabel")}
           </label>
           <div className={styles.photoField}>
-            <p className={styles.photoHint}>{t("issuesNew.photoHint")}</p>
-            <p className={styles.photoSizeLimit}>{t("photo.uploadLimits")}</p>
-            <p className={styles.photoSizeLimit}>{t("photo.dimensionLimits")}</p>
+            <div className={styles.photoInstructions} role="note">
+              <p className={styles.photoHint}>{t("issuesNew.photoHint")}</p>
+              <p className={styles.photoSizeLimit}>{t("photo.uploadLimits")}</p>
+              <p className={styles.photoSizeLimit}>{t("photo.dimensionLimits")}</p>
+            </div>
             <input
               ref={photoInputRef}
               id="issue-photo"

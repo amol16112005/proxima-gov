@@ -160,18 +160,39 @@
   gap: 0.65rem;
 }
 
+.photoInstructions {
+  background: rgba(199, 210, 254, 0.14);
+  border: 1px solid rgba(199, 210, 254, 0.38);
+  border-radius: 0.65rem;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
 .photoHint {
-  font-size: 0.82rem;
-  color: #7c8db5;
+  font-size: 0.88rem;
+  color: #eef2ff;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.photoSizeLimit {
+  font-size: 0.86rem;
+  color: #dbe4f8;
   margin: 0;
   line-height: 1.5;
 }
 
-.photoSizeLimit {
-  font-size: 0.78rem;
-  color: #6b7a99;
-  margin: 0;
-  line-height: 1.45;
+:global(html.a11y-high-contrast) .photoInstructions {
+  background: #111;
+  border-color: #fff;
+}
+
+:global(html.a11y-high-contrast) .photoHint,
+:global(html.a11y-high-contrast) .photoSizeLimit {
+  color: #fff;
 }
 
 .photoActions {
