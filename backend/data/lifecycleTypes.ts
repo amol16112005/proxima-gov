@@ -48,6 +48,8 @@ export interface AiAnalysis {
   geographicHotspot?: string;
   /** Urgency from critical keywords (0–100). */
   urgencyScore?: number;
+  /** Flat boost added to composite score: +20 life-safety, +15 high urgency, +0 routine. */
+  urgencyBoost?: number;
   /** Structural weight from demographics + public datasets (0–100). */
   infrastructureGapWeight?: number;
   /** Citizens in the same theme+hotspot cluster. */

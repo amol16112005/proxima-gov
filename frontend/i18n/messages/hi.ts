@@ -301,11 +301,12 @@ const hi: Messages = {
   "mpDash.priorityEngineSubtitle":
     "नागरिक सुझाव विषय और हॉटस्पॉट से समूहित, जनसांख्यिकी और सार्वजनिक डेटासेट से जाँचे, फिर सांसद कार्रवाई के लिए क्रमबद्ध।",
   "mpDash.priorityFormula":
-    "प्राथमिकता स्कोर = (नागरिक मांग गिनती × 0.4) + (अवसंरचना अंतर भार × 0.6) + तात्कालिकता बूस्ट",
+    "प्राथमिकता = (नागरिक मांग × 0.4) + (अवसंरचना अंतर × 0.6) + तात्कालिकता बूस्ट। जीवन-सुरक्षा (+20); उच्च तात्कालिकता (+15)।",
   "mpDash.priorityRank": "क्रम",
   "mpDash.priorityDemand": "नागरिक मांग",
   "mpDash.priorityGap": "डेटा अंतर भार",
   "mpDash.priorityUrgency": "औसत तात्कालिकता",
+  "mpDash.priorityUrgencyBoost": "तात्कालिकता बूस्ट",
   "mpDash.priorityDataSignals": "सार्वजनिक डेटासेट संकेत",
   "mpDash.priorityCitizensReported": "समूह में शीर्ष सबमिशन",
   "mpDash.priorityReviewTop": "उच्चतम प्राथमिकता देखें →",

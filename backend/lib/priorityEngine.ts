@@ -13,6 +13,10 @@ export type ThemeCategory =
   | "employment"
   | "other";
 
+/** Flat points added to base score. Life-safety: +20. High urgency: +15. Routine: +0. */
+export const URGENCY_BOOST_LIFE_SAFETY = 20;
+export const URGENCY_BOOST_HIGH = 15;
+
 export interface PriorityCluster {
   clusterId: string;
   themeCategory: ThemeCategory;
@@ -21,6 +25,7 @@ export interface PriorityCluster {
   issueIds: string[];
   citizenDemandCount: number;
   avgUrgency: number;
+  urgencyBoost: number;
   infrastructureGapWeight: number;
   compositePriorityScore: number;
   summary: string;
@@ -202,15 +207,36 @@ export function computeInfrastructureGapWeight(
   return { weight: Math.min(100, weight), signals };
 }
 
+const LIFE_SAFETY_PATTERN =
+  /\b(collapsed|collapse|life.?threat|flooded\s*school|dengue\s*outbreak|cholera\s*outbreak)\b/i;
+const HIGH_URGENCY_PATTERN =
+  /\b(emergency|no\s*water|water\s*scarcity|medical\s*emergency|broken\s*bridge|ambulance|flood(?:ing)?)\b/i;
+
+/**
+ * Flat urgency boost added on top of the base (demand + gap) score.
+ * Life-safety keywords → +20. High-urgency keywords → +15. Otherwise +0.
+ */
+export function computeUrgencyBoost(title: string, description: string): number {
+  const text = `${title} ${description}`;
+  if (LIFE_SAFETY_PATTERN.test(text)) return URGENCY_BOOST_LIFE_SAFETY;
+  if (HIGH_URGENCY_PATTERN.test(text) || computeUrgencyScore(title, description) >= 78) {
+    return URGENCY_BOOST_HIGH;
+  }
+  return 0;
+}
+
+/**
+ * Priority = (Citizen Demand × 0.4) + (Infrastructure Gap × 0.6) + Urgency Boost
+ * Base caps naturally below 100; urgency boost (+15/+20) can push life-safety clusters to the top.
+ */
 export function computeCompositePriorityScore(
   citizenDemandCount: number,
   infrastructureGapWeight: number,
-  urgencyScore: number
+  urgencyBoost: number
 ): number {
   const demandNorm = (Math.min(citizenDemandCount, 50) / 50) * 100;
   const base = demandNorm * 0.4 + infrastructureGapWeight * 0.6;
-  const urgencyBoost = urgencyScore * 0.15;
-  return Math.min(100, Math.round(base + urgencyBoost * 0.25));
+  return Math.min(100, Math.round(base + urgencyBoost));
 }
 
 export function buildClusterKey(theme: ThemeCategory, hotspot: string): string {
@@ -225,12 +251,14 @@ export function enrichIssuePriorityFields(
   | "themeCategory"
   | "geographicHotspot"
   | "urgencyScore"
+  | "urgencyBoost"
   | "infrastructureGapWeight"
   | "dataSignals"
 > {
   const themeCategory = extractThemeCategory(issue.category, issue.title, issue.description);
   const geographicHotspot = extractGeographicHotspot(issue.location, issue.description);
   const urgencyScore = computeUrgencyScore(issue.title, issue.description);
+  const urgencyBoost = computeUrgencyBoost(issue.title, issue.description);
   const { weight, signals } = computeInfrastructureGapWeight(
     issue.constituencyId,
     themeCategory,
@@ -241,6 +269,7 @@ export function enrichIssuePriorityFields(
     themeCategory,
     geographicHotspot,
     urgencyScore,
+    urgencyBoost,
     infrastructureGapWeight: weight,
     dataSignals: signals,
   };
@@ -278,6 +307,9 @@ export function buildPriorityClusters(issues: DevelopmentIssue[]): PriorityClust
     const avgUrgency = Math.round(
       urgencies.reduce((a, b) => a + b, 0) / urgencies.length
     );
+    const urgencyBoost = Math.max(
+      ...clusterIssues.map((i) => computeUrgencyBoost(i.title, i.description))
+    );
 
     const { weight, signals } = computeInfrastructureGapWeight(
       sample.constituencyId,
@@ -289,7 +321,7 @@ export function buildPriorityClusters(issues: DevelopmentIssue[]): PriorityClust
     const compositePriorityScore = computeCompositePriorityScore(
       citizenDemandCount,
       weight,
-      avgUrgency
+      urgencyBoost
     );
 
     const topIssue = clusterIssues.reduce((best, cur) => {
@@ -311,6 +343,7 @@ export function buildPriorityClusters(issues: DevelopmentIssue[]): PriorityClust
       issueIds: clusterIssues.map((i) => i.id),
       citizenDemandCount,
       avgUrgency,
+      urgencyBoost,
       infrastructureGapWeight: weight,
       compositePriorityScore,
       summary: `${countLabel} ${THEME_LABELS[themeCategory].toLowerCase()} needs in ${hotspot}`,
@@ -342,12 +375,12 @@ export function refreshConstituencyPriorityRankings(issues: DevelopmentIssue[], 
     const cluster = clusterByIssue.get(issue.id);
     const demandCount = cluster?.citizenDemandCount ?? 1;
     const gapWeight = enriched.infrastructureGapWeight ?? 45;
-    const urgency = enriched.urgencyScore ?? 50;
+    const urgencyBoost = enriched.urgencyBoost ?? 0;
 
     const compositePriorityScore = computeCompositePriorityScore(
       demandCount,
       gapWeight,
-      urgency
+      urgencyBoost
     );
 
     issue.aiAnalysis = {
@@ -359,7 +392,7 @@ export function refreshConstituencyPriorityRankings(issues: DevelopmentIssue[], 
       priorityScore: compositePriorityScore,
       similarComplaints: demandCount,
       recommendation: cluster
-        ? `AI-ranked #${clusters.indexOf(cluster) + 1}: ${cluster.summary}. Priority = (Demand×0.4) + (Data Gap×0.6) + urgency boost.`
+        ? `AI-ranked #${clusters.indexOf(cluster) + 1}: ${cluster.summary}. Priority = (Demand×0.4) + (Gap×0.6) + Urgency Boost (+${urgencyBoost}).`
         : issue.aiAnalysis.recommendation,
       reasons: [
         `Theme: ${THEME_LABELS[enriched.themeCategory as ThemeCategory]}`,

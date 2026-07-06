@@ -112,6 +112,7 @@ export default async function MpDashboardPage() {
           demand: m("mpDash.priorityDemand"),
           gap: m("mpDash.priorityGap"),
           urgency: m("mpDash.priorityUrgency"),
+          urgencyBoost: m("mpDash.priorityUrgencyBoost"),
           dataSignals: m("mpDash.priorityDataSignals"),
           citizensReported: m("mpDash.priorityCitizensReported"),
           reviewTop: m("mpDash.priorityReviewTop"),

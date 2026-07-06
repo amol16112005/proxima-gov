@@ -300,11 +300,12 @@ const en = {
   "mpDash.priorityEngineSubtitle":
     "Citizen submissions are clustered by theme and hotspot, cross-referenced with constituency demographics and public datasets, then ranked for MP action.",
   "mpDash.priorityFormula":
-    "Priority Score = (Citizen Demand Count × 0.4) + (Infrastructure Gap Weight × 0.6) + urgency boost",
+    "Priority = (Citizen Demand × 0.4) + (Infrastructure Gap × 0.6) + Urgency Boost. Life-safety keywords (e.g. collapsed bridge, flooded school) add +20; high-urgency (e.g. no water, medical emergency) add +15.",
   "mpDash.priorityRank": "Rank",
   "mpDash.priorityDemand": "Citizen demand",
   "mpDash.priorityGap": "Data gap weight",
   "mpDash.priorityUrgency": "Avg urgency",
+  "mpDash.priorityUrgencyBoost": "Urgency boost",
   "mpDash.priorityDataSignals": "Public dataset signals",
   "mpDash.priorityCitizensReported": "Top submission in cluster",
   "mpDash.priorityReviewTop": "Review highest-priority item →",

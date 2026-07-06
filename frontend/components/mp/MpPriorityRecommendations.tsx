@@ -17,6 +17,7 @@ interface MpPriorityRecommendationsProps {
     demand: string;
     gap: string;
     urgency: string;
+    urgencyBoost: string;
     dataSignals: string;
     citizensReported: string;
     reviewTop: string;
@@ -69,6 +70,9 @@ export default function MpPriorityRecommendations({
                 </span>
                 <span>
                   {labels.urgency}: <strong>{cluster.avgUrgency}</strong>
+                </span>
+                <span>
+                  {labels.urgencyBoost}: <strong>+{cluster.urgencyBoost}</strong>
                 </span>
               </div>
               {cluster.dataSignals.length > 0 && (

@@ -3,10 +3,14 @@ import type { DevelopmentIssue } from "@/data/lifecycleTypes";
 import {
   buildPriorityClusters,
   computeCompositePriorityScore,
+  computeInfrastructureGapWeight,
+  computeUrgencyBoost,
   computeUrgencyScore,
   extractGeographicHotspot,
   extractThemeCategory,
   refreshConstituencyPriorityRankings,
+  URGENCY_BOOST_HIGH,
+  URGENCY_BOOST_LIFE_SAFETY,
 } from "./priorityEngine";
 
 function mockIssue(overrides: Partial<DevelopmentIssue>): DevelopmentIssue {
@@ -75,10 +79,40 @@ describe("priorityEngine", () => {
     expect(clusters[0].compositePriorityScore).toBeGreaterThanOrEqual(clusters.at(-1)?.compositePriorityScore ?? 0);
   });
 
-  it("computes composite score with demand and gap weights", () => {
-    const high = computeCompositePriorityScore(14, 80, 90);
-    const low = computeCompositePriorityScore(1, 40, 40);
+  it("applies flat urgency boost tiers", () => {
+    expect(computeUrgencyBoost("Collapsed bridge", "Emergency near school")).toBe(
+      URGENCY_BOOST_LIFE_SAFETY
+    );
+    expect(computeUrgencyBoost("No drinking water", "Ward 4 scarcity")).toBe(URGENCY_BOOST_HIGH);
+    expect(computeUrgencyBoost("Park beautification", "Nice to have")).toBe(0);
+  });
+
+  it("computes composite score with demand, gap, and flat urgency boost", () => {
+    const high = computeCompositePriorityScore(14, 80, URGENCY_BOOST_LIFE_SAFETY);
+    const low = computeCompositePriorityScore(1, 40, 0);
     expect(high).toBeGreaterThan(low);
+  });
+
+  it("falls back to demographic weights when DATAGOVINDIA_API_KEY is absent", () => {
+    const prev = process.env.DATAGOVINDIA_API_KEY;
+    delete process.env.DATAGOVINDIA_API_KEY;
+    expect(() =>
+      computeInfrastructureGapWeight(
+        "bangalore-south",
+        "education",
+        "School overcrowding",
+        "Enrollment exceeds classroom capacity"
+      )
+    ).not.toThrow();
+    const { weight, signals } = computeInfrastructureGapWeight(
+      "bangalore-south",
+      "education",
+      "School overcrowding",
+      "Enrollment exceeds classroom capacity"
+    );
+    expect(weight).toBeGreaterThan(0);
+    expect(signals.some((s) => s.includes("demographic"))).toBe(true);
+    if (prev) process.env.DATAGOVINDIA_API_KEY = prev;
   });
 
   it("refreshes rankings on pending issues", () => {

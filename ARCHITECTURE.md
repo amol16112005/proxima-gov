@@ -121,6 +121,43 @@ FAQ content: English in `backend/data/faqs.ts`; Hindi lazy-imported from `faqsHi
 
 ---
 
+## AI Priority & Data Engine
+
+Module: `backend/lib/priorityEngine.ts`
+
+| Step | Function | Output |
+|------|----------|--------|
+| Theme extraction | `extractThemeCategory()` | water, roads, education, etc. |
+| Hotspot extraction | `extractGeographicHotspot()` | ward, village, block |
+| Urgency scoring | `computeUrgencyScore()` | 0–100 keyword analysis |
+| Urgency boost | `computeUrgencyBoost()` | flat +20 / +15 / +0 |
+| Data gap weight | `computeInfrastructureGapWeight()` | demographics + data.gov.in (or local fallback) |
+| Clustering | `buildPriorityClusters()` | grouped demand hotspots |
+| Ranking | `computeCompositePriorityScore()` | `(Demand×0.4) + (Gap×0.6) + Boost` |
+
+MP dashboard consumes `getMpPriorityClusters()` and `getMpPendingApprovalsRanked()`.
+
+### Multimodal ingestion (architecture — Phase 2 channels)
+
+The engine operates on **normalized text + metadata**, not a specific UI widget:
+
+```
+WhatsApp / SMS / Voice note
+    → channel adapter (Twilio / Meta Cloud API)
+    → Speech-to-Text (Google Cloud STT / Whisper) if audio
+    → { title, description, location, category, locale }
+    → assessIssueScope() + priorityEngine enrichment
+    → same clustering & MP ranked roadmap
+```
+
+Web form submissions already feed this pipeline. Adding WhatsApp or voice is an **adapter layer**, not a rewrite.
+
+### data.gov.in fallback
+
+`computeInfrastructureGapWeight()` never calls external APIs synchronously on the request path. If `DATAGOVINDIA_API_KEY` is unset, constituency demographic heuristics apply — no 500 errors on the MP dashboard.
+
+---
+
 ## Storage Architecture
 
 ### Provider selection (`backend/lib/cloud/provider.ts`)
