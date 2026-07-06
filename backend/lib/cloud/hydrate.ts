@@ -6,7 +6,8 @@ import { logActivityLocal, replaceActivityLog } from "./activityLog";
 import { loadActivityLog } from "./storage";
 import { cloudStatus } from "./config";
 import { isStorageEnabled, getStorageProvider } from "./provider";
-import { persistIssueCounter, seedIssuesToStorage } from "./persist";
+import { backfillAndPersistSeedIssues, backfillSeedIssuePhotos } from "@/lib/seedIssueBackfill";
+import { persistIssue, persistIssueCounter, seedIssuesToStorage } from "./persist";
 import {
   loadCitizens,
   loadGrievances,
@@ -52,6 +53,7 @@ async function hydrateFromStorage(): Promise<void> {
   let issues = await loadIssues();
   if (issues.length === 0) {
     issues = SEED_ISSUES.map((i) => ({ ...i }));
+    issues = await backfillAndPersistSeedIssues(issues, persistIssue);
     await seedIssuesToStorage(issues);
     for (const issue of issues) {
       logActivityLocal({
@@ -65,6 +67,8 @@ async function hydrateFromStorage(): Promise<void> {
         stage: issue.stage,
       });
     }
+  } else {
+    issues = await backfillAndPersistSeedIssues(issues, persistIssue);
   }
   setIssues(issues);
 
@@ -121,7 +125,10 @@ async function doHydrate(): Promise<void> {
   if (!isStorageEnabled()) {
     if (!global.__proximaActivityLog?.length) {
       if (!global.__proximaIssues) {
-        global.__proximaIssues = SEED_ISSUES.map((i) => ({ ...i }));
+        global.__proximaIssues = SEED_ISSUES.map((i) => {
+          const seeded = { ...i, progressImages: [...i.progressImages] };
+          return backfillSeedIssuePhotos(seeded).issue;
+        });
       }
       seedDemoActivityFromIssues();
     }

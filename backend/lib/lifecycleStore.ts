@@ -34,6 +34,7 @@ import {
   shouldRevertWorkCompletion,
 } from "./lifecycleRules";
 import { addNotification } from "./notifications";
+import { backfillSeedIssuePhotos } from "./seedIssueBackfill";
 
 export {
   applyWorkCompletionRevert,
@@ -66,7 +67,10 @@ declare global {
 
 function issues(): DevelopmentIssue[] {
   if (!global.__proximaIssues) {
-    global.__proximaIssues = SEED_ISSUES.map((i) => ({ ...i }));
+    global.__proximaIssues = SEED_ISSUES.map((i) => {
+      const seeded = { ...i, progressImages: [...i.progressImages] };
+      return backfillSeedIssuePhotos(seeded).issue;
+    });
   }
   return global.__proximaIssues;
 }

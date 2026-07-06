@@ -109,6 +109,8 @@ export interface ProgressImage {
   milestone?: ProgressPhotoMilestone;
   /** True when this is the mandatory completion / after-work site photo. */
   isCompletion?: boolean;
+  /** Demo-only synthetic duplicate added for legacy seed issues during hydrate. */
+  demoBackfill?: boolean;
 }
 
 export type MpReviewDecision =
