@@ -11,6 +11,7 @@ import { getSession } from "@/lib/auth/session";
 import {
   addProgressImage,
   getIssueById,
+  removeProgressImage,
   mpApproveIssue,
   mpAssignWork,
   mpReleaseTender,
@@ -134,6 +135,23 @@ export async function PATCH(
       if (!updated && body.isCompletion) {
         return NextResponse.json(
           { error: "Completion photo already uploaded for this issue.", code: "COMPLETION_EXISTS" },
+          { status: 400 }
+        );
+      }
+      break;
+    }
+    case "removeImage": {
+      const imageIndex = body.imageIndex;
+      if (typeof imageIndex !== "number" || !Number.isInteger(imageIndex) || imageIndex < 0) {
+        return NextResponse.json(
+          { error: "Please specify which photo to remove.", code: "IMAGE_INDEX_REQUIRED" },
+          { status: 400 }
+        );
+      }
+      updated = removeProgressImage(id, imageIndex);
+      if (!updated) {
+        return NextResponse.json(
+          { error: "Photo not found or could not be removed.", code: "IMAGE_NOT_FOUND" },
           { status: 400 }
         );
       }

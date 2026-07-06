@@ -560,6 +560,14 @@ const en = {
   "mpActions.needCompletionPhoto": "Upload a completion (after-work) photo before closing the project.",
   "mpActions.actionFailed": "Action failed.",
   "mpActions.photoUploadFailed": "Photo upload failed.",
+  "mpActions.managePhotosTitle": "Manage site photos",
+  "mpActions.managePhotosHint":
+    "Remove any progress or completion photo at any stage. If required photos are removed after work was marked complete, the issue reopens as in-progress (not completed).",
+  "mpActions.removePhoto": "Remove photo",
+  "mpActions.removingPhoto": "Removing…",
+  "mpActions.removePhotoConfirm":
+    "Remove this photo? If required photos are missing after completion, the project will be marked not completed again.",
+  "mpActions.photoRemoveFailed": "Could not remove photo.",
   "mpActions.progressCaption": "Site progress photo",
   "mpActions.completionCaption": "After-work completion photo (required)",
   "mpActions.citizenReview": "Citizen review received:",

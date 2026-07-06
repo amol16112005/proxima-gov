@@ -561,6 +561,14 @@ const hi: Messages = {
   "mpActions.needCompletionPhoto": "परियोजना बंद करने से पहले पूर्णता (बाद की) फोटो अपलोड करें।",
   "mpActions.actionFailed": "कार्रवाई विफल।",
   "mpActions.photoUploadFailed": "फोटो अपलोड विफल।",
+  "mpActions.managePhotosTitle": "साइट फोटो प्रबंधित करें",
+  "mpActions.managePhotosHint":
+    "किसी भी चरण में प्रगति या पूर्णता फोटो हटाएँ। पूर्ण घोषणा के बाद आवश्यक फोटो हटाने पर मुद्दा फिर से प्रगति में (अपूर्ण) खुल जाता है।",
+  "mpActions.removePhoto": "फोटो हटाएँ",
+  "mpActions.removingPhoto": "हटाया जा रहा है…",
+  "mpActions.removePhotoConfirm":
+    "यह फोटो हटाएँ? पूर्णता के बाद आवश्यक फोटो नहीं रहेंगे तो परियोजना फिर अपूर्ण मानी जाएगी।",
+  "mpActions.photoRemoveFailed": "फोटो हटाना विफल।",
   "mpActions.progressCaption": "साइट प्रगति फोटो",
   "mpActions.completionCaption": "कार्य के बाद पूर्णता फोटो (अनिवार्य)",
   "mpActions.citizenReview": "नागरिक समीक्षा प्राप्त:",

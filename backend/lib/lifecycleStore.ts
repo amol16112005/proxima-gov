@@ -18,10 +18,21 @@ import {
 } from "./priorityEngine";
 
 export { getMpPriorityClusters } from "./priorityEngine";
-import { canMarkWorkComplete, hasCompletionPhoto } from "./lifecycleRules";
+import {
+  applyWorkCompletionRevert,
+  canMarkWorkComplete,
+  hasCompletionPhoto,
+  renumberProgressImageWeeks,
+  shouldRevertWorkCompletion,
+} from "./lifecycleRules";
 import { addNotification } from "./notifications";
 
-export { canMarkWorkComplete, hasCompletionPhoto } from "./lifecycleRules";
+export {
+  applyWorkCompletionRevert,
+  canMarkWorkComplete,
+  hasCompletionPhoto,
+  shouldRevertWorkCompletion,
+} from "./lifecycleRules";
 export { isMpActionableIssue } from "./issueTriage";
 
 declare global {
@@ -426,6 +437,51 @@ export function addProgressImage(
     isCompletion
       ? `Completion photo uploaded for #${issue.id}`
       : `Progress photo (week ${week}) uploaded for #${issue.id}`,
+    "issue.progress_photo"
+  );
+  return issue;
+}
+
+export function removeProgressImage(
+  issueId: string,
+  imageIndex: number
+): DevelopmentIssue | undefined {
+  const issue = getIssueById(issueId);
+  if (!issue) return undefined;
+  if (imageIndex < 0 || imageIndex >= issue.progressImages.length) return undefined;
+
+  const removed = issue.progressImages[imageIndex];
+  issue.progressImages.splice(imageIndex, 1);
+  renumberProgressImageWeeks(issue);
+
+  if (!hasCompletionPhoto(issue)) {
+    issue.afterImageLabel = undefined;
+  }
+
+  const reverted = shouldRevertWorkCompletion(issue.stage, canMarkWorkComplete(issue));
+  if (reverted) {
+    applyWorkCompletionRevert(issue);
+    pushTimeline(issue, "Work marked incomplete — MP removed required photos", "in-progress");
+    if (issue.citizenId) {
+      addNotification(
+        issue.citizenId,
+        issue.id,
+        `⚠️ #${issue.id} reopened for more work — MP removed site photos`
+      );
+    }
+  } else if (issue.citizenId) {
+    addNotification(
+      issue.citizenId,
+      issue.id,
+      `📷 MP removed a ${removed.isCompletion ? "completion" : "progress"} photo from #${issue.id}`
+    );
+  }
+
+  syncIssue(
+    issue,
+    reverted
+      ? `Work reverted to in-progress on #${issue.id} after MP removed photos`
+      : `MP removed ${removed.isCompletion ? "completion" : "progress"} photo from #${issue.id}`,
     "issue.progress_photo"
   );
   return issue;

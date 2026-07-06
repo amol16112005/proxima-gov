@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { DevelopmentIssue } from "@/data/lifecycleTypes";
-import { canMarkWorkComplete, hasCompletionPhoto } from "./lifecycleRules";
+import {
+  applyWorkCompletionRevert,
+  canMarkWorkComplete,
+  hasCompletionPhoto,
+  shouldRevertWorkCompletion,
+} from "./lifecycleRules";
 
 function issueWithImages(
   images: DevelopmentIssue["progressImages"]
@@ -81,5 +86,37 @@ describe("lifecycleRules", () => {
         ])
       )
     ).toBe(true);
+  });
+
+  it("reverts completion when required photos are missing in post-work stages", () => {
+    expect(shouldRevertWorkCompletion("citizen-verification", false)).toBe(true);
+    expect(shouldRevertWorkCompletion("mp-review", false)).toBe(true);
+    expect(shouldRevertWorkCompletion("in-progress", false)).toBe(false);
+    expect(shouldRevertWorkCompletion("citizen-verification", true)).toBe(false);
+  });
+
+  it("applies in-progress state when work completion is reverted", () => {
+    const issue = issueWithImages([
+      {
+        week: 1,
+        label: "Progress",
+        caption: "Progress",
+        gps: { lat: 12.9, lng: 77.6 },
+        capturedAt: "2026-07-01",
+        verified: true,
+        isCompletion: false,
+      },
+    ]);
+    issue.stage = "citizen-verification";
+    issue.progressSubStage = "completed";
+    issue.currentProgress = 100;
+    issue.afterImageLabel = "After — Test road";
+
+    applyWorkCompletionRevert(issue);
+
+    expect(issue.stage).toBe("in-progress");
+    expect(issue.progressSubStage).toBe("quality-inspection");
+    expect(issue.currentProgress).toBe(90);
+    expect(issue.afterImageLabel).toBeUndefined();
   });
 });

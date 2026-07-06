@@ -8,6 +8,7 @@ import { subStageLabel } from "@/frontend/i18n/labels";
 import type { DevelopmentIssue } from "@/data/lifecycleTypes";
 import { SUB_STAGE_CONFIG } from "@/data/lifecycleTypes";
 import { compressImageFile, PHOTO_ACCEPT_ATTRIBUTE } from "@/frontend/lib/imageUpload";
+import MpProgressPhotoManager from "@/components/mp/MpProgressPhotoManager";
 import { canMarkWorkComplete, hasCompletionPhoto } from "@/lib/lifecycleRules";
 import styles from "@/app/shared.module.css";
 
@@ -20,6 +21,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
   const [error, setError] = useState<string | null>(null);
   const [reviewNote, setReviewNote] = useState("");
   const [uploadingKind, setUploadingKind] = useState<"progress" | "completion" | null>(null);
+  const [removingIndex, setRemovingIndex] = useState<number | null>(null);
 
   const act = async (action: string, extra?: Record<string, unknown>) => {
     setError(null);
@@ -50,6 +52,32 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
     setError(null);
     pendingUploadRef.current = kind;
     fileInputRef.current?.click();
+  };
+
+  const removePhoto = async (imageIndex: number) => {
+    if (!window.confirm(t("mpActions.removePhotoConfirm"))) return;
+
+    setError(null);
+    setLoading(true);
+    setRemovingIndex(imageIndex);
+    try {
+      const res = await fetch(`/api/issues/${issue.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "removeImage", imageIndex }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? t("mpActions.photoRemoveFailed"));
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError(t("common.networkError"));
+    } finally {
+      setRemovingIndex(null);
+      setLoading(false);
+    }
   };
 
   const onPhotoSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -305,6 +333,13 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
       {issue.stage === "citizen-verification" && (
         <p className={styles.infoBox}>{t("mpActions.awaitingCitizen")}</p>
       )}
+
+      <MpProgressPhotoManager
+        issue={issue}
+        loading={loading}
+        removingIndex={removingIndex}
+        onRemove={removePhoto}
+      />
     </div>
   );
 }
