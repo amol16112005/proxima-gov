@@ -585,6 +585,7 @@ const en = {
   "mpActions.needCompletionPhoto": "Upload a completion (after-work) photo before closing the project.",
   "mpActions.actionFailed": "Action failed.",
   "mpActions.photoUploadFailed": "Photo upload failed.",
+  "mpActions.photoPickerUnavailable": "Could not open the photo picker. Please refresh and try again.",
   "mpActions.managePhotosTitle": "Manage site photos",
   "mpActions.managePhotosHint":
     "Remove planning, QA, or completion photos at any stage. Removing required photos after final submission reopens the issue as in-progress (not completed).",

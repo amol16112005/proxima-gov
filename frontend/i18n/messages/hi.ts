@@ -586,6 +586,7 @@ const hi: Messages = {
   "mpActions.needCompletionPhoto": "परियोजना बंद करने से पहले पूर्णता (बाद की) फोटो अपलोड करें।",
   "mpActions.actionFailed": "कार्रवाई विफल।",
   "mpActions.photoUploadFailed": "फोटो अपलोड विफल।",
+  "mpActions.photoPickerUnavailable": "फोटो पिकर नहीं खुल सका। पृष्ठ रीफ़्रेश करके पुनः प्रयास करें।",
   "mpActions.managePhotosTitle": "साइट फोटो प्रबंधित करें",
   "mpActions.managePhotosHint":
     "किसी भी चरण में योजना, QA या पूर्णता फोटो हटाएँ। अंतिम जमा के बाद आवश्यक फोटो हटाने पर मुद्दा फिर प्रगति में (अपूर्ण) खुल जाता है।",

@@ -81,7 +81,7 @@ describe("lifecycleRules", () => {
     ).toBe(true);
   });
 
-  it("gates planning photo upload to work start / planning stage", () => {
+  it("allows planning photo upload during active work when missing", () => {
     expect(canUploadPlanningPhoto(issueWithImages([], { stage: "work-started" }))).toBe(
       true
     );
@@ -89,8 +89,9 @@ describe("lifecycleRules", () => {
       canUploadPlanningPhoto(
         issueWithImages([], { stage: "in-progress", progressSubStage: "construction" })
       )
-    ).toBe(false);
+    ).toBe(true);
     expect(canUploadPlanningPhoto(issueWithImages([planningPhoto]))).toBe(false);
+    expect(canUploadPlanningPhoto(issueWithImages([], { stage: "approved" }))).toBe(false);
   });
 
   it("gates quality-inspection photo to QA sub-stage after planning photo", () => {

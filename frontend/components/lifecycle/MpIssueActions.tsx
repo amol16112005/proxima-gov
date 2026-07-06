@@ -35,7 +35,8 @@ export default function MpIssueActions({
   const { locale, translate: t } = useAccessibility();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingUploadRef = useRef<PhotoUploadKind | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [photoLoading, setPhotoLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reviewNote, setReviewNote] = useState("");
   const [uploadingKind, setUploadingKind] = useState<PhotoUploadKind | null>(null);
@@ -47,7 +48,7 @@ export default function MpIssueActions({
 
   const act = async (action: string, extra?: Record<string, unknown>) => {
     setError(null);
-    setLoading(true);
+    setActionLoading(true);
     try {
       const res = await fetch(`/api/issues/${issue.id}`, {
         method: "PATCH",
@@ -64,10 +65,11 @@ export default function MpIssueActions({
     } catch {
       setError(t("common.networkError"));
     } finally {
-      setLoading(false);
+      setActionLoading(false);
     }
   };
 
+  const busy = actionLoading || photoLoading;
   const completionReady = canMarkWorkComplete(issue);
   const planningReady = canUploadPlanningPhoto(issue);
   const qualityReady = canUploadQualityInspectionPhoto(issue);
@@ -79,14 +81,20 @@ export default function MpIssueActions({
   const openPhotoPicker = (kind: PhotoUploadKind) => {
     setError(null);
     pendingUploadRef.current = kind;
-    fileInputRef.current?.click();
+    const input = fileInputRef.current;
+    if (!input) {
+      setError(t("mpActions.photoPickerUnavailable"));
+      return;
+    }
+    input.value = "";
+    input.click();
   };
 
   const removePhoto = async (imageIndex: number) => {
     if (!window.confirm(t("mpActions.removePhotoConfirm"))) return;
 
     setError(null);
-    setLoading(true);
+    setPhotoLoading(true);
     setRemovingIndex(imageIndex);
     try {
       const res = await fetch(`/api/issues/${issue.id}`, {
@@ -105,7 +113,7 @@ export default function MpIssueActions({
       setError(t("common.networkError"));
     } finally {
       setRemovingIndex(null);
-      setLoading(false);
+      setPhotoLoading(false);
     }
   };
 
@@ -118,7 +126,7 @@ export default function MpIssueActions({
     if (!file || !kind) return;
 
     setError(null);
-    setLoading(true);
+    setPhotoLoading(true);
     setUploadingKind(kind);
     try {
       const imageUrl = await compressImageFile(file);
@@ -155,12 +163,22 @@ export default function MpIssueActions({
       setError(err instanceof Error ? err.message : t("mpActions.photoUploadFailed"));
     } finally {
       setUploadingKind(null);
-      setLoading(false);
+      setPhotoLoading(false);
     }
   };
 
   return (
     <div className={styles.projectCard} style={{ marginBottom: "1.5rem" }}>
+      <input
+        ref={fileInputRef}
+        id={`mp-progress-photo-${issue.id}`}
+        type="file"
+        accept={PHOTO_ACCEPT_ATTRIBUTE}
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden
+        onChange={onPhotoSelected}
+      />
       <h3 className={styles.sectionTitle}>
         {interpolate(t("mpActions.title"), { id: issue.id })}
       </h3>
@@ -219,7 +237,7 @@ export default function MpIssueActions({
                 className={styles.btnSecondary}
                 style={{ alignSelf: "flex-start", marginTop: "0.35rem" }}
                 onClick={() => setApprovalBudget(String(aiSuggestedBudget))}
-                disabled={loading}
+                disabled={busy}
               >
                 {t("mpActions.useAiBudgetSuggestion")}
               </button>
@@ -227,7 +245,7 @@ export default function MpIssueActions({
           </div>
           <button
             className={styles.btnPrimary}
-            disabled={loading || !approvalBudget.trim()}
+            disabled={busy || !approvalBudget.trim()}
             onClick={() => {
               const budget = Number(approvalBudget);
               if (!Number.isFinite(budget) || budget <= 0) {
@@ -246,7 +264,7 @@ export default function MpIssueActions({
       {issue.stage === "approved" && (
         <button
           className={styles.btnPrimary}
-          disabled={loading}
+          disabled={busy}
           onClick={() =>
             act("assign", {
               contractor: "ABC Infrastructure Pvt. Ltd.",
@@ -263,27 +281,19 @@ export default function MpIssueActions({
       )}
 
       {issue.stage === "work-assigned" && (
-        <button className={styles.btnPrimary} disabled={loading} onClick={() => act("tender")} type="button">
+        <button className={styles.btnPrimary} disabled={busy} onClick={() => act("tender")} type="button">
           {t("mpActions.releaseTender")}
         </button>
       )}
 
       {issue.stage === "tender-released" && (
-        <button className={styles.btnPrimary} disabled={loading} onClick={() => act("start")} type="button">
+        <button className={styles.btnPrimary} disabled={busy} onClick={() => act("start")} type="button">
           {t("mpActions.startWork")}
         </button>
       )}
 
       {(issue.stage === "work-started" || issue.stage === "in-progress") && (
         <>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={PHOTO_ACCEPT_ATTRIBUTE}
-            capture="environment"
-            style={{ display: "none" }}
-            onChange={onPhotoSelected}
-          />
           <div className={styles.photoInstructions} role="note" style={{ marginBottom: "0.75rem" }}>
             <p className={styles.photoHint}>{t("mpActions.progressHint")}</p>
             <p className={styles.photoSizeLimit}>{t("photo.uploadLimits")}</p>
@@ -308,7 +318,7 @@ export default function MpIssueActions({
               <button
                 key={s.key}
                 className={styles.btnSecondary}
-                disabled={loading || !canAdvanceToSubStage(issue, s.key)}
+                disabled={busy || !canAdvanceToSubStage(issue, s.key)}
                 onClick={() => act("progress", { subStage: s.key })}
                 type="button"
                 title={
@@ -322,44 +332,52 @@ export default function MpIssueActions({
             ))}
             <button
               className={styles.btnSecondary}
-              disabled={loading || !planningReady}
+              disabled={photoLoading || !planningReady}
               onClick={() => openPhotoPicker("planning")}
               type="button"
+              title={!planningReady ? t("mpActions.needPlanningPhoto") : undefined}
             >
               {hasPlanning
                 ? t("mpActions.planningPhotoUploaded")
-                : loading && uploadingKind === "planning"
+                : photoLoading && uploadingKind === "planning"
                   ? t("mpActions.uploading")
                   : t("mpActions.uploadPlanningPhoto")}
             </button>
             <button
               className={styles.btnSecondary}
-              disabled={loading || !qualityReady}
+              disabled={photoLoading || !qualityReady}
               onClick={() => openPhotoPicker("quality-inspection")}
               type="button"
-              title={!hasPlanning ? t("mpActions.needPlanningPhotoFirst") : undefined}
+              title={
+                !qualityReady
+                  ? !hasPlanning
+                    ? t("mpActions.needPlanningPhotoFirst")
+                    : t("mpActions.needQualityPhoto")
+                  : undefined
+              }
             >
               {hasQuality
                 ? t("mpActions.qualityPhotoUploaded")
-                : loading && uploadingKind === "quality-inspection"
+                : photoLoading && uploadingKind === "quality-inspection"
                   ? t("mpActions.uploading")
                   : t("mpActions.uploadQualityPhoto")}
             </button>
             <button
               className={styles.btnSecondary}
-              disabled={loading || !completionPhotoReady}
+              disabled={photoLoading || !completionPhotoReady}
               onClick={() => openPhotoPicker("completion")}
               type="button"
+              title={!completionPhotoReady ? t("mpActions.uploadPhotosFirst") : undefined}
             >
               {hasCompletion
                 ? t("mpActions.completionUploaded")
-                : loading && uploadingKind === "completion"
+                : photoLoading && uploadingKind === "completion"
                   ? t("mpActions.uploading")
                   : t("mpActions.uploadCompletion")}
             </button>
             <button
               className={styles.btnPrimary}
-              disabled={loading || !completionReady}
+              disabled={busy || !completionReady}
               onClick={() => act("progress", { subStage: "completed" })}
               type="button"
               title={completionReady ? t("mpActions.sendToVerification") : t("mpActions.uploadPhotosFirst")}
@@ -425,7 +443,7 @@ export default function MpIssueActions({
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
             <button
               className={styles.btnPrimary}
-              disabled={loading}
+              disabled={busy}
               onClick={() => act("mpReview", { decision: "approve-closure", note: reviewNote })}
               type="button"
             >
@@ -433,7 +451,7 @@ export default function MpIssueActions({
             </button>
             <button
               className={styles.btnSecondary}
-              disabled={loading}
+              disabled={busy}
               onClick={() => act("mpReview", { decision: "reopen-contractor", note: reviewNote })}
               type="button"
             >
@@ -441,7 +459,7 @@ export default function MpIssueActions({
             </button>
             <button
               className={styles.btnSecondary}
-              disabled={loading}
+              disabled={busy}
               onClick={() => act("mpReview", { decision: "escalate-officer", note: reviewNote })}
               type="button"
             >
@@ -449,7 +467,7 @@ export default function MpIssueActions({
             </button>
             <button
               className={styles.btnSecondary}
-              disabled={loading}
+              disabled={busy}
               onClick={() => act("mpReview", { decision: "reject-reinspect", note: reviewNote })}
               type="button"
             >
@@ -465,7 +483,7 @@ export default function MpIssueActions({
 
       <MpProgressPhotoManager
         issue={issue}
-        loading={loading}
+        loading={photoLoading}
         removingIndex={removingIndex}
         onRemove={removePhoto}
       />

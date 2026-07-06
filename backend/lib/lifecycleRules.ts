@@ -43,10 +43,8 @@ export function canMarkWorkComplete(issue: DevelopmentIssue): boolean {
 
 export function canUploadPlanningPhoto(issue: DevelopmentIssue): boolean {
   if (hasPlanningPhoto(issue)) return false;
-  return (
-    issue.stage === "work-started" ||
-    (issue.stage === "in-progress" && issue.progressSubStage === "planning")
-  );
+  // Allow catch-up uploads at any active work stage (e.g. after photo removal or legacy issues).
+  return issue.stage === "work-started" || issue.stage === "in-progress";
 }
 
 export function canUploadQualityInspectionPhoto(issue: DevelopmentIssue): boolean {
