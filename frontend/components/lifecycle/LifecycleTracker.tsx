@@ -150,6 +150,11 @@ export default function LifecycleTracker({
               <p style={{ fontSize: "0.82rem", color: "#a78bfa", marginTop: "0.4rem", fontStyle: "italic" }}>
                 {issue.aiAnalysis.recommendation}
               </p>
+              {issue.approval && (
+                <p style={{ fontSize: "0.82rem", color: "#86efac", marginTop: "0.5rem" }}>
+                  {t("mpActions.mpApprovedBudget")}: {formatINR(issue.approval.budget)} · {issue.approval.fund}
+                </p>
+              )}
             </div>
           </div>
         </section>

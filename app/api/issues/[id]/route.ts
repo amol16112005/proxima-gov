@@ -12,6 +12,7 @@ import {
   sanitizeIssueForPublic,
 } from "@/lib/auth/issueAccess";
 import { getSession } from "@/lib/auth/session";
+import { validateMpApproval } from "@/lib/validation";
 import {
   addProgressImage,
   getIssueById,
@@ -79,14 +80,23 @@ export async function PATCH(
 
   let updated;
   switch (action) {
-    case "approve":
+    case "approve": {
+      const parsed = validateMpApproval(body);
+      if (!parsed.ok) return jsonError(parsed.error, 400);
       updated = mpApproveIssue(
         id,
         mp?.name ?? session.name,
-        (body.fund as string) ?? "MPLADS",
-        (body.budget as number) ?? issue.aiAnalysis?.estimatedCost ?? 10_00_000
+        parsed.data.fund,
+        parsed.data.budget
       );
+      if (!updated) {
+        return NextResponse.json(
+          { error: "Issue cannot be approved in its current state.", code: "APPROVAL_NOT_ALLOWED" },
+          { status: 400 }
+        );
+      }
       break;
+    }
     case "assign":
       updated = mpAssignWork(
         id,

@@ -118,6 +118,8 @@ export default async function MpDashboardPage() {
           reviewTop: m("mpDash.priorityReviewTop"),
           noClusters: m("mpDash.noPendingShort"),
           hasPhotoEvidence: m("mpDash.hasPhotoEvidence"),
+          aiSuggestedBudget: m("mpDash.aiSuggestedBudget"),
+          aiBudgetAdvisory: m("mpActions.aiBudgetAdvisory"),
         }}
       />
 
@@ -148,7 +150,9 @@ export default async function MpDashboardPage() {
                   </p>
                   <p style={{ fontWeight: 600 }}>{issue.title}</p>
                 </div>
-                <span>{formatINR(issue.aiAnalysis?.estimatedCost ?? 0)}</span>
+                <span title={m("mpActions.aiBudgetAdvisory")}>
+                  {m("mpDash.aiSuggestedBudget")} {formatINR(issue.aiAnalysis?.estimatedCost ?? 0)}
+                </span>
               </Link>
               <MpIssueActions issue={issue} />
             </div>

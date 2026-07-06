@@ -23,6 +23,8 @@ interface MpPriorityRecommendationsProps {
     reviewTop: string;
     noClusters: string;
     hasPhotoEvidence: string;
+    aiSuggestedBudget: string;
+    aiBudgetAdvisory: string;
   };
 }
 
@@ -98,7 +100,9 @@ export default function MpPriorityRecommendations({
                     </p>
                     <p style={{ fontWeight: 600 }}>{topIssue.title}</p>
                   </div>
-                  <span>{formatINR(topIssue.aiAnalysis?.estimatedCost ?? 0)}</span>
+                  <span title={labels.aiBudgetAdvisory}>
+                    {labels.aiSuggestedBudget} {formatINR(topIssue.aiAnalysis?.estimatedCost ?? 0)}
+                  </span>
                 </Link>
               )}
               {topIssue && (

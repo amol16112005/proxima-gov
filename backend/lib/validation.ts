@@ -89,3 +89,41 @@ export function validateIssueSubmission(body: {
     data: { category, title, description, location, submissionPhotoUrl },
   };
 }
+
+const MIN_MP_BUDGET_INR = 10_000;
+const MAX_MP_BUDGET_INR = 500_00_00_000;
+
+export function validateMpApproval(body: {
+  fund?: string;
+  budget?: unknown;
+}): { ok: true; data: { fund: string; budget: number } } | { ok: false; error: string } {
+  const fundRaw = body.fund?.trim() ?? "";
+  if (!fundRaw) {
+    return { ok: false, error: "Please select or enter a fund source." };
+  }
+
+  const budget =
+    typeof body.budget === "number"
+      ? body.budget
+      : typeof body.budget === "string"
+        ? Number(body.budget.replace(/,/g, "").trim())
+        : Number.NaN;
+
+  if (!Number.isFinite(budget) || budget <= 0) {
+    return { ok: false, error: "Please enter the approved budget amount in rupees." };
+  }
+  if (budget < MIN_MP_BUDGET_INR) {
+    return { ok: false, error: `Budget must be at least ₹${MIN_MP_BUDGET_INR.toLocaleString("en-IN")}.` };
+  }
+  if (budget > MAX_MP_BUDGET_INR) {
+    return { ok: false, error: "Budget exceeds the allowed maximum for MP approval." };
+  }
+
+  return {
+    ok: true,
+    data: {
+      fund: normalizeFreeText(fundRaw, 120),
+      budget: Math.round(budget),
+    },
+  };
+}

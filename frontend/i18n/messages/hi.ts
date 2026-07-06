@@ -496,7 +496,7 @@ const hi: Messages = {
   "lifecycle.date": "तिथि",
   "lifecycle.issueId": "मुद्दा ID",
   "lifecycle.priorityScore": "प्राथमिकता स्कोर",
-  "lifecycle.estCost": "अनुमानित लागत",
+  "lifecycle.estCost": "AI सुझाई लागत",
   "lifecycle.jurisdiction": "अधिकार क्षेत्र",
   "lifecycle.suggestedAuthority": "सुझाई गई संस्था",
   "lifecycle.declinedNote":
@@ -544,7 +544,18 @@ const hi: Messages = {
   "verify.failed": "सत्यापन विफल।",
 
   "mpActions.title": "सांसद कार्रवाई — #{id}",
-  "mpActions.approveProject": "🟢 परियोजना अनुमोदित करें",
+  "mpActions.approveProject": "🟢 सांसद बजट के साथ अनुमोदित करें",
+  "mpActions.approvalHint":
+    "फंड स्रोत और अनुमोदित बजट आप तय करें। AI लागत अनुमान केवल सुझाव हैं — स्वतः लागू नहीं होते।",
+  "mpActions.aiBudgetSuggestion": "AI सुझाया बजट",
+  "mpActions.aiBudgetAdvisory": "केवल सुझाव",
+  "mpActions.fundSource": "फंड स्रोत",
+  "mpActions.approvedBudget": "अनुमोदित बजट (₹)",
+  "mpActions.approvedBudgetPlaceholder": "रुपये में राशि दर्ज करें — उदा. 1500000",
+  "mpActions.useAiBudgetSuggestion": "AI सुझाव बजट फ़ील्ड में भरें",
+  "mpActions.budgetRequired": "अनुमोदन से पहले अनुमोदित बजट दर्ज करें।",
+  "mpActions.mpApprovedBudget": "सांसद अनुमोदित बजट",
+  "mpDash.aiSuggestedBudget": "AI सुझाव",
   "mpActions.assignContractor": "👷 ठेकेदार नियुक्त करें",
   "mpActions.releaseTender": "📋 निविदा जारी करें",
   "mpActions.startWork": "🚧 कार्य शुरू करें",

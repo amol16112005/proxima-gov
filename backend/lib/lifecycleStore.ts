@@ -121,7 +121,7 @@ export function generateAiAnalysis(
     hospitalConnectivity: category === "healthcare" || hash % 2 === 0,
     estimatedCost: (5 + (hash % 45)) * 1_00_000,
     reasons: reasons.slice(0, 4),
-    recommendation: `Priority ${score >= 90 ? "immediate" : "scheduled"} allocation recommended based on AI triage.`,
+    recommendation: `AI suggests ${score >= 90 ? "high" : "moderate"} priority — MP sets the final approved budget and fund source.`,
     analyzedAt: new Date().toISOString(),
   };
 }

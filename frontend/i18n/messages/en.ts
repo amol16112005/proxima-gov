@@ -495,7 +495,7 @@ const en = {
   "lifecycle.date": "Date",
   "lifecycle.issueId": "Issue ID",
   "lifecycle.priorityScore": "Priority Score",
-  "lifecycle.estCost": "Est. cost",
+  "lifecycle.estCost": "AI suggested cost",
   "lifecycle.jurisdiction": "Jurisdiction",
   "lifecycle.suggestedAuthority": "Suggested authority",
   "lifecycle.declinedNote":
@@ -543,7 +543,18 @@ const en = {
   "verify.failed": "Verification failed.",
 
   "mpActions.title": "MP Actions — #{id}",
-  "mpActions.approveProject": "🟢 Approve Project",
+  "mpActions.approveProject": "🟢 Approve with MP Budget",
+  "mpActions.approvalHint":
+    "You decide the fund source and approved budget. AI cost estimates are advisory suggestions only — they are not auto-applied.",
+  "mpActions.aiBudgetSuggestion": "AI suggested budget",
+  "mpActions.aiBudgetAdvisory": "advisory only",
+  "mpActions.fundSource": "Fund source",
+  "mpActions.approvedBudget": "Approved budget (₹)",
+  "mpActions.approvedBudgetPlaceholder": "Enter amount in rupees — e.g. 1500000",
+  "mpActions.useAiBudgetSuggestion": "Copy AI suggestion into budget field",
+  "mpActions.budgetRequired": "Enter the approved budget amount before approving.",
+  "mpActions.mpApprovedBudget": "MP approved budget",
+  "mpDash.aiSuggestedBudget": "AI sugg.",
   "mpActions.assignContractor": "👷 Assign Contractor",
   "mpActions.releaseTender": "📋 Release Tender",
   "mpActions.startWork": "🚧 Start Work",

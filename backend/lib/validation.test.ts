@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   isValidEmail,
   validateIssueSubmission,
+  validateMpApproval,
   validateRegistrationFields,
   validateSubmissionPhoto,
 } from "./validation";
@@ -70,6 +71,19 @@ describe("validation", () => {
     if (result.ok) {
       expect(result.data.submissionPhotoUrl).toBe(photoUrl);
     }
+  });
+
+  it("requires MP-entered budget and fund for approval", () => {
+    const ok = validateMpApproval({ fund: "MPLADS", budget: 15_00_000 });
+    expect(ok.ok).toBe(true);
+    if (ok.ok) {
+      expect(ok.data.budget).toBe(15_00_000);
+      expect(ok.data.fund).toBe("MPLADS");
+    }
+
+    expect(validateMpApproval({ fund: "", budget: 15_00_000 }).ok).toBe(false);
+    expect(validateMpApproval({ fund: "MPLADS", budget: 0 }).ok).toBe(false);
+    expect(validateMpApproval({ fund: "MPLADS" }).ok).toBe(false);
   });
 
   it("rejects invalid photo payloads", () => {

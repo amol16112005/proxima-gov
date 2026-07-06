@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { useAccessibility } from "@/context/AccessibilityContext";
 import { interpolate } from "@/frontend/i18n";
 import { subStageLabel } from "@/frontend/i18n/labels";
+import { formatINR } from "@/data/constituencies";
 import type { DevelopmentIssue } from "@/data/lifecycleTypes";
 import { SUB_STAGE_CONFIG } from "@/data/lifecycleTypes";
 import { compressImageFile, PHOTO_ACCEPT_ATTRIBUTE } from "@/frontend/lib/imageUpload";
@@ -33,6 +34,10 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
   const [reviewNote, setReviewNote] = useState("");
   const [uploadingKind, setUploadingKind] = useState<PhotoUploadKind | null>(null);
   const [removingIndex, setRemovingIndex] = useState<number | null>(null);
+  const [approvalFund, setApprovalFund] = useState("MPLADS");
+  const [approvalBudget, setApprovalBudget] = useState("");
+
+  const aiSuggestedBudget = issue.aiAnalysis?.estimatedCost ?? 0;
 
   const act = async (action: string, extra?: Record<string, unknown>) => {
     setError(null);
@@ -158,19 +163,75 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
       )}
 
       {(issue.stage === "ai-analysis" || issue.stage === "mp-approval") && (
-        <button
-          className={styles.btnPrimary}
-          disabled={loading}
-          onClick={() =>
-            act("approve", {
-              fund: "MPLADS",
-              budget: issue.aiAnalysis?.estimatedCost ?? 10_00_000,
-            })
-          }
-          type="button"
-        >
-          {t("mpActions.approveProject")}
-        </button>
+        <div className={styles.approvalForm}>
+          <p className={styles.photoHint}>{t("mpActions.approvalHint")}</p>
+          {aiSuggestedBudget > 0 && (
+            <p className={styles.aiBudgetSuggestion}>
+              {t("mpActions.aiBudgetSuggestion")}: <strong>{formatINR(aiSuggestedBudget)}</strong>
+              <span className={styles.aiBudgetAdvisory}> ({t("mpActions.aiBudgetAdvisory")})</span>
+            </p>
+          )}
+          <div className={styles.fieldGroup}>
+            <label className={styles.label} htmlFor={`approval-fund-${issue.id}`}>
+              {t("mpActions.fundSource")}<span className={styles.required}>*</span>
+            </label>
+            <select
+              id={`approval-fund-${issue.id}`}
+              className={styles.select}
+              value={approvalFund}
+              onChange={(e) => setApprovalFund(e.target.value)}
+            >
+              <option value="MPLADS">MPLADS</option>
+              <option value="Samagra Shiksha">Samagra Shiksha</option>
+              <option value="Jal Jeevan Mission">Jal Jeevan Mission</option>
+              <option value="State Development Fund">State Development Fund</option>
+              <option value="Other">Other / Local Scheme</option>
+            </select>
+          </div>
+          <div className={styles.fieldGroup}>
+            <label className={styles.label} htmlFor={`approval-budget-${issue.id}`}>
+              {t("mpActions.approvedBudget")}<span className={styles.required}>*</span>
+            </label>
+            <input
+              id={`approval-budget-${issue.id}`}
+              className={styles.input}
+              type="number"
+              min={10000}
+              step={1000}
+              inputMode="numeric"
+              value={approvalBudget}
+              onChange={(e) => setApprovalBudget(e.target.value)}
+              placeholder={t("mpActions.approvedBudgetPlaceholder")}
+              required
+            />
+            {aiSuggestedBudget > 0 && (
+              <button
+                type="button"
+                className={styles.btnSecondary}
+                style={{ alignSelf: "flex-start", marginTop: "0.35rem" }}
+                onClick={() => setApprovalBudget(String(aiSuggestedBudget))}
+                disabled={loading}
+              >
+                {t("mpActions.useAiBudgetSuggestion")}
+              </button>
+            )}
+          </div>
+          <button
+            className={styles.btnPrimary}
+            disabled={loading || !approvalBudget.trim()}
+            onClick={() => {
+              const budget = Number(approvalBudget);
+              if (!Number.isFinite(budget) || budget <= 0) {
+                setError(t("mpActions.budgetRequired"));
+                return;
+              }
+              act("approve", { fund: approvalFund, budget });
+            }}
+            type="button"
+          >
+            {t("mpActions.approveProject")}
+          </button>
+        </div>
       )}
 
       {issue.stage === "approved" && (
