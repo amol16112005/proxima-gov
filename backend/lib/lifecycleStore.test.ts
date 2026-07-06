@@ -151,11 +151,11 @@ describe("removeProgressImage", () => {
     expect(updated?.progressImages.some((img) => img.isCompletion)).toBe(false);
   });
 
-  it("resets SL4012 process when synthetic before photo is removed", async () => {
+  it("resets active workflow process when synthetic before photo is removed", async () => {
     global.__proximaIssues = [
       {
         ...baseIssue(),
-        id: "SL4012",
+        id: "HC5018",
         progressSubStage: "quality-inspection",
         currentProgress: 90,
         progressImages: [
@@ -174,7 +174,7 @@ describe("removeProgressImage", () => {
       },
     ];
 
-    const updated = await removeProgressImage("SL4012", 0);
+    const updated = await removeProgressImage("HC5018", 0);
     expect(updated?.progressSubStage).toBe("planning");
     expect(updated?.currentProgress).toBe(0);
     expect(updated?.progressImages).toHaveLength(0);

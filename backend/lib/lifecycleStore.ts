@@ -41,6 +41,7 @@ import {
   stripSyntheticPhotosForActiveWorkflow,
 } from "./lifecycleRules";
 import { addNotification } from "./notifications";
+import { isRetiredIssue, withoutRetiredIssues } from "./retiredIssues";
 import { backfillSeedIssuePhotos } from "./seedIssueBackfill";
 
 export {
@@ -77,12 +78,12 @@ declare global {
 
 function issues(): DevelopmentIssue[] {
   if (!global.__proximaIssues) {
-    global.__proximaIssues = SEED_ISSUES.map((i) => {
+    global.__proximaIssues = withoutRetiredIssues(SEED_ISSUES).map((i) => {
       const seeded = { ...i, progressImages: [...i.progressImages] };
       return backfillSeedIssuePhotos(seeded).issue;
     });
   }
-  return global.__proximaIssues;
+  return withoutRetiredIssues(global.__proximaIssues);
 }
 
 function nextId(prefix: string): string {
@@ -159,6 +160,7 @@ export function getAllIssues(): DevelopmentIssue[] {
 }
 
 export function getIssueById(id: string): DevelopmentIssue | undefined {
+  if (isRetiredIssue(id)) return undefined;
   return issues().find((i) => i.id === id);
 }
 

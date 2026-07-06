@@ -9,13 +9,11 @@ import {
 } from "./seedIssueBackfill";
 
 describe("seedIssueBackfill", () => {
-  it("only targets seed issues that crossed work stages", () => {
-    const sl4012 = SEED_ISSUES.find((i) => i.id === "SL4012")!;
+  it("only targets legacy seed issues that crossed work stages", () => {
     const rd1024 = SEED_ISSUES.find((i) => i.id === "RD1024")!;
     const hc5018 = SEED_ISSUES.find((i) => i.id === "HC5018")!;
 
-    expect(SEED_ISSUE_IDS.has("SL4012")).toBe(true);
-    expect(isEligibleSeedBackfill(sl4012)).toBe(false);
+    expect(SEED_ISSUE_IDS.has("SL4012")).toBe(false);
     expect(isEligibleSeedBackfill(hc5018)).toBe(false);
     expect(isEligibleSeedBackfill(rd1024)).toBe(true);
   });
@@ -47,30 +45,30 @@ describe("seedIssueBackfill", () => {
   });
 
   it("does not modify pre-work seed issues or non-seed issues", () => {
-    const sl4012 = structuredClone(SEED_ISSUES.find((i) => i.id === "SL4012")!);
+    const hc5018 = structuredClone(SEED_ISSUES.find((i) => i.id === "HC5018")!);
     const custom: DevelopmentIssue = {
-      ...sl4012,
+      ...hc5018,
       id: "SL6999",
       stage: "in-progress",
       currentProgress: 50,
       progressImages: [],
     };
 
-    expect(backfillSeedIssuePhotos(sl4012).changed).toBe(false);
+    expect(backfillSeedIssuePhotos(hc5018).changed).toBe(false);
     expect(backfillSeedIssuePhotos(custom).changed).toBe(false);
   });
 
-  it("never backfills SL4012 during active MP work even when in-progress", () => {
-    const sl4012: DevelopmentIssue = {
-      ...structuredClone(SEED_ISSUES.find((i) => i.id === "SL4012")!),
+  it("never backfills HC5018 during active MP work even when in-progress", () => {
+    const hc5018: DevelopmentIssue = {
+      ...structuredClone(SEED_ISSUES.find((i) => i.id === "HC5018")!),
       stage: "in-progress",
       currentProgress: 90,
       progressSubStage: "quality-inspection",
       progressImages: [],
     };
 
-    expect(isEligibleSeedBackfill(sl4012)).toBe(false);
-    expect(backfillSeedIssuePhotos(sl4012).changed).toBe(false);
+    expect(isEligibleSeedBackfill(hc5018)).toBe(false);
+    expect(backfillSeedIssuePhotos(hc5018).changed).toBe(false);
   });
 
   it("does not duplicate backfill when milestone photos already exist", () => {

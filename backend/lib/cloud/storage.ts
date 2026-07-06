@@ -56,6 +56,40 @@ export async function saveIssue(issue: DevelopmentIssue): Promise<void> {
   sqliteUpsert("issues", issue.id, issue);
 }
 
+export async function deleteIssueFromStorage(issueId: string): Promise<void> {
+  if (getStorageProvider() === "mongodb") {
+    const db = await getMongoDb();
+    if (!db) return;
+    await db.collection(COLLECTIONS.issues).deleteOne({ _id: issueId });
+    return;
+  }
+  const database = getDb();
+  if (!database) return;
+  database.prepare("DELETE FROM issues WHERE id = ?").run(issueId);
+}
+
+export async function deleteNotificationsForIssue(issueId: string): Promise<void> {
+  if (getStorageProvider() === "mongodb") {
+    const db = await getMongoDb();
+    if (!db) return;
+    await db.collection(COLLECTIONS.notifications).deleteMany({ issueId });
+    return;
+  }
+  const database = getDb();
+  if (!database) return;
+  const rows = database.prepare("SELECT id, data FROM notifications").all() as {
+    id: string;
+    data: string;
+  }[];
+  const remove = database.prepare("DELETE FROM notifications WHERE id = ?");
+  for (const row of rows) {
+    const notification = JSON.parse(row.data) as Notification;
+    if (notification.issueId === issueId) {
+      remove.run(row.id);
+    }
+  }
+}
+
 export function saveGrievance(grievance: Grievance): void {
   if (getStorageProvider() === "mongodb") {
     runAsync("saveGrievance", async () => {

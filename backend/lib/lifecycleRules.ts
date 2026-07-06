@@ -5,7 +5,7 @@ import type {
   ProgressSubStage,
 } from "@/data/lifecycleTypes";
 /** MPs actively work these demos through the real photo + process flow. */
-export const ACTIVE_MP_WORKFLOW_SEED_IDS = new Set(["SL4012", "HC5018"]);
+export const ACTIVE_MP_WORKFLOW_SEED_IDS = new Set(["HC5018"]);
 
 const REVERTIBLE_AFTER_PHOTO_REMOVAL: LifecycleStage[] = [
   "citizen-verification",

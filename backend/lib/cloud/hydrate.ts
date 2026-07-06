@@ -8,6 +8,7 @@ import { cloudStatus } from "./config";
 import { isStorageEnabled, getStorageProvider } from "./provider";
 import { backfillAndPersistSeedIssues, backfillSeedIssuePhotos } from "@/lib/seedIssueBackfill";
 import { repairWorkProcessState } from "@/lib/lifecycleRules";
+import { purgeRetiredIssuesFromStorage, withoutRetiredIssues } from "@/lib/retiredIssues";
 import { persistIssue, persistIssueCounter, seedIssuesToStorage } from "./persist";
 import {
   loadCitizens,
@@ -51,9 +52,11 @@ async function hydrateFromStorage(): Promise<void> {
   }
   setCitizens(citizenMap);
 
-  let issues = await loadIssues();
+  await purgeRetiredIssuesFromStorage();
+
+  let issues = withoutRetiredIssues(await loadIssues());
   if (issues.length === 0) {
-    issues = SEED_ISSUES.map((i) => ({ ...i }));
+    issues = withoutRetiredIssues(SEED_ISSUES.map((i) => ({ ...i })));
     issues = await backfillAndPersistSeedIssues(issues, persistIssue);
     await seedIssuesToStorage(issues);
     for (const issue of issues) {
@@ -131,7 +134,7 @@ async function doHydrate(): Promise<void> {
   if (!isStorageEnabled()) {
     if (!global.__proximaActivityLog?.length) {
       if (!global.__proximaIssues) {
-        global.__proximaIssues = SEED_ISSUES.map((i) => {
+        global.__proximaIssues = withoutRetiredIssues(SEED_ISSUES).map((i) => {
           const seeded = { ...i, progressImages: [...i.progressImages] };
           return backfillSeedIssuePhotos(seeded).issue;
         });

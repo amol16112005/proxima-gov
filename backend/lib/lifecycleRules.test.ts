@@ -189,7 +189,7 @@ describe("lifecycleRules", () => {
           demoBackfill: true,
         },
       ],
-      { id: "SL4012", progressSubStage: "quality-inspection", currentProgress: 90 }
+      { id: "HC5018", progressSubStage: "quality-inspection", currentProgress: 90 }
     );
 
     expect(hasBeforeWorkPhoto(issue)).toBe(false);
