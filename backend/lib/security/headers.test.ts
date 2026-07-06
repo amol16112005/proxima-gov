@@ -10,6 +10,12 @@ describe("security headers", () => {
     expect(keys).toContain("Content-Security-Policy");
   });
 
+  it("allows microphone on same origin for voice issue submission", () => {
+    const policy = SECURITY_HEADERS.find((h) => h.key === "Permissions-Policy");
+    expect(policy?.value).toContain("microphone=(self)");
+    expect(policy?.value).not.toContain("microphone=()");
+  });
+
   it("adds HSTS in production", () => {
     const prev = process.env.NODE_ENV;
     process.env.NODE_ENV = "production";

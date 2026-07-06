@@ -26,8 +26,12 @@ describe("mapSpeechErrorToMessageKey", () => {
     expect(mapSpeechErrorToMessageKey("network")).toBe("issuesNew.voiceNetwork");
   });
 
+  it("maps audio-capture to mic denied", () => {
+    expect(mapSpeechErrorToMessageKey("audio-capture")).toBe("issuesNew.voiceMicDenied");
+  });
+
   it("falls back to generic voice error", () => {
-    expect(mapSpeechErrorToMessageKey("audio-capture")).toBe("issuesNew.voiceError");
+    expect(mapSpeechErrorToMessageKey("bad-grammar")).toBe("issuesNew.voiceError");
   });
 });
 

@@ -57,6 +57,7 @@ export function mapSpeechErrorToMessageKey(error: SpeechRecognitionErrorCode): M
   switch (error) {
     case "not-allowed":
     case "service-not-allowed":
+    case "audio-capture":
       return "issuesNew.voiceMicDenied";
     case "no-speech":
       return "issuesNew.voiceNoSpeech";
