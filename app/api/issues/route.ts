@@ -47,7 +47,7 @@ export async function POST(request: Request) {
   if (!parsed.ok) return jsonError(parsed.error, 400);
 
   const { category, title, description, location, submissionPhotoUrl } = parsed.data;
-  const issue = createIssue({
+  const issue = await createIssue({
     citizenId: session.id,
     citizenName: session.name,
     constituencyId: session.constituencyId,

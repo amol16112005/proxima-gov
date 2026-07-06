@@ -6,6 +6,8 @@ import { getIssueById } from "@/lib/lifecycleStore";
 import { getServerTranslator } from "@/frontend/i18n/server";
 import styles from "@/app/shared.module.css";
 
+export const dynamic = "force-dynamic";
+
 export default async function TransparencyDetailPage({
   params,
 }: {

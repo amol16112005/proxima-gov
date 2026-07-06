@@ -1,14 +1,15 @@
 import { redirect, notFound } from "next/navigation";
 import PortalHeader from "@/components/PortalHeader";
 import MpBackLink from "@/components/MpBackLink";
-import LifecycleTracker from "@/components/lifecycle/LifecycleTracker";
-import MpIssueActions from "@/components/lifecycle/MpIssueActions";
+import MpIssueWorkspace from "@/components/mp/MpIssueWorkspace";
 import { getConstituencyById } from "@/data/constituencies";
 import { getMpById } from "@/data/mpRegistry";
 import { ensureDataHydrated } from "@/lib/cloud";
 import { getSession } from "@/lib/auth/session";
 import { getIssueById, isMpActionableIssue } from "@/lib/lifecycleStore";
 import styles from "@/app/shared.module.css";
+
+export const dynamic = "force-dynamic";
 
 export default async function MpIssueDetailPage({
   params,
@@ -33,8 +34,7 @@ export default async function MpIssueDetailPage({
     <div className={styles.pageWide}>
       <PortalHeader portal="mp" userName={mp?.name ?? session.name} constituencyName={constituency?.name ?? ""} />
       <MpBackLink />
-      <MpIssueActions issue={issue} />
-      <LifecycleTracker issue={issue} />
+      <MpIssueWorkspace issue={issue} />
     </div>
   );
 }

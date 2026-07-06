@@ -24,7 +24,13 @@ import styles from "@/app/shared.module.css";
 
 type PhotoUploadKind = "planning" | "quality-inspection" | "completion";
 
-export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
+export default function MpIssueActions({
+  issue,
+  onIssueUpdated,
+}: {
+  issue: DevelopmentIssue;
+  onIssueUpdated?: (issue: DevelopmentIssue) => void;
+}) {
   const router = useRouter();
   const { locale, translate: t } = useAccessibility();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,6 +59,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
         setError(data.error ?? t("mpActions.actionFailed"));
         return;
       }
+      if (data.issue) onIssueUpdated?.(data.issue as DevelopmentIssue);
       router.refresh();
     } catch {
       setError(t("common.networkError"));
@@ -92,6 +99,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
         setError(data.error ?? t("mpActions.photoRemoveFailed"));
         return;
       }
+      if (data.issue) onIssueUpdated?.(data.issue as DevelopmentIssue);
       router.refresh();
     } catch {
       setError(t("common.networkError"));
@@ -141,6 +149,7 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
         setError(data.error ?? t("mpActions.photoUploadFailed"));
         return;
       }
+      if (data.issue) onIssueUpdated?.(data.issue as DevelopmentIssue);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t("mpActions.photoUploadFailed"));

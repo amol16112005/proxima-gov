@@ -68,8 +68,12 @@ function nextId(prefix: string): string {
   return `${prefix}${global.__proximaIssueCounter}`;
 }
 
-function syncIssue(issue: DevelopmentIssue, summary: string, type: Parameters<typeof scheduleActivity>[0]["type"]): void {
-  persistIssue(issue);
+async function syncIssue(
+  issue: DevelopmentIssue,
+  summary: string,
+  type: Parameters<typeof scheduleActivity>[0]["type"]
+): Promise<void> {
+  await persistIssue(issue);
   scheduleActivity({
     type,
     summary,
@@ -164,7 +168,7 @@ export function getActiveTransparencyIssues(constituencyId?: string): Developmen
   );
 }
 
-export function createIssue(data: {
+export async function createIssue(data: {
   citizenId: string;
   citizenName: string;
   constituencyId: string;
@@ -173,7 +177,7 @@ export function createIssue(data: {
   description: string;
   location: string;
   submissionPhotoUrl?: string;
-}): DevelopmentIssue {
+}): Promise<DevelopmentIssue> {
   const prefix =
     data.category === "infrastructure"
       ? "RD"
@@ -263,7 +267,7 @@ export function createIssue(data: {
     );
   }
 
-  syncIssue(
+  await syncIssue(
     issue,
     mpEligible
       ? `Issue submitted: ${issue.title}`
@@ -277,12 +281,12 @@ function pushTimeline(issue: DevelopmentIssue, label: string, stage: LifecycleSt
   issue.timeline.push({ date: today(), label, stage });
 }
 
-export function mpApproveIssue(
+export async function mpApproveIssue(
   issueId: string,
   mpName: string,
   fund: string,
   budget: number
-): DevelopmentIssue | undefined {
+): Promise<DevelopmentIssue | undefined> {
   const issue = getIssueById(issueId);
   if (!issue || !issue.aiAnalysis) return undefined;
 
@@ -300,17 +304,17 @@ export function mpApproveIssue(
   if (issue.citizenId) {
     addNotification(issue.citizenId, issue.id, `🟢 MP approved #${issue.id} — Fund: ${fund}, Budget ₹${(budget / 100000).toFixed(0)} Lakhs`);
   }
-  syncIssue(issue, `MP ${mpName} approved #${issue.id}`, "issue.mp_action");
+  await syncIssue(issue, `MP ${mpName} approved #${issue.id}`, "issue.mp_action");
   return issue;
 }
 
-export function mpAssignWork(
+export async function mpAssignWork(
   issueId: string,
   contractor: string,
   officer: string,
   estimatedDays: number,
   deadline: string
-): DevelopmentIssue | undefined {
+): Promise<DevelopmentIssue | undefined> {
   const issue = getIssueById(issueId);
   if (!issue || !issue.approval) return undefined;
 
@@ -322,11 +326,11 @@ export function mpAssignWork(
   if (issue.citizenId) {
     addNotification(issue.citizenId, issue.id, `👷 Contractor assigned for #${issue.id}: ${contractor}`);
   }
-  syncIssue(issue, `Work assigned to ${contractor} for #${issue.id}`, "issue.stage_changed");
+  await syncIssue(issue, `Work assigned to ${contractor} for #${issue.id}`, "issue.stage_changed");
   return issue;
 }
 
-export function mpReleaseTender(issueId: string): DevelopmentIssue | undefined {
+export async function mpReleaseTender(issueId: string): Promise<DevelopmentIssue | undefined> {
   const issue = getIssueById(issueId);
   if (!issue) return undefined;
   issue.stage = "tender-released";
@@ -334,11 +338,11 @@ export function mpReleaseTender(issueId: string): DevelopmentIssue | undefined {
   if (issue.citizenId) {
     addNotification(issue.citizenId, issue.id, `📋 Tender released for #${issue.id}`);
   }
-  syncIssue(issue, `Tender released for #${issue.id}`, "issue.stage_changed");
+  await syncIssue(issue, `Tender released for #${issue.id}`, "issue.stage_changed");
   return issue;
 }
 
-export function mpStartWork(issueId: string): DevelopmentIssue | undefined {
+export async function mpStartWork(issueId: string): Promise<DevelopmentIssue | undefined> {
   const issue = getIssueById(issueId);
   if (!issue) return undefined;
   issue.stage = "work-started";
@@ -348,14 +352,14 @@ export function mpStartWork(issueId: string): DevelopmentIssue | undefined {
   if (issue.citizenId) {
     addNotification(issue.citizenId, issue.id, `🔔 Road Work Started — #${issue.id}`);
   }
-  syncIssue(issue, `Work started on #${issue.id}`, "issue.stage_changed");
+  await syncIssue(issue, `Work started on #${issue.id}`, "issue.stage_changed");
   return issue;
 }
 
-export function updateProgress(
+export async function updateProgress(
   issueId: string,
   subStage: ProgressSubStage
-): DevelopmentIssue | undefined {
+): Promise<DevelopmentIssue | undefined> {
   const issue = getIssueById(issueId);
   if (!issue) return undefined;
 
@@ -385,7 +389,7 @@ export function updateProgress(
   }
 
   checkDelayAlert(issue);
-  syncIssue(
+  await syncIssue(
     issue,
     subStage === "completed"
       ? `Work completed on #${issue.id} — awaiting citizen verification`
@@ -395,7 +399,7 @@ export function updateProgress(
   return issue;
 }
 
-export function addProgressImage(
+export async function addProgressImage(
   issueId: string,
   label: string,
   caption: string,
@@ -404,7 +408,7 @@ export function addProgressImage(
     milestone?: ProgressPhotoMilestone;
     imageUrl?: string;
   } = {}
-): DevelopmentIssue | undefined {
+): Promise<DevelopmentIssue | undefined> {
   const issue = getIssueById(issueId);
   if (!issue) return undefined;
 
@@ -465,7 +469,7 @@ export function addProgressImage(
       ? "Planning milestone photo"
       : "Quality inspection milestone photo";
 
-  syncIssue(
+  await syncIssue(
     issue,
     `${photoSummary} uploaded for #${issue.id}`,
     "issue.progress_photo"
@@ -473,10 +477,10 @@ export function addProgressImage(
   return issue;
 }
 
-export function removeProgressImage(
+export async function removeProgressImage(
   issueId: string,
   imageIndex: number
-): DevelopmentIssue | undefined {
+): Promise<DevelopmentIssue | undefined> {
   const issue = getIssueById(issueId);
   if (!issue) return undefined;
   if (imageIndex < 0 || imageIndex >= issue.progressImages.length) return undefined;
@@ -508,7 +512,7 @@ export function removeProgressImage(
     );
   }
 
-  syncIssue(
+  await syncIssue(
     issue,
     reverted
       ? `Work reverted to in-progress on #${issue.id} after MP removed photos`
@@ -543,11 +547,11 @@ function citizenVerdictFromVotes(yesVotes: number, noVotes: number): "approved" 
   return "mixed";
 }
 
-export function citizenVerify(
+export async function citizenVerify(
   issueId: string,
   citizenId: string,
   vote: "yes" | "no"
-): DevelopmentIssue | undefined {
+): Promise<DevelopmentIssue | undefined> {
   const issue = getIssueById(issueId);
   if (!issue || issue.stage !== "citizen-verification") return undefined;
   if (!issue.verification) {
@@ -595,7 +599,7 @@ export function citizenVerify(
     }
   }
 
-  syncIssue(
+  await syncIssue(
     issue,
     `Citizen voted "${vote}" on #${issue.id}`,
     "issue.citizen_verify"
@@ -603,12 +607,12 @@ export function citizenVerify(
   return issue;
 }
 
-export function mpReviewIssue(
+export async function mpReviewIssue(
   issueId: string,
   decision: MpReviewDecision,
   mpName: string,
   note?: string
-): DevelopmentIssue | undefined {
+): Promise<DevelopmentIssue | undefined> {
   const issue = getIssueById(issueId);
   if (!issue || issue.stage !== "mp-review") return undefined;
 
@@ -726,7 +730,7 @@ export function mpReviewIssue(
       break;
   }
 
-  syncIssue(issue, `MP review: ${decision} on #${issue.id}`, "issue.mp_action");
+  await syncIssue(issue, `MP review: ${decision} on #${issue.id}`, "issue.mp_action");
   return issue;
 }
 

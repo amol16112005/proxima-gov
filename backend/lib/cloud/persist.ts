@@ -18,9 +18,9 @@ export function persistCitizen(citizen: CitizenAccount): void {
   saveCitizen(citizen);
 }
 
-export function persistIssue(issue: DevelopmentIssue): void {
+export async function persistIssue(issue: DevelopmentIssue): Promise<void> {
   if (!isStorageEnabled()) return;
-  saveIssue(issue);
+  await saveIssue(issue);
 }
 
 export function persistGrievance(grievance: Grievance): void {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { jsonError } from "@/lib/apiResponse";
 import { ensureDataHydrated } from "@/lib/cloud";
 import { getMpById } from "@/data/mpRegistry";
 import type {
@@ -24,6 +25,8 @@ import {
   mpStartWork,
   updateProgress,
 } from "@/lib/lifecycleStore";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(
   _request: Request,
@@ -83,7 +86,7 @@ export async function PATCH(
     case "approve": {
       const parsed = validateMpApproval(body);
       if (!parsed.ok) return jsonError(parsed.error, 400);
-      updated = mpApproveIssue(
+      updated = await mpApproveIssue(
         id,
         mp?.name ?? session.name,
         parsed.data.fund,
@@ -98,7 +101,7 @@ export async function PATCH(
       break;
     }
     case "assign":
-      updated = mpAssignWork(
+      updated = await mpAssignWork(
         id,
         body.contractor as string,
         body.officer as string,
@@ -107,13 +110,13 @@ export async function PATCH(
       );
       break;
     case "tender":
-      updated = mpReleaseTender(id);
+      updated = await mpReleaseTender(id);
       break;
     case "start":
-      updated = mpStartWork(id);
+      updated = await mpStartWork(id);
       break;
     case "progress":
-      updated = updateProgress(id, body.subStage as ProgressSubStage);
+      updated = await updateProgress(id, body.subStage as ProgressSubStage);
       if (!updated && body.subStage === "completed") {
         return NextResponse.json(
           {
@@ -151,7 +154,7 @@ export async function PATCH(
       }
       const isCompletion = Boolean(body.isCompletion);
       const milestone = body.milestone as ProgressPhotoMilestone | undefined;
-      updated = addProgressImage(id, body.label as string, body.caption as string, {
+      updated = await addProgressImage(id, body.label as string, body.caption as string, {
         isCompletion,
         milestone: isCompletion ? undefined : milestone,
         imageUrl,
@@ -176,7 +179,7 @@ export async function PATCH(
           { status: 400 }
         );
       }
-      updated = removeProgressImage(id, imageIndex);
+      updated = await removeProgressImage(id, imageIndex);
       if (!updated) {
         return NextResponse.json(
           { error: "Photo not found or could not be removed.", code: "IMAGE_NOT_FOUND" },
@@ -186,7 +189,7 @@ export async function PATCH(
       break;
     }
     case "mpReview":
-      updated = mpReviewIssue(
+      updated = await mpReviewIssue(
         id,
         body.decision as MpReviewDecision,
         mp?.name ?? session.name,

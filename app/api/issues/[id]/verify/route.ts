@@ -27,7 +27,7 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const updated = citizenVerify(id, session.id, vote);
+  const updated = await citizenVerify(id, session.id, vote);
   if (!updated) {
     return NextResponse.json({ error: "Verification not available for this issue" }, { status: 400 });
   }

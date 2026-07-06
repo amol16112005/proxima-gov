@@ -44,15 +44,13 @@ export function saveCitizen(citizen: CitizenAccount): void {
   sqliteUpsert("citizens", citizen.id, citizen);
 }
 
-export function saveIssue(issue: DevelopmentIssue): void {
+export async function saveIssue(issue: DevelopmentIssue): Promise<void> {
   if (getStorageProvider() === "mongodb") {
-    runAsync("saveIssue", async () => {
-      const db = await getMongoDb();
-      if (!db) return;
-      await db
-        .collection<StoredDoc<DevelopmentIssue>>(COLLECTIONS.issues)
-        .replaceOne({ _id: issue.id }, { ...issue, _id: issue.id }, { upsert: true });
-    });
+    const db = await getMongoDb();
+    if (!db) return;
+    await db
+      .collection<StoredDoc<DevelopmentIssue>>(COLLECTIONS.issues)
+      .replaceOne({ _id: issue.id }, { ...issue, _id: issue.id }, { upsert: true });
     return;
   }
   sqliteUpsert("issues", issue.id, issue);
