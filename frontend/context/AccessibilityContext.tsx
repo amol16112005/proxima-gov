@@ -77,17 +77,18 @@ export function AccessibilityProvider({
 }) {
   const router = useRouter();
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
-  const [largeText, setLargeText] = useState(false);
-  const [highContrast, setHighContrast] = useState(false);
-  const [isOnline, setIsOnline] = useState(true);
+  const [largeText, setLargeText] = useState(() => readPrefs().largeText);
+  const [highContrast, setHighContrast] = useState(() => readPrefs().highContrast);
+  const [isOnline, setIsOnline] = useState(
+    () => (typeof navigator !== "undefined" ? navigator.onLine : true)
+  );
   const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(() => {
-    setLocaleState(readLocale());
-    const prefs = readPrefs();
-    setLargeText(prefs.largeText);
-    setHighContrast(prefs.highContrast);
-    setIsOnline(navigator.onLine);
+    const stored = readLocale();
+    if (stored !== initialLocale) {
+      queueMicrotask(() => setLocaleState(stored));
+    }
 
     const onOnline = () => setIsOnline(true);
     const onOffline = () => setIsOnline(false);
@@ -97,7 +98,7 @@ export function AccessibilityProvider({
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
     };
-  }, []);
+  }, [initialLocale]);
 
   useEffect(() => {
     document.documentElement.lang = locale;
