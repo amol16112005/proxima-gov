@@ -22,6 +22,7 @@ interface MpPriorityRecommendationsProps {
     citizensReported: string;
     reviewTop: string;
     noClusters: string;
+    hasPhotoEvidence: string;
   };
 }
 
@@ -49,6 +50,9 @@ export default function MpPriorityRecommendations({
       <div className={mpStyles.clusterList}>
         {clusters.map((cluster, index) => {
           const topIssue = pending.find((i) => i.id === cluster.topIssueId);
+          const clusterHasPhoto = pending.some(
+            (i) => cluster.issueIds.includes(i.id) && !!i.submissionPhotoUrl
+          );
           return (
             <article key={cluster.clusterId} className={mpStyles.clusterCard}>
               <div className={mpStyles.clusterHeader}>
@@ -60,6 +64,7 @@ export default function MpPriorityRecommendations({
               <h3 className={mpStyles.clusterTitle}>{cluster.summary}</h3>
               <p className={mpStyles.clusterTheme}>
                 {cluster.themeLabel} · {cluster.hotspot}
+                {clusterHasPhoto ? ` · 📷 ${labels.hasPhotoEvidence}` : ""}
               </p>
               <div className={mpStyles.metrics}>
                 <span>

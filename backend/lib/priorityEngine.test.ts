@@ -4,10 +4,12 @@ import {
   buildPriorityClusters,
   computeCompositePriorityScore,
   computeInfrastructureGapWeight,
+  computePhotoEvidenceBoost,
   computeUrgencyBoost,
   computeUrgencyScore,
   extractGeographicHotspot,
   extractThemeCategory,
+  PHOTO_EVIDENCE_BOOST,
   refreshConstituencyPriorityRankings,
   URGENCY_BOOST_HIGH,
   URGENCY_BOOST_LIFE_SAFETY,
@@ -115,6 +117,13 @@ describe("priorityEngine", () => {
     if (prev) process.env.DATAGOVINDIA_API_KEY = prev;
   });
 
+  it("adds a small boost when optional citizen photo evidence is attached", () => {
+    const withoutPhoto = computeCompositePriorityScore(3, 60, 0, 0);
+    const withPhoto = computeCompositePriorityScore(3, 60, 0, computePhotoEvidenceBoost(true));
+    expect(computePhotoEvidenceBoost(true)).toBe(PHOTO_EVIDENCE_BOOST);
+    expect(withPhoto - withoutPhoto).toBe(PHOTO_EVIDENCE_BOOST);
+  });
+
   it("refreshes rankings on pending issues", () => {
     const issues = [
       mockIssue({ id: "WS6001" }),
@@ -123,5 +132,13 @@ describe("priorityEngine", () => {
     refreshConstituencyPriorityRankings(issues, "bangalore-south");
     expect(issues[0].aiAnalysis?.citizenDemandCount).toBe(2);
     expect(issues[0].aiAnalysis?.compositePriorityScore).toBeGreaterThan(0);
+  });
+
+  it("includes photo evidence in enriched priority fields", () => {
+    const issue = mockIssue({
+      submissionPhotoUrl: "data:image/jpeg;base64,abc",
+    });
+    const clusters = buildPriorityClusters([issue]);
+    expect(clusters[0]?.dataSignals.some((s) => s.includes("photo evidence"))).toBe(true);
   });
 });

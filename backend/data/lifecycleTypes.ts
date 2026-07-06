@@ -60,6 +60,10 @@ export interface AiAnalysis {
   compositePriorityScore?: number;
   /** Public dataset signals used in gap weighting. */
   dataSignals?: string[];
+  /** True when the citizen attached an optional submission photo. */
+  hasPhotoEvidence?: boolean;
+  /** Small flat boost (+5) when optional citizen photo is attached. */
+  photoEvidenceBoost?: number;
 }
 
 export interface MpApproval {
@@ -172,6 +176,8 @@ export interface DevelopmentIssue {
   delayAlert?: DelayAlert;
   beforeImageLabel: string;
   afterImageLabel?: string;
+  /** Optional citizen-submitted photo at issue filing (compressed data URL). */
+  submissionPhotoUrl?: string;
 }
 
 export const STAGE_LABELS: Record<LifecycleStage, string> = {

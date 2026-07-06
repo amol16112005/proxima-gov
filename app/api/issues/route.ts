@@ -46,7 +46,7 @@ export async function POST(request: Request) {
   const parsed = validateIssueSubmission(body);
   if (!parsed.ok) return jsonError(parsed.error, 400);
 
-  const { category, title, description, location } = parsed.data;
+  const { category, title, description, location, submissionPhotoUrl } = parsed.data;
   const issue = createIssue({
     citizenId: session.id,
     citizenName: session.name,
@@ -55,6 +55,7 @@ export async function POST(request: Request) {
     title,
     description,
     location,
+    submissionPhotoUrl,
   });
 
   return NextResponse.json({ issue }, { status: 201 });

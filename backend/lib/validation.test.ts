@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { isValidEmail, validateIssueSubmission, validateRegistrationFields } from "./validation";
+import {
+  isValidEmail,
+  validateIssueSubmission,
+  validateRegistrationFields,
+  validateSubmissionPhoto,
+} from "./validation";
 
 describe("validation", () => {
   it("validates email addresses", () => {
@@ -36,5 +41,47 @@ describe("validation", () => {
       location: "loc",
     });
     expect(bad.ok).toBe(false);
+  });
+
+  it("accepts issue submissions without a photo", () => {
+    const result = validateIssueSubmission({
+      category: "infrastructure",
+      title: "Road repair",
+      description: "Potholes on main street",
+      location: "Jayanagar",
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.submissionPhotoUrl).toBeUndefined();
+    }
+  });
+
+  it("accepts optional compressed photo data URLs", () => {
+    const photoUrl = "data:image/jpeg;base64,/9j/4AAQ";
+    expect(validateSubmissionPhoto(photoUrl)).toBeNull();
+    const result = validateIssueSubmission({
+      category: "infrastructure",
+      title: "Road repair",
+      description: "Potholes on main street",
+      location: "Jayanagar",
+      photoUrl,
+    });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.data.submissionPhotoUrl).toBe(photoUrl);
+    }
+  });
+
+  it("rejects invalid photo payloads", () => {
+    expect(validateSubmissionPhoto("https://example.com/photo.jpg")).toMatch(/JPG/i);
+    expect(
+      validateIssueSubmission({
+        category: "infrastructure",
+        title: "Road repair",
+        description: "Potholes",
+        location: "Jayanagar",
+        photoUrl: "not-a-photo",
+      }).ok
+    ).toBe(false);
   });
 });

@@ -16,6 +16,8 @@ export type ThemeCategory =
 /** Flat points added to base score. Life-safety: +20. High urgency: +15. Routine: +0. */
 export const URGENCY_BOOST_LIFE_SAFETY = 20;
 export const URGENCY_BOOST_HIGH = 15;
+/** Optional citizen submission photo — small boost; never required to file. */
+export const PHOTO_EVIDENCE_BOOST = 5;
 
 export interface PriorityCluster {
   clusterId: string;
@@ -229,14 +231,19 @@ export function computeUrgencyBoost(title: string, description: string): number 
  * Priority = (Citizen Demand × 0.4) + (Infrastructure Gap × 0.6) + Urgency Boost
  * Base caps naturally below 100; urgency boost (+15/+20) can push life-safety clusters to the top.
  */
+export function computePhotoEvidenceBoost(hasPhoto: boolean): number {
+  return hasPhoto ? PHOTO_EVIDENCE_BOOST : 0;
+}
+
 export function computeCompositePriorityScore(
   citizenDemandCount: number,
   infrastructureGapWeight: number,
-  urgencyBoost: number
+  urgencyBoost: number,
+  photoEvidenceBoost = 0
 ): number {
   const demandNorm = (Math.min(citizenDemandCount, 50) / 50) * 100;
   const base = demandNorm * 0.4 + infrastructureGapWeight * 0.6;
-  return Math.min(100, Math.round(base + urgencyBoost));
+  return Math.min(100, Math.round(base + urgencyBoost + photoEvidenceBoost));
 }
 
 export function buildClusterKey(theme: ThemeCategory, hotspot: string): string {
@@ -254,24 +261,36 @@ export function enrichIssuePriorityFields(
   | "urgencyBoost"
   | "infrastructureGapWeight"
   | "dataSignals"
+  | "hasPhotoEvidence"
+  | "photoEvidenceBoost"
 > {
   const themeCategory = extractThemeCategory(issue.category, issue.title, issue.description);
   const geographicHotspot = extractGeographicHotspot(issue.location, issue.description);
   const urgencyScore = computeUrgencyScore(issue.title, issue.description);
   const urgencyBoost = computeUrgencyBoost(issue.title, issue.description);
+  const hasPhotoEvidence = !!issue.submissionPhotoUrl;
+  const photoEvidenceBoost = computePhotoEvidenceBoost(hasPhotoEvidence);
   const { weight, signals } = computeInfrastructureGapWeight(
     issue.constituencyId,
     themeCategory,
     issue.title,
     issue.description
   );
+  const dataSignals = hasPhotoEvidence
+    ? [
+        ...signals,
+        "Citizen photo evidence attached — visual context for MP review (+5 priority)",
+      ]
+    : signals;
   return {
     themeCategory,
     geographicHotspot,
     urgencyScore,
     urgencyBoost,
     infrastructureGapWeight: weight,
-    dataSignals: signals,
+    dataSignals,
+    hasPhotoEvidence,
+    photoEvidenceBoost,
   };
 }
 
@@ -318,10 +337,19 @@ export function buildPriorityClusters(issues: DevelopmentIssue[]): PriorityClust
       sample.description
     );
 
+    const photoEvidenceBoost = computePhotoEvidenceBoost(
+      clusterIssues.some((i) => !!i.submissionPhotoUrl)
+    );
+    const clusterSignals = [...signals];
+    if (photoEvidenceBoost > 0) {
+      clusterSignals.push("Citizen photo evidence in cluster (+5 priority)");
+    }
+
     const compositePriorityScore = computeCompositePriorityScore(
       citizenDemandCount,
       weight,
-      urgencyBoost
+      urgencyBoost,
+      photoEvidenceBoost
     );
 
     const topIssue = clusterIssues.reduce((best, cur) => {
@@ -348,7 +376,7 @@ export function buildPriorityClusters(issues: DevelopmentIssue[]): PriorityClust
       compositePriorityScore,
       summary: `${countLabel} ${THEME_LABELS[themeCategory].toLowerCase()} needs in ${hotspot}`,
       topIssueId: topIssue.id,
-      dataSignals: signals,
+      dataSignals: clusterSignals,
     });
   }
 
@@ -376,11 +404,13 @@ export function refreshConstituencyPriorityRankings(issues: DevelopmentIssue[], 
     const demandCount = cluster?.citizenDemandCount ?? 1;
     const gapWeight = enriched.infrastructureGapWeight ?? 45;
     const urgencyBoost = enriched.urgencyBoost ?? 0;
+    const photoEvidenceBoost = enriched.photoEvidenceBoost ?? 0;
 
     const compositePriorityScore = computeCompositePriorityScore(
       demandCount,
       gapWeight,
-      urgencyBoost
+      urgencyBoost,
+      photoEvidenceBoost
     );
 
     issue.aiAnalysis = {

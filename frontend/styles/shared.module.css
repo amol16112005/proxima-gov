@@ -154,6 +154,48 @@
   line-height: 1.5;
 }
 
+.photoField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.photoHint {
+  font-size: 0.82rem;
+  color: #7c8db5;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.photoActions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.photoPreviewWrap {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.photoPreview {
+  width: 120px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.photoStatus {
+  font-size: 0.82rem;
+  color: #86efac;
+  margin: 0;
+}
+
 .voiceStatus {
   font-size: 0.82rem;
   color: #fbbf24;

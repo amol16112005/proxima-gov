@@ -88,6 +88,29 @@ export default function LifecycleTracker({
           <span>{categoryLabel(locale, issue.category)}</span>
           {!publicView && <span>📍 {issue.location}</span>}
         </div>
+        {issue.submissionPhotoUrl && (
+          <div style={{ marginTop: "1.2rem" }}>
+            <p style={{ fontSize: "0.85rem", fontWeight: 600, color: "#c4cfe0", marginBottom: "0.75rem" }}>
+              {t("lifecycle.submissionPhoto")}
+            </p>
+            <div className={ls.imageCard} style={{ maxWidth: "360px" }}>
+              <Image
+                src={issue.submissionPhotoUrl}
+                alt={t("lifecycle.submissionPhotoCaption")}
+                width={360}
+                height={220}
+                className={ls.imagePreview}
+                unoptimized
+                loading="lazy"
+                sizes="(max-width: 768px) 100vw, 360px"
+              />
+              <div className={ls.imageMeta}>
+                <strong>{t("lifecycle.submissionPhoto")}</strong>
+                <span>{t("lifecycle.submissionPhotoCaption")}</span>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       {issue.aiAnalysis && (
@@ -311,7 +334,20 @@ export default function LifecycleTracker({
               </p>
               <div className={ls.beforeAfter}>
                 <div className={ls.compareCard}>
-                  <div className={ls.imagePlaceholder}>📷 {t("lifecycle.before")}</div>
+                  {issue.submissionPhotoUrl ? (
+                    <Image
+                      src={issue.submissionPhotoUrl}
+                      alt={issue.beforeImageLabel}
+                      width={280}
+                      height={180}
+                      className={ls.imagePreview}
+                      unoptimized
+                      loading="lazy"
+                      sizes="(max-width: 768px) 100vw, 280px"
+                    />
+                  ) : (
+                    <div className={ls.imagePlaceholder}>📷 {t("lifecycle.before")}</div>
+                  )}
                   <p className={ls.compareLabel}>{issue.beforeImageLabel}</p>
                 </div>
                 <div className={ls.compareCard}>

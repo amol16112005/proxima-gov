@@ -24,12 +24,39 @@ export function validateRegistrationFields(input: {
   return { ok: true, data: { name, email, constituencyId } };
 }
 
+const SUBMISSION_PHOTO_RE = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
+const MAX_SUBMISSION_PHOTO_LENGTH = 700_000;
+
+export function validateSubmissionPhoto(photoUrl: unknown): string | null {
+  if (photoUrl === undefined || photoUrl === null || photoUrl === "") return null;
+  if (typeof photoUrl !== "string") return "Invalid photo format.";
+  if (!SUBMISSION_PHOTO_RE.test(photoUrl)) {
+    return "Photo must be a JPG, PNG, or WebP image.";
+  }
+  if (photoUrl.length > MAX_SUBMISSION_PHOTO_LENGTH) {
+    return "Photo is too large. Please use a smaller image.";
+  }
+  return null;
+}
+
 export function validateIssueSubmission(body: {
   category?: string;
   title?: string;
   description?: string;
   location?: string;
-}): { ok: true; data: { category: string; title: string; description: string; location: string } } | { ok: false; error: string } {
+  photoUrl?: unknown;
+}):
+  | {
+      ok: true;
+      data: {
+        category: string;
+        title: string;
+        description: string;
+        location: string;
+        submissionPhotoUrl?: string;
+      };
+    }
+  | { ok: false; error: string } {
   const categoryRaw = body.category?.trim() ?? "";
   const titleRaw = body.title?.trim() ?? "";
   const descriptionRaw = body.description?.trim() ?? "";
@@ -51,5 +78,14 @@ export function validateIssueSubmission(body: {
   const description = normalizeFreeText(descriptionRaw, 5000);
   const location = normalizeFreeText(locationRaw, 300);
 
-  return { ok: true, data: { category, title, description, location } };
+  const photoError = validateSubmissionPhoto(body.photoUrl);
+  if (photoError) return { ok: false, error: photoError };
+
+  const submissionPhotoUrl =
+    typeof body.photoUrl === "string" && body.photoUrl.trim() ? body.photoUrl.trim() : undefined;
+
+  return {
+    ok: true,
+    data: { category, title, description, location, submissionPhotoUrl },
+  };
 }

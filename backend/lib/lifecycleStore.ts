@@ -149,6 +149,7 @@ export function createIssue(data: {
   title: string;
   description: string;
   location: string;
+  submissionPhotoUrl?: string;
 }): DevelopmentIssue {
   const prefix =
     data.category === "infrastructure"
@@ -174,10 +175,23 @@ export function createIssue(data: {
     progressImages: [],
     verification: { yesVotes: 0, noVotes: 0, flagged: false, responses: [] },
   });
-  const ai = applyTriageToAnalysis(
+  let ai = applyTriageToAnalysis(
     { ...baseAnalysis, ...priorityFields },
     triage
   );
+
+  if (data.submissionPhotoUrl) {
+    ai = {
+      ...ai,
+      hasPhotoEvidence: true,
+      photoEvidenceBoost: priorityFields.photoEvidenceBoost,
+      reasons: [
+        ...ai.reasons.slice(0, 3),
+        "Citizen photo evidence attached (+5 priority — visual context for MP review)",
+      ],
+    };
+  }
+
   const now = today();
   const mpEligible = triage.mpEligible;
 

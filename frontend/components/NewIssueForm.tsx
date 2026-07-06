@@ -8,6 +8,7 @@ import type { MessageKey } from "@/frontend/i18n";
 import { mergeTranscript, type SpeechField } from "@/frontend/lib/speechRecognition";
 import { useSpeechInput } from "@/frontend/lib/useSpeechInput";
 import { MicIcon } from "@/frontend/components/icons/ProximaIcons";
+import { compressImageFile } from "@/frontend/lib/imageUpload";
 import styles from "@/app/shared.module.css";
 
 const CATEGORY_OPTIONS: { value: string; labelKey: MessageKey }[] = [
@@ -72,8 +73,11 @@ export default function NewIssueForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoProcessing, setPhotoProcessing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const fieldBaseRef = useRef<Record<SpeechField, string>>({
     title: "",
     location: "",
@@ -117,7 +121,13 @@ export default function NewIssueForm() {
       const res = await fetch("/api/issues", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ category, title, description, location }),
+        body: JSON.stringify({
+          category,
+          title,
+          description,
+          location,
+          ...(photoUrl ? { photoUrl } : {}),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -135,6 +145,23 @@ export default function NewIssueForm() {
   const voiceLabel = (field: SpeechField) => {
     const keys = VOICE_LABEL_KEYS[field];
     return t(listeningField === field ? keys.listening : keys.idle);
+  };
+
+  const onPhotoSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setError(null);
+    setPhotoProcessing(true);
+    try {
+      const compressed = await compressImageFile(file);
+      setPhotoUrl(compressed);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("issuesNew.submissionFailed"));
+    } finally {
+      setPhotoProcessing(false);
+    }
   };
 
   return (
@@ -238,6 +265,59 @@ export default function NewIssueForm() {
             placeholder={t("issuesNew.descPlaceholder")}
             required
           />
+        </div>
+        <div className={styles.fieldGroup}>
+          <label className={styles.label} htmlFor="issue-photo">
+            {t("issuesNew.photoLabel")}
+          </label>
+          <div className={styles.photoField}>
+            <p className={styles.photoHint}>{t("issuesNew.photoHint")}</p>
+            <input
+              ref={photoInputRef}
+              id="issue-photo"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={onPhotoSelected}
+              className="sr-only"
+            />
+            <div className={styles.photoActions}>
+              <button
+                type="button"
+                className={styles.btnSecondary}
+                onClick={() => photoInputRef.current?.click()}
+                disabled={loading || photoProcessing}
+              >
+                {photoProcessing
+                  ? t("issuesNew.photoProcessing")
+                  : photoUrl
+                    ? t("issuesNew.photoChange")
+                    : t("issuesNew.photoAdd")}
+              </button>
+              {photoUrl && (
+                <button
+                  type="button"
+                  className={styles.btnSecondary}
+                  onClick={() => setPhotoUrl(null)}
+                  disabled={loading || photoProcessing}
+                >
+                  {t("issuesNew.photoRemove")}
+                </button>
+              )}
+            </div>
+            {photoUrl && (
+              <div className={styles.photoPreviewWrap}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photoUrl}
+                  alt={t("issuesNew.photoAttached")}
+                  className={styles.photoPreview}
+                />
+                <p className={styles.photoStatus} role="status">
+                  {t("issuesNew.photoAttached")}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
         {!isSupported && (
           <p className={styles.voiceStatus} role="status">

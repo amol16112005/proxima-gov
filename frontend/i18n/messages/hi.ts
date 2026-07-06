@@ -301,7 +301,7 @@ const hi: Messages = {
   "mpDash.priorityEngineSubtitle":
     "नागरिक सुझाव विषय और हॉटस्पॉट से समूहित, जनसांख्यिकी और सार्वजनिक डेटासेट से जाँचे, फिर सांसद कार्रवाई के लिए क्रमबद्ध।",
   "mpDash.priorityFormula":
-    "प्राथमिकता = (नागरिक मांग × 0.4) + (अवसंरचना अंतर × 0.6) + तात्कालिकता बूस्ट। जीवन-सुरक्षा (+20); उच्च तात्कालिकता (+15)।",
+    "प्राथमिकता = (नागरिक मांग × 0.4) + (अवसंरचना अंतर × 0.6) + तात्कालिकता बूस्ट + वैकल्पिक फोटो (+5)। जीवन-सुरक्षा (+20); उच्च तात्कालिकता (+15)। फोटो अनिवार्य नहीं।",
   "mpDash.priorityRank": "क्रम",
   "mpDash.priorityDemand": "नागरिक मांग",
   "mpDash.priorityGap": "डेटा अंतर भार",
@@ -361,6 +361,17 @@ const hi: Messages = {
   "issuesNew.voiceNetwork": "आवाज़ पहचान के लिए इंटरनेट ज़रूरी है। कनेक्शन जाँचें और पुनः प्रयास करें।",
   "issuesNew.voiceLangUnsupported": "इस ब्राउज़र में चुनी भाषा के लिए आवाज़ पहचान उपलब्ध नहीं है।",
   "issuesNew.voiceError": "आवाज़ इनपुट विफल। कृपया टाइप करके दर्ज करें।",
+  "issuesNew.photoLabel": "फोटो (वैकल्पिक)",
+  "issuesNew.photoHint":
+    "स्थल की फोटो से सांसद को समस्या जल्दी समझने में मदद मिलती है और छोटा प्राथमिकता बूस्ट (+5) मिलता है। बिना फोटो भी दर्ज कर सकते हैं।",
+  "issuesNew.photoAdd": "फोटो जोड़ें",
+  "issuesNew.photoChange": "फोटो बदलें",
+  "issuesNew.photoRemove": "फोटो हटाएँ",
+  "issuesNew.photoProcessing": "फोटो तैयार हो रही है…",
+  "issuesNew.photoAttached": "फोटो जुड़ी — मुद्दे के साथ भेजी जाएगी",
+  "lifecycle.submissionPhoto": "नागरिक द्वारा जमा फोटो",
+  "lifecycle.submissionPhotoCaption": "शिकायत के साथ वैकल्पिक दृश्य साक्ष्य",
+  "mpDash.hasPhotoEvidence": "फोटो जुड़ी",
 
   "notifications.subtitleAlerts": "जब भी आपकी परियोजना स्थिति बदले, अलर्ट।",
   "notifications.emptyHint": "अभी कोई सूचना नहीं। अपडेट पाने के लिए मुद्दा दर्ज करें।",

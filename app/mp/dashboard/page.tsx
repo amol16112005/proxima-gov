@@ -117,6 +117,7 @@ export default async function MpDashboardPage() {
           citizensReported: m("mpDash.priorityCitizensReported"),
           reviewTop: m("mpDash.priorityReviewTop"),
           noClusters: m("mpDash.noPendingShort"),
+          hasPhotoEvidence: m("mpDash.hasPhotoEvidence"),
         }}
       />
 
@@ -143,6 +144,7 @@ export default async function MpDashboardPage() {
                     {issue.aiAnalysis?.geographicHotspot
                       ? ` · ${issue.aiAnalysis.geographicHotspot}`
                       : ""}
+                    {issue.submissionPhotoUrl ? ` · 📷 ${m("mpDash.hasPhotoEvidence")}` : ""}
                   </p>
                   <p style={{ fontWeight: 600 }}>{issue.title}</p>
                 </div>

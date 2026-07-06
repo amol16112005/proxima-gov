@@ -300,7 +300,7 @@ const en = {
   "mpDash.priorityEngineSubtitle":
     "Citizen submissions are clustered by theme and hotspot, cross-referenced with constituency demographics and public datasets, then ranked for MP action.",
   "mpDash.priorityFormula":
-    "Priority = (Citizen Demand × 0.4) + (Infrastructure Gap × 0.6) + Urgency Boost. Life-safety keywords (e.g. collapsed bridge, flooded school) add +20; high-urgency (e.g. no water, medical emergency) add +15.",
+    "Priority = (Citizen Demand × 0.4) + (Infrastructure Gap × 0.6) + Urgency Boost + optional photo (+5). Life-safety keywords add +20; high-urgency add +15. Photos are optional for citizens.",
   "mpDash.priorityRank": "Rank",
   "mpDash.priorityDemand": "Citizen demand",
   "mpDash.priorityGap": "Data gap weight",
@@ -360,6 +360,17 @@ const en = {
   "issuesNew.voiceNetwork": "Voice recognition needs a network connection. Check your connection and retry.",
   "issuesNew.voiceLangUnsupported": "Speech recognition is not available for the selected language in this browser.",
   "issuesNew.voiceError": "Voice input failed. Please type your issue instead.",
+  "issuesNew.photoLabel": "Photo (optional)",
+  "issuesNew.photoHint":
+    "A site photo helps your MP understand the issue faster and adds a small priority boost (+5). You can submit without a photo.",
+  "issuesNew.photoAdd": "Add photo",
+  "issuesNew.photoChange": "Change photo",
+  "issuesNew.photoRemove": "Remove photo",
+  "issuesNew.photoProcessing": "Preparing photo…",
+  "issuesNew.photoAttached": "Photo attached — will be sent with your issue",
+  "lifecycle.submissionPhoto": "Citizen-submitted photo",
+  "lifecycle.submissionPhotoCaption": "Optional visual evidence filed with the complaint",
+  "mpDash.hasPhotoEvidence": "Photo attached",
 
   "notifications.subtitleAlerts": "Alerts whenever your project status changes.",
   "notifications.emptyHint": "No notifications yet. Submit an issue to start receiving updates.",
