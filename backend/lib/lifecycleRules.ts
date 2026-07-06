@@ -4,7 +4,6 @@ import type {
   ProgressPhotoMilestone,
   ProgressSubStage,
 } from "@/data/lifecycleTypes";
-import { SUB_STAGE_CONFIG } from "@/data/lifecycleTypes";
 
 const REVERTIBLE_AFTER_PHOTO_REMOVAL: LifecycleStage[] = [
   "citizen-verification",
@@ -13,18 +12,32 @@ const REVERTIBLE_AFTER_PHOTO_REMOVAL: LifecycleStage[] = [
   "impact-analysis",
 ];
 
-const SUB_STAGE_ORDER = SUB_STAGE_CONFIG.map((s) => s.key);
+export function isActiveWorkStage(issue: DevelopmentIssue): boolean {
+  return issue.stage === "work-started" || issue.stage === "in-progress";
+}
 
-export function hasPlanningPhoto(issue: DevelopmentIssue): boolean {
+/** Before-work site photo (stored as planning milestone). */
+export function hasBeforeWorkPhoto(issue: DevelopmentIssue): boolean {
   return issue.progressImages.some((img) => img.milestone === "planning");
+}
+
+/** After-work / completion site photo. */
+export function hasAfterWorkPhoto(issue: DevelopmentIssue): boolean {
+  return issue.progressImages.some((img) => img.isCompletion);
+}
+
+/** @deprecated Use hasBeforeWorkPhoto */
+export function hasPlanningPhoto(issue: DevelopmentIssue): boolean {
+  return hasBeforeWorkPhoto(issue);
+}
+
+/** @deprecated Use hasAfterWorkPhoto */
+export function hasCompletionPhoto(issue: DevelopmentIssue): boolean {
+  return hasAfterWorkPhoto(issue);
 }
 
 export function hasQualityInspectionPhoto(issue: DevelopmentIssue): boolean {
   return issue.progressImages.some((img) => img.milestone === "quality-inspection");
-}
-
-export function hasCompletionPhoto(issue: DevelopmentIssue): boolean {
-  return issue.progressImages.some((img) => img.isCompletion);
 }
 
 export function hasMilestonePhoto(
@@ -34,59 +47,60 @@ export function hasMilestonePhoto(
   return issue.progressImages.some((img) => img.milestone === milestone);
 }
 
-/** All three systematic photos required before final submission to citizens. */
+/** Before + after work photos required before citizen verification. */
 export function canMarkWorkComplete(issue: DevelopmentIssue): boolean {
-  return (
-    hasPlanningPhoto(issue) && hasQualityInspectionPhoto(issue) && hasCompletionPhoto(issue)
-  );
+  return hasBeforeWorkPhoto(issue) && hasAfterWorkPhoto(issue);
 }
 
-export function canUploadPlanningPhoto(issue: DevelopmentIssue): boolean {
-  if (hasPlanningPhoto(issue)) return false;
-  // Allow catch-up uploads at any active work stage (e.g. after photo removal or legacy issues).
-  return issue.stage === "work-started" || issue.stage === "in-progress";
-}
-
-export function canUploadQualityInspectionPhoto(issue: DevelopmentIssue): boolean {
-  if (!hasPlanningPhoto(issue) || hasQualityInspectionPhoto(issue)) return false;
-  return issue.stage === "in-progress" && issue.progressSubStage === "quality-inspection";
-}
-
-export function canUploadCompletionPhoto(issue: DevelopmentIssue): boolean {
-  return (
-    hasPlanningPhoto(issue) &&
-    hasQualityInspectionPhoto(issue) &&
-    !hasCompletionPhoto(issue) &&
-    (issue.stage === "work-started" || issue.stage === "in-progress")
-  );
-}
-
-export function requiresPlanningPhotoForSubStage(subStage: ProgressSubStage): boolean {
-  const planningIndex = SUB_STAGE_ORDER.indexOf("planning");
-  const targetIndex = SUB_STAGE_ORDER.indexOf(subStage);
-  return targetIndex > planningIndex;
-}
-
-export function canAdvanceToSubStage(issue: DevelopmentIssue, target: ProgressSubStage): boolean {
-  if (target === "completed") return canMarkWorkComplete(issue);
-  if (requiresPlanningPhotoForSubStage(target) && !hasPlanningPhoto(issue)) {
-    return false;
-  }
+export function canUploadBeforeWorkPhoto(issue: DevelopmentIssue): boolean {
+  if (hasBeforeWorkPhoto(issue) || !isActiveWorkStage(issue)) return false;
   return true;
 }
 
-/** True when MP photo removal should move the issue back to in-progress (not complete). */
+/** @deprecated Use canUploadBeforeWorkPhoto */
+export function canUploadPlanningPhoto(issue: DevelopmentIssue): boolean {
+  return canUploadBeforeWorkPhoto(issue);
+}
+
+export function canUploadAfterWorkPhoto(issue: DevelopmentIssue): boolean {
+  return (
+    hasBeforeWorkPhoto(issue) &&
+    !hasAfterWorkPhoto(issue) &&
+    isActiveWorkStage(issue)
+  );
+}
+
+/** @deprecated Use canUploadAfterWorkPhoto */
+export function canUploadCompletionPhoto(issue: DevelopmentIssue): boolean {
+  return canUploadAfterWorkPhoto(issue);
+}
+
+/** QA milestone removed from simplified work flow. */
+export function canUploadQualityInspectionPhoto(_issue: DevelopmentIssue): boolean {
+  return false;
+}
+
+export function requiresPlanningPhotoForSubStage(_subStage: ProgressSubStage): boolean {
+  return false;
+}
+
+/** MPs no longer advance sub-stages manually — only mark complete when photos are ready. */
+export function canAdvanceToSubStage(issue: DevelopmentIssue, target: ProgressSubStage): boolean {
+  return target === "completed" && canMarkWorkComplete(issue);
+}
+
 export function shouldRevertWorkCompletion(stage: LifecycleStage, canComplete: boolean): boolean {
   return REVERTIBLE_AFTER_PHOTO_REMOVAL.includes(stage) && !canComplete;
 }
 
 export function applyWorkCompletionRevert(issue: DevelopmentIssue): void {
   issue.stage = "in-progress";
-  issue.progressSubStage = "quality-inspection";
-  issue.currentProgress = 90;
+  issue.progressSubStage = "planning";
+  issue.currentProgress = hasBeforeWorkPhoto(issue) ? 50 : 0;
   issue.afterImageLabel = undefined;
   if (issue.budget && issue.approval) {
-    issue.budget.spent = Math.round(issue.approval.budget * 0.9);
+    const pct = issue.currentProgress / 100;
+    issue.budget.spent = Math.round(issue.approval.budget * pct);
   }
 }
 

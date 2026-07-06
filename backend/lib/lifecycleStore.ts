@@ -37,9 +37,13 @@ export {
   applyWorkCompletionRevert,
   canAdvanceToSubStage,
   canMarkWorkComplete,
+  canUploadAfterWorkPhoto,
+  canUploadBeforeWorkPhoto,
   canUploadCompletionPhoto,
   canUploadPlanningPhoto,
   canUploadQualityInspectionPhoto,
+  hasAfterWorkPhoto,
+  hasBeforeWorkPhoto,
   hasCompletionPhoto,
   hasPlanningPhoto,
   hasQualityInspectionPhoto,
@@ -346,7 +350,7 @@ export async function mpStartWork(issueId: string): Promise<DevelopmentIssue | u
   const issue = getIssueById(issueId);
   if (!issue) return undefined;
   issue.stage = "work-started";
-  issue.currentProgress = 10;
+  issue.currentProgress = 0;
   issue.progressSubStage = "planning";
   pushTimeline(issue, "Work Started", "work-started");
   if (issue.citizenId) {
@@ -418,8 +422,6 @@ export async function addProgressImage(
     if (!canUploadCompletionPhoto(issue)) return undefined;
   } else if (milestone === "planning") {
     if (!canUploadPlanningPhoto(issue)) return undefined;
-  } else if (milestone === "quality-inspection") {
-    if (!canUploadQualityInspectionPhoto(issue)) return undefined;
   } else {
     return undefined;
   }
@@ -461,13 +463,15 @@ export async function addProgressImage(
 
   if (isCompletion) {
     issue.afterImageLabel = `After — ${issue.title}`;
+  } else if (milestone === "planning") {
+    issue.stage = "in-progress";
+    issue.currentProgress = 50;
+    if (issue.budget && issue.approval) {
+      issue.budget.spent = Math.round(issue.approval.budget * 0.5);
+    }
   }
 
-  const photoSummary = isCompletion
-    ? "Completion photo"
-    : milestone === "planning"
-      ? "Planning milestone photo"
-      : "Quality inspection milestone photo";
+  const photoSummary = isCompletion ? "After-work photo" : "Before-work photo";
 
   await syncIssue(
     issue,

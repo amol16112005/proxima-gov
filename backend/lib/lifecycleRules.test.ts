@@ -4,12 +4,11 @@ import {
   applyWorkCompletionRevert,
   canAdvanceToSubStage,
   canMarkWorkComplete,
-  canUploadCompletionPhoto,
-  canUploadPlanningPhoto,
+  canUploadAfterWorkPhoto,
+  canUploadBeforeWorkPhoto,
   canUploadQualityInspectionPhoto,
-  hasCompletionPhoto,
-  hasPlanningPhoto,
-  hasQualityInspectionPhoto,
+  hasAfterWorkPhoto,
+  hasBeforeWorkPhoto,
   shouldRevertWorkCompletion,
 } from "./lifecycleRules";
 
@@ -28,7 +27,7 @@ function issueWithImages(
     location: "Jayanagar",
     stage: "in-progress",
     submittedAt: "2026-07-01",
-    currentProgress: 20,
+    currentProgress: 0,
     progressSubStage: "planning",
     timeline: [],
     progressImages: images,
@@ -37,30 +36,20 @@ function issueWithImages(
   };
 }
 
-const planningPhoto = {
+const beforeWorkPhoto = {
   week: 1,
-  label: "Before Planning",
-  caption: "Before planning",
+  label: "Before Work",
+  caption: "Before work",
   gps: { lat: 12.9, lng: 77.6 },
   capturedAt: "2026-07-01",
   verified: true,
   milestone: "planning" as const,
 };
 
-const qualityPhoto = {
+const afterWorkPhoto = {
   week: 2,
-  label: "After QA",
-  caption: "After QA",
-  gps: { lat: 12.9, lng: 77.6 },
-  capturedAt: "2026-07-02",
-  verified: true,
-  milestone: "quality-inspection" as const,
-};
-
-const completionPhoto = {
-  week: 3,
-  label: "After",
-  caption: "After",
+  label: "After Work",
+  caption: "After work",
   gps: { lat: 12.9, lng: 77.6 },
   capturedAt: "2026-07-03",
   verified: true,
@@ -68,59 +57,36 @@ const completionPhoto = {
 };
 
 describe("lifecycleRules", () => {
-  it("requires systematic planning, QA, and completion photos for final submission", () => {
+  it("requires before-work and after-work photos for final submission", () => {
     expect(canMarkWorkComplete(issueWithImages([]))).toBe(false);
-    expect(canMarkWorkComplete(issueWithImages([planningPhoto]))).toBe(false);
+    expect(canMarkWorkComplete(issueWithImages([beforeWorkPhoto]))).toBe(false);
     expect(
-      canMarkWorkComplete(issueWithImages([planningPhoto, qualityPhoto]))
-    ).toBe(false);
-    expect(
-      canMarkWorkComplete(
-        issueWithImages([planningPhoto, qualityPhoto, completionPhoto])
-      )
+      canMarkWorkComplete(issueWithImages([beforeWorkPhoto, afterWorkPhoto]))
     ).toBe(true);
   });
 
-  it("allows planning photo upload during active work when missing", () => {
-    expect(canUploadPlanningPhoto(issueWithImages([], { stage: "work-started" }))).toBe(
+  it("allows before-work photo upload when work is active", () => {
+    expect(canUploadBeforeWorkPhoto(issueWithImages([], { stage: "work-started" }))).toBe(
       true
     );
-    expect(
-      canUploadPlanningPhoto(
-        issueWithImages([], { stage: "in-progress", progressSubStage: "construction" })
-      )
-    ).toBe(true);
-    expect(canUploadPlanningPhoto(issueWithImages([planningPhoto]))).toBe(false);
-    expect(canUploadPlanningPhoto(issueWithImages([], { stage: "approved" }))).toBe(false);
+    expect(canUploadBeforeWorkPhoto(issueWithImages([beforeWorkPhoto]))).toBe(false);
+    expect(canUploadBeforeWorkPhoto(issueWithImages([], { stage: "approved" }))).toBe(false);
   });
 
-  it("gates quality-inspection photo to QA sub-stage after planning photo", () => {
+  it("allows after-work photo only after before-work photo", () => {
+    expect(canUploadAfterWorkPhoto(issueWithImages([beforeWorkPhoto]))).toBe(true);
+    expect(canUploadAfterWorkPhoto(issueWithImages([]))).toBe(false);
     expect(
-      canUploadQualityInspectionPhoto(
-        issueWithImages([planningPhoto], { progressSubStage: "quality-inspection" })
-      )
-    ).toBe(true);
-    expect(
-      canUploadQualityInspectionPhoto(
-        issueWithImages([], { progressSubStage: "quality-inspection" })
-      )
-    ).toBe(false);
-    expect(
-      canUploadQualityInspectionPhoto(
-        issueWithImages([planningPhoto, qualityPhoto], {
-          progressSubStage: "quality-inspection",
-        })
-      )
+      canUploadAfterWorkPhoto(issueWithImages([beforeWorkPhoto, afterWorkPhoto]))
     ).toBe(false);
   });
 
-  it("blocks advancing past planning without planning photo", () => {
-    const issue = issueWithImages([]);
-    expect(canAdvanceToSubStage(issue, "planning")).toBe(true);
-    expect(canAdvanceToSubStage(issue, "construction")).toBe(false);
-    expect(canAdvanceToSubStage(issueWithImages([planningPhoto]), "construction")).toBe(
-      true
-    );
+  it("disables QA milestone and manual sub-stage advancement", () => {
+    expect(canUploadQualityInspectionPhoto(issueWithImages([beforeWorkPhoto]))).toBe(false);
+    expect(canAdvanceToSubStage(issueWithImages([]), "construction")).toBe(false);
+    expect(
+      canAdvanceToSubStage(issueWithImages([beforeWorkPhoto, afterWorkPhoto]), "completed")
+    ).toBe(true);
   });
 
   it("reverts completion when required photos are missing in post-work stages", () => {
@@ -129,7 +95,7 @@ describe("lifecycleRules", () => {
   });
 
   it("applies in-progress state when work completion is reverted", () => {
-    const issue = issueWithImages([planningPhoto, qualityPhoto, completionPhoto], {
+    const issue = issueWithImages([beforeWorkPhoto, afterWorkPhoto], {
       stage: "citizen-verification",
       progressSubStage: "completed",
       currentProgress: 100,
@@ -139,15 +105,15 @@ describe("lifecycleRules", () => {
     applyWorkCompletionRevert(issue);
 
     expect(issue.stage).toBe("in-progress");
-    expect(issue.progressSubStage).toBe("quality-inspection");
+    expect(issue.progressSubStage).toBe("planning");
+    expect(issue.currentProgress).toBe(50);
     expect(issue.afterImageLabel).toBeUndefined();
   });
 
-  it("detects milestone and completion photos", () => {
-    const issue = issueWithImages([planningPhoto, qualityPhoto, completionPhoto]);
-    expect(hasPlanningPhoto(issue)).toBe(true);
-    expect(hasQualityInspectionPhoto(issue)).toBe(true);
-    expect(hasCompletionPhoto(issue)).toBe(true);
-    expect(canUploadCompletionPhoto(issue)).toBe(false);
+  it("detects before and after work photos", () => {
+    const issue = issueWithImages([beforeWorkPhoto, afterWorkPhoto]);
+    expect(hasBeforeWorkPhoto(issue)).toBe(true);
+    expect(hasAfterWorkPhoto(issue)).toBe(true);
+    expect(canUploadAfterWorkPhoto(issue)).toBe(false);
   });
 });

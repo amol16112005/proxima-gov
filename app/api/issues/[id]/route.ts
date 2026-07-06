@@ -121,7 +121,7 @@ export async function PATCH(
         return NextResponse.json(
           {
             error:
-              "Upload planning photo (before planning), quality-inspection photo (after QA), and completion photo before final submission.",
+              "Upload before-work and after-work site photos before submitting for citizen verification.",
             code: "PHOTOS_REQUIRED",
           },
           { status: 400 }
@@ -131,7 +131,7 @@ export async function PATCH(
         return NextResponse.json(
           {
             error:
-              "Upload the planning milestone photo before advancing past the planning stage.",
+              "Upload before-work and after-work photos, then mark work complete.",
             code: "PLANNING_PHOTO_REQUIRED",
           },
           { status: 400 }
@@ -161,12 +161,10 @@ export async function PATCH(
       });
       if (!updated) {
         const error = isCompletion
-          ? "Upload planning and quality-inspection photos first, then add the completion photo."
+          ? "Upload the before-work photo first, then add the after-work photo."
           : milestone === "planning"
-            ? "Planning photo can only be uploaded at work start / planning stage (one photo)."
-            : milestone === "quality-inspection"
-              ? "Quality-inspection photo can only be uploaded after reaching the quality-inspection stage (one photo)."
-              : "Specify a photo milestone: planning or quality-inspection, or upload completion.";
+            ? "Before-work photo can only be uploaded once work has started."
+            : "Upload a before-work or after-work site photo.";
         return NextResponse.json({ error, code: "PHOTO_NOT_ALLOWED" }, { status: 400 });
       }
       break;

@@ -244,7 +244,6 @@ export default function LifecycleTracker({
 
       {(issue.stage === "in-progress" ||
         issue.stage === "work-started" ||
-        issue.currentProgress > 0 ||
         issue.stage === "citizen-verification" ||
         issue.stage === "mp-review" ||
         issue.stage === "completed" ||
@@ -252,23 +251,32 @@ export default function LifecycleTracker({
         <section className={ls.panel}>
           <h3 className={ls.panelTitle}>
             {STAGE_EMOJI["in-progress"]}{" "}
-            {interpolate(t("lifecycle.stage5Title"), { progress: String(issue.currentProgress) })}
+            {issue.stage === "work-started" || issue.stage === "in-progress"
+              ? t("lifecycle.simpleWorkTitle")
+              : interpolate(t("lifecycle.stage5Title"), { progress: String(issue.currentProgress) })}
           </h3>
-          <div className={ls.progressStages}>
-            {SUB_STAGE_CONFIG.map((s) => {
-              const done = issue.currentProgress >= s.progress;
-              const current = issue.progressSubStage === s.key;
-              return (
-                <div key={s.key} className={ls.progressStage}>
-                  <div
-                    className={`${ls.progressDot} ${done ? ls.progressDotDone : ""} ${current ? ls.progressDotCurrent : ""}`}
-                  />
-                  <span className={ls.progressLabel}>{subStageLabel(locale, s.key)}</span>
-                  <span className={ls.progressPct}>{s.progress}%</span>
-                </div>
-              );
-            })}
-          </div>
+          {issue.stage !== "work-started" && issue.stage !== "in-progress" && (
+            <div className={ls.progressStages}>
+              {SUB_STAGE_CONFIG.map((s) => {
+                const done = issue.currentProgress >= s.progress;
+                const current = issue.progressSubStage === s.key;
+                return (
+                  <div key={s.key} className={ls.progressStage}>
+                    <div
+                      className={`${ls.progressDot} ${done ? ls.progressDotDone : ""} ${current ? ls.progressDotCurrent : ""}`}
+                    />
+                    <span className={ls.progressLabel}>{subStageLabel(locale, s.key)}</span>
+                    <span className={ls.progressPct}>{s.progress}%</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {(issue.stage === "work-started" || issue.stage === "in-progress") && (
+            <p style={{ fontSize: "0.88rem", color: "#9aa5b8", marginBottom: "0.5rem" }}>
+              {t("lifecycle.simpleWorkNote")}
+            </p>
+          )}
 
           {issue.budget && (
             <div className={ls.budgetRow} style={{ marginTop: "1.2rem" }}>
@@ -314,8 +322,10 @@ export default function LifecycleTracker({
                     <div className={ls.imageMeta}>
                       <strong>
                         {img.isCompletion
-                          ? t("lifecycle.completion")
-                          : interpolate(t("lifecycle.week"), { week: String(img.week) })}
+                          ? t("lifecycle.afterWork")
+                          : img.milestone === "planning"
+                            ? t("lifecycle.beforeWork")
+                            : interpolate(t("lifecycle.week"), { week: String(img.week) })}
                         : {img.label}
                       </strong>
                       <span>{img.caption}</span>

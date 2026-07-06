@@ -4,25 +4,20 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useAccessibility } from "@/context/AccessibilityContext";
 import { interpolate } from "@/frontend/i18n";
-import { subStageLabel } from "@/frontend/i18n/labels";
 import { formatINR } from "@/data/constituencies";
 import type { DevelopmentIssue } from "@/data/lifecycleTypes";
-import { SUB_STAGE_CONFIG } from "@/data/lifecycleTypes";
 import { compressImageFile, PHOTO_ACCEPT_ATTRIBUTE } from "@/frontend/lib/imageUpload";
 import MpProgressPhotoManager from "@/components/mp/MpProgressPhotoManager";
 import {
-  canAdvanceToSubStage,
   canMarkWorkComplete,
-  canUploadCompletionPhoto,
-  canUploadPlanningPhoto,
-  canUploadQualityInspectionPhoto,
-  hasCompletionPhoto,
-  hasPlanningPhoto,
-  hasQualityInspectionPhoto,
+  canUploadAfterWorkPhoto,
+  canUploadBeforeWorkPhoto,
+  hasAfterWorkPhoto,
+  hasBeforeWorkPhoto,
 } from "@/lib/lifecycleRules";
 import styles from "@/app/shared.module.css";
 
-type PhotoUploadKind = "planning" | "quality-inspection" | "completion";
+type PhotoUploadKind = "before-work" | "after-work";
 
 export default function MpIssueActions({
   issue,
@@ -32,7 +27,7 @@ export default function MpIssueActions({
   onIssueUpdated?: (issue: DevelopmentIssue) => void;
 }) {
   const router = useRouter();
-  const { locale, translate: t } = useAccessibility();
+  const { translate: t } = useAccessibility();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingUploadRef = useRef<PhotoUploadKind | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
@@ -71,12 +66,10 @@ export default function MpIssueActions({
 
   const busy = actionLoading || photoLoading;
   const completionReady = canMarkWorkComplete(issue);
-  const planningReady = canUploadPlanningPhoto(issue);
-  const qualityReady = canUploadQualityInspectionPhoto(issue);
-  const completionPhotoReady = canUploadCompletionPhoto(issue);
-  const hasPlanning = hasPlanningPhoto(issue);
-  const hasQuality = hasQualityInspectionPhoto(issue);
-  const hasCompletion = hasCompletionPhoto(issue);
+  const beforeWorkReady = canUploadBeforeWorkPhoto(issue);
+  const afterWorkReady = canUploadAfterWorkPhoto(issue);
+  const hasBefore = hasBeforeWorkPhoto(issue);
+  const hasAfter = hasAfterWorkPhoto(issue);
 
   const openPhotoPicker = (kind: PhotoUploadKind) => {
     setError(null);
@@ -130,25 +123,17 @@ export default function MpIssueActions({
     setUploadingKind(kind);
     try {
       const imageUrl = await compressImageFile(file);
-      const isCompletion = kind === "completion";
+      const isAfterWork = kind === "after-work";
 
       const res = await fetch(`/api/issues/${issue.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "addImage",
-          label: isCompletion
-            ? t("lifecycle.completion")
-            : kind === "planning"
-              ? t("mpActions.planningPhotoLabel")
-              : t("mpActions.qualityPhotoLabel"),
-          caption: isCompletion
-            ? t("mpActions.completionCaption")
-            : kind === "planning"
-              ? t("mpActions.planningPhotoCaption")
-              : t("mpActions.qualityPhotoCaption"),
-          isCompletion,
-          milestone: isCompletion ? undefined : kind,
+          label: isAfterWork ? t("mpActions.afterWorkPhotoLabel") : t("mpActions.beforeWorkPhotoLabel"),
+          caption: isAfterWork ? t("mpActions.afterWorkPhotoCaption") : t("mpActions.beforeWorkPhotoCaption"),
+          isCompletion: isAfterWork,
+          milestone: isAfterWork ? undefined : "planning",
           imageUrl,
         }),
       });
@@ -295,105 +280,63 @@ export default function MpIssueActions({
       {(issue.stage === "work-started" || issue.stage === "in-progress") && (
         <>
           <div className={styles.photoInstructions} role="note" style={{ marginBottom: "0.75rem" }}>
-            <p className={styles.photoHint}>{t("mpActions.progressHint")}</p>
+            <p className={styles.photoHint}>{t("mpActions.simpleWorkHint")}</p>
             <p className={styles.photoSizeLimit}>{t("photo.uploadLimits")}</p>
             <p className={styles.photoSizeLimit}>{t("photo.dimensionLimits")}</p>
           </div>
           <ol className={styles.photoMilestoneList}>
-            <li className={hasPlanning ? styles.photoMilestoneDone : styles.photoMilestonePending}>
-              {hasPlanning ? "✓ " : "1. "}
-              {t("mpActions.milestonePlanning")}
+            <li className={hasBefore ? styles.photoMilestoneDone : styles.photoMilestonePending}>
+              {hasBefore ? "✓ " : "1. "}
+              {t("mpActions.milestoneBeforeWork")}
             </li>
-            <li className={hasQuality ? styles.photoMilestoneDone : styles.photoMilestonePending}>
-              {hasQuality ? "✓ " : "2. "}
-              {t("mpActions.milestoneQuality")}
-            </li>
-            <li className={hasCompletion ? styles.photoMilestoneDone : styles.photoMilestonePending}>
-              {hasCompletion ? "✓ " : "3. "}
-              {t("mpActions.milestoneCompletion")}
+            <li className={hasAfter ? styles.photoMilestoneDone : styles.photoMilestonePending}>
+              {hasAfter ? "✓ " : "2. "}
+              {t("mpActions.milestoneAfterWork")}
             </li>
           </ol>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.5rem" }}>
-            {SUB_STAGE_CONFIG.filter((s) => s.key !== "completed").map((s) => (
-              <button
-                key={s.key}
-                className={styles.btnSecondary}
-                disabled={busy || !canAdvanceToSubStage(issue, s.key)}
-                onClick={() => act("progress", { subStage: s.key })}
-                type="button"
-                title={
-                  !canAdvanceToSubStage(issue, s.key)
-                    ? t("mpActions.needPlanningPhotoFirst")
-                    : undefined
-                }
-              >
-                {subStageLabel(locale, s.key)} ({s.progress}%)
-              </button>
-            ))}
             <button
               className={styles.btnSecondary}
-              disabled={photoLoading || !planningReady}
-              onClick={() => openPhotoPicker("planning")}
+              disabled={photoLoading || !beforeWorkReady}
+              onClick={() => openPhotoPicker("before-work")}
               type="button"
-              title={!planningReady ? t("mpActions.needPlanningPhoto") : undefined}
             >
-              {hasPlanning
-                ? t("mpActions.planningPhotoUploaded")
-                : photoLoading && uploadingKind === "planning"
+              {hasBefore
+                ? t("mpActions.beforeWorkPhotoUploaded")
+                : photoLoading && uploadingKind === "before-work"
                   ? t("mpActions.uploading")
-                  : t("mpActions.uploadPlanningPhoto")}
+                  : t("mpActions.uploadBeforeWorkPhoto")}
             </button>
             <button
               className={styles.btnSecondary}
-              disabled={photoLoading || !qualityReady}
-              onClick={() => openPhotoPicker("quality-inspection")}
+              disabled={photoLoading || !afterWorkReady}
+              onClick={() => openPhotoPicker("after-work")}
               type="button"
-              title={
-                !qualityReady
-                  ? !hasPlanning
-                    ? t("mpActions.needPlanningPhotoFirst")
-                    : t("mpActions.needQualityPhoto")
-                  : undefined
-              }
+              title={!hasBefore ? t("mpActions.needBeforeWorkPhoto") : undefined}
             >
-              {hasQuality
-                ? t("mpActions.qualityPhotoUploaded")
-                : photoLoading && uploadingKind === "quality-inspection"
+              {hasAfter
+                ? t("mpActions.afterWorkPhotoUploaded")
+                : photoLoading && uploadingKind === "after-work"
                   ? t("mpActions.uploading")
-                  : t("mpActions.uploadQualityPhoto")}
-            </button>
-            <button
-              className={styles.btnSecondary}
-              disabled={photoLoading || !completionPhotoReady}
-              onClick={() => openPhotoPicker("completion")}
-              type="button"
-              title={!completionPhotoReady ? t("mpActions.uploadPhotosFirst") : undefined}
-            >
-              {hasCompletion
-                ? t("mpActions.completionUploaded")
-                : photoLoading && uploadingKind === "completion"
-                  ? t("mpActions.uploading")
-                  : t("mpActions.uploadCompletion")}
+                  : t("mpActions.uploadAfterWorkPhoto")}
             </button>
             <button
               className={styles.btnPrimary}
               disabled={busy || !completionReady}
               onClick={() => act("progress", { subStage: "completed" })}
               type="button"
-              title={completionReady ? t("mpActions.sendToVerification") : t("mpActions.uploadPhotosFirst")}
+              title={completionReady ? t("mpActions.sendToVerification") : t("mpActions.uploadBothPhotosFirst")}
             >
               {t("mpActions.markComplete")}
             </button>
           </div>
           {!completionReady && (
             <p style={{ fontSize: "0.8rem", color: "#fca5a5", marginTop: "0.75rem" }}>
-              {!hasPlanning
-                ? t("mpActions.needPlanningPhoto")
-                : !hasQuality
-                  ? t("mpActions.needQualityPhoto")
-                  : !hasCompletion
-                    ? t("mpActions.needCompletionPhoto")
-                    : null}
+              {!hasBefore
+                ? t("mpActions.needBeforeWorkPhoto")
+                : !hasAfter
+                  ? t("mpActions.needAfterWorkPhoto")
+                  : null}
             </p>
           )}
         </>
