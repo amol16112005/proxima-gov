@@ -35,7 +35,7 @@ export default async function MpIssueDetailPage({
     <div className={styles.pageWide}>
       <PortalHeader portal="mp" userName={mp?.name ?? session.name} constituencyName={constituency?.name ?? ""} />
       <MpBackLink />
-      <MpIssueWorkspace issue={issue} />
+      <MpIssueWorkspace key={issue.id} issue={issue} />
     </div>
   );
 }

@@ -38,6 +38,7 @@ import {
   renumberProgressImageWeeks,
   repairWorkProcessState,
   shouldRevertWorkCompletion,
+  stripSyntheticPhotosForActiveWorkflow,
 } from "./lifecycleRules";
 import { addNotification } from "./notifications";
 import { backfillSeedIssuePhotos } from "./seedIssueBackfill";
@@ -510,12 +511,12 @@ export async function removeProgressImage(
   if (imageIndex < 0 || imageIndex >= issue.progressImages.length) return undefined;
 
   const removed = issue.progressImages[imageIndex];
-  const removedBeforeWork = removed.milestone === "planning";
   issue.progressImages.splice(imageIndex, 1);
   renumberProgressImageWeeks(issue);
+  stripSyntheticPhotosForActiveWorkflow(issue);
 
   let cascaded = false;
-  if (removedBeforeWork || !hasBeforeWorkPhoto(issue)) {
+  if (!hasBeforeWorkPhoto(issue)) {
     cascaded = applyBeforeWorkPhotoRemovalCascade(issue);
   } else if (!hasCompletionPhoto(issue)) {
     issue.afterImageLabel = undefined;

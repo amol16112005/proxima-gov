@@ -7,6 +7,7 @@ import { loadActivityLog } from "./storage";
 import { cloudStatus } from "./config";
 import { isStorageEnabled, getStorageProvider } from "./provider";
 import { backfillAndPersistSeedIssues, backfillSeedIssuePhotos } from "@/lib/seedIssueBackfill";
+import { repairWorkProcessState } from "@/lib/lifecycleRules";
 import { persistIssue, persistIssueCounter, seedIssuesToStorage } from "./persist";
 import {
   loadCitizens,
@@ -69,6 +70,11 @@ async function hydrateFromStorage(): Promise<void> {
     }
   } else {
     issues = await backfillAndPersistSeedIssues(issues, persistIssue);
+    for (const issue of issues) {
+      if (repairWorkProcessState(issue)) {
+        await persistIssue(issue);
+      }
+    }
   }
   setIssues(issues);
 

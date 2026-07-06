@@ -175,6 +175,28 @@ describe("lifecycleRules", () => {
     expect(canUploadAfterWorkPhoto(issue)).toBe(false);
   });
 
+  it("ignores synthetic demo-backfill photos for active MP workflow seeds", () => {
+    const issue = issueWithImages(
+      [
+        {
+          week: 1,
+          label: "Synthetic",
+          caption: "Demo",
+          gps: { lat: 12.9, lng: 77.6 },
+          capturedAt: "2026-07-01",
+          verified: true,
+          milestone: "planning",
+          demoBackfill: true,
+        },
+      ],
+      { id: "SL4012", progressSubStage: "quality-inspection", currentProgress: 90 }
+    );
+
+    expect(hasBeforeWorkPhoto(issue)).toBe(false);
+    expect(hasWorkInProgressConfirmed(issue)).toBe(false);
+    expect(hasInspectionConfirmed(issue)).toBe(false);
+  });
+
   it("treats WIP and inspection as incomplete when before-work photo is missing", () => {
     const issue = issueWithImages([], {
       progressSubStage: "quality-inspection",

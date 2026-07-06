@@ -150,4 +150,33 @@ describe("removeProgressImage", () => {
     expect(updated?.currentProgress).toBe(65);
     expect(updated?.progressImages.some((img) => img.isCompletion)).toBe(false);
   });
+
+  it("resets SL4012 process when synthetic before photo is removed", async () => {
+    global.__proximaIssues = [
+      {
+        ...baseIssue(),
+        id: "SL4012",
+        progressSubStage: "quality-inspection",
+        currentProgress: 90,
+        progressImages: [
+          {
+            week: 1,
+            label: "Synthetic before",
+            caption: "Demo backfill",
+            gps: { lat: 12.9, lng: 77.6 },
+            capturedAt: "2026-01-01T00:00:00.000Z",
+            verified: true,
+            milestone: "planning",
+            demoBackfill: true,
+            imageUrl: "data:image/jpeg;base64,synthetic",
+          },
+        ],
+      },
+    ];
+
+    const updated = await removeProgressImage("SL4012", 0);
+    expect(updated?.progressSubStage).toBe("planning");
+    expect(updated?.currentProgress).toBe(0);
+    expect(updated?.progressImages).toHaveLength(0);
+  });
 });

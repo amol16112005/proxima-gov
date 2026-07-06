@@ -1,6 +1,7 @@
 import { SEED_ISSUES } from "@/data/seedIssues";
 import type { DevelopmentIssue, LifecycleStage, ProgressImage } from "@/data/lifecycleTypes";
 import {
+  ACTIVE_MP_WORKFLOW_SEED_IDS,
   hasAfterWorkPhoto,
   hasBeforeWorkPhoto,
   renumberProgressImageWeeks,
@@ -32,8 +33,18 @@ export function hasCrossedWorkStages(issue: DevelopmentIssue): boolean {
   return CROSSED_WORK_STAGES.includes(issue.stage) || issue.currentProgress > 0;
 }
 
+/** Old weekly progress photos without milestone / completion tags (RD1024, WS2041, etc.). */
+export function hasLegacyUntaggedPhotos(issue: DevelopmentIssue): boolean {
+  return issue.progressImages.some(
+    (img) => !img.demoBackfill && !img.milestone && !img.isCompletion
+  );
+}
+
 export function isEligibleSeedBackfill(issue: DevelopmentIssue): boolean {
-  return SEED_ISSUE_IDS.has(issue.id) && hasCrossedWorkStages(issue);
+  if (!SEED_ISSUE_IDS.has(issue.id) || ACTIVE_MP_WORKFLOW_SEED_IDS.has(issue.id)) {
+    return false;
+  }
+  return hasCrossedWorkStages(issue) && hasLegacyUntaggedPhotos(issue);
 }
 
 function needsAfterWorkBackfill(issue: DevelopmentIssue): boolean {

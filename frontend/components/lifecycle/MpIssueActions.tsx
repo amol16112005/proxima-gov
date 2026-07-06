@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { useAccessibility } from "@/context/AccessibilityContext";
 import { interpolate } from "@/frontend/i18n";
@@ -32,7 +31,6 @@ export default function MpIssueActions({
   issue: DevelopmentIssue;
   onIssueUpdated?: (issue: DevelopmentIssue) => void;
 }) {
-  const router = useRouter();
   const { translate: t } = useAccessibility();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingUploadRef = useRef<PhotoUploadKind | null>(null);
@@ -62,7 +60,6 @@ export default function MpIssueActions({
         return;
       }
       if (data.issue) onIssueUpdated?.(data.issue as DevelopmentIssue);
-      router.refresh();
     } catch {
       setError(t("common.networkError"));
     } finally {
@@ -113,7 +110,6 @@ export default function MpIssueActions({
         return;
       }
       if (data.issue) onIssueUpdated?.(data.issue as DevelopmentIssue);
-      router.refresh();
     } catch {
       setError(t("common.networkError"));
     } finally {
@@ -155,7 +151,6 @@ export default function MpIssueActions({
         return;
       }
       if (data.issue) onIssueUpdated?.(data.issue as DevelopmentIssue);
-      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : t("mpActions.photoUploadFailed"));
     } finally {

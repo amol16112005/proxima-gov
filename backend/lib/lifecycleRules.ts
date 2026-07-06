@@ -4,6 +4,8 @@ import type {
   ProgressPhotoMilestone,
   ProgressSubStage,
 } from "@/data/lifecycleTypes";
+/** MPs actively work these demos through the real photo + process flow. */
+export const ACTIVE_MP_WORKFLOW_SEED_IDS = new Set(["SL4012", "HC5018"]);
 
 const REVERTIBLE_AFTER_PHOTO_REMOVAL: LifecycleStage[] = [
   "citizen-verification",
@@ -16,9 +18,24 @@ export function isActiveWorkStage(issue: DevelopmentIssue): boolean {
   return issue.stage === "work-started" || issue.stage === "in-progress";
 }
 
-/** Before-work site photo (stored as planning milestone). */
+/** Before-work site photo uploaded by MP (stored as planning milestone). */
 export function hasBeforeWorkPhoto(issue: DevelopmentIssue): boolean {
-  return issue.progressImages.some((img) => img.milestone === "planning");
+  return issue.progressImages.some((img) => {
+    if (img.milestone !== "planning") return false;
+    if (img.demoBackfill && ACTIVE_MP_WORKFLOW_SEED_IDS.has(issue.id)) return false;
+    return true;
+  });
+}
+
+export function stripSyntheticPhotosForActiveWorkflow(issue: DevelopmentIssue): boolean {
+  if (!ACTIVE_MP_WORKFLOW_SEED_IDS.has(issue.id)) return false;
+  const before = issue.progressImages.length;
+  issue.progressImages = issue.progressImages.filter((img) => !img.demoBackfill);
+  if (issue.progressImages.length !== before) {
+    renumberProgressImageWeeks(issue);
+    return true;
+  }
+  return false;
 }
 
 /** After-work / completion site photo. */
@@ -218,7 +235,9 @@ export function needsWorkProcessRepair(issue: DevelopmentIssue): boolean {
 }
 
 export function repairWorkProcessState(issue: DevelopmentIssue): boolean {
-  if (!needsWorkProcessRepair(issue)) return false;
+  let changed = stripSyntheticPhotosForActiveWorkflow(issue);
+
+  if (!needsWorkProcessRepair(issue)) return changed;
 
   if (!hasBeforeWorkPhoto(issue)) {
     applyBeforeWorkPhotoRemovalCascade(issue);

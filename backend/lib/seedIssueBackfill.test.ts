@@ -60,6 +60,19 @@ describe("seedIssueBackfill", () => {
     expect(backfillSeedIssuePhotos(custom).changed).toBe(false);
   });
 
+  it("never backfills SL4012 during active MP work even when in-progress", () => {
+    const sl4012: DevelopmentIssue = {
+      ...structuredClone(SEED_ISSUES.find((i) => i.id === "SL4012")!),
+      stage: "in-progress",
+      currentProgress: 90,
+      progressSubStage: "quality-inspection",
+      progressImages: [],
+    };
+
+    expect(isEligibleSeedBackfill(sl4012)).toBe(false);
+    expect(backfillSeedIssuePhotos(sl4012).changed).toBe(false);
+  });
+
   it("does not duplicate backfill when milestone photos already exist", () => {
     const issue = structuredClone(SEED_ISSUES.find((i) => i.id === "RD1024")!);
     issue.progressImages.push({
