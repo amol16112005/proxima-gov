@@ -364,6 +364,8 @@ const en = {
   "issuesNew.photoHint":
     "A site photo helps your MP understand the issue faster and adds a small priority boost (+5). You can submit without a photo.",
   "photo.uploadLimits": "Accepted: JPG, PNG, or WebP · max 8 MB per file · auto-compressed to about 700 KB",
+  "photo.dimensionLimits":
+    "Dimensions: no minimum width or height · longest side auto-resized to 900 px max (aspect ratio preserved)",
   "issuesNew.photoAdd": "Add photo",
   "issuesNew.photoChange": "Change photo",
   "issuesNew.photoRemove": "Remove photo",

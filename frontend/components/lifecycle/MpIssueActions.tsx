@@ -168,8 +168,11 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
           <p className={styles.infoBox} style={{ marginBottom: "0.5rem" }}>
             {t("mpActions.progressHint")}
           </p>
-          <p className={styles.photoSizeLimit} style={{ marginBottom: "0.75rem" }}>
+          <p className={styles.photoSizeLimit} style={{ marginBottom: "0.25rem" }}>
             {t("photo.uploadLimits")}
+          </p>
+          <p className={styles.photoSizeLimit} style={{ marginBottom: "0.75rem" }}>
+            {t("photo.dimensionLimits")}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.5rem" }}>
             {SUB_STAGE_CONFIG.filter((s) => s.key !== "completed").map((s) => (

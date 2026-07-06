@@ -365,6 +365,8 @@ const hi: Messages = {
   "issuesNew.photoHint":
     "स्थल की फोटो से सांसद को समस्या जल्दी समझने में मदद मिलती है और छोटा प्राथमिकता बूस्ट (+5) मिलता है। बिना फोटो भी दर्ज कर सकते हैं।",
   "photo.uploadLimits": "स्वीकृत: JPG, PNG या WebP · अधिकतम 8 MB प्रति फ़ाइल · ऑटो-कंप्रेस ~700 KB तक",
+  "photo.dimensionLimits":
+    "आयाम: न्यूनतम चौड़ाई/ऊँचाई नहीं · सबसे लंबी धुरी अधिकतम 900 px तक (अनुपात वही रहता है)",
   "issuesNew.photoAdd": "फोटो जोड़ें",
   "issuesNew.photoChange": "फोटो बदलें",
   "issuesNew.photoRemove": "फोटो हटाएँ",

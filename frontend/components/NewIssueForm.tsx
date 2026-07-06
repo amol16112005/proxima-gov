@@ -273,6 +273,7 @@ export default function NewIssueForm() {
           <div className={styles.photoField}>
             <p className={styles.photoHint}>{t("issuesNew.photoHint")}</p>
             <p className={styles.photoSizeLimit}>{t("photo.uploadLimits")}</p>
+            <p className={styles.photoSizeLimit}>{t("photo.dimensionLimits")}</p>
             <input
               ref={photoInputRef}
               id="issue-photo"

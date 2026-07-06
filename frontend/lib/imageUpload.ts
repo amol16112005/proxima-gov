@@ -4,7 +4,10 @@ export const PHOTO_MAX_FILE_SIZE_MB = 8;
 export const PHOTO_MAX_FILE_SIZE_BYTES = PHOTO_MAX_FILE_SIZE_MB * 1024 * 1024;
 export const PHOTO_MAX_COMPRESSED_BYTES = 700_000;
 export const PHOTO_MAX_COMPRESSED_KB = 700;
-export const PHOTO_MAX_WIDTH_PX = 900;
+/** Longest edge (width or height) after auto-resize; aspect ratio is preserved. */
+export const PHOTO_MAX_LONG_EDGE_PX = 900;
+/** @deprecated Use PHOTO_MAX_LONG_EDGE_PX — resize applies to the longest side, not width only. */
+export const PHOTO_MAX_WIDTH_PX = PHOTO_MAX_LONG_EDGE_PX;
 
 export function validateImageFile(file: File): string | null {
   if (!PHOTO_ACCEPTED_MIME_TYPES.includes(file.type as (typeof PHOTO_ACCEPTED_MIME_TYPES)[number])) {
@@ -18,7 +21,7 @@ export function validateImageFile(file: File): string | null {
 
 export function compressImageFile(
   file: File,
-  maxWidth = PHOTO_MAX_WIDTH_PX,
+  maxLongEdge = PHOTO_MAX_LONG_EDGE_PX,
   quality = 0.82
 ): Promise<string> {
   const validationError = validateImageFile(file);
@@ -33,7 +36,7 @@ export function compressImageFile(
       const img = new Image();
       img.onerror = () => reject(new Error("Could not process the selected photo."));
       img.onload = () => {
-        const scale = Math.min(1, maxWidth / Math.max(img.width, img.height));
+        const scale = Math.min(1, maxLongEdge / Math.max(img.width, img.height));
         const width = Math.max(1, Math.round(img.width * scale));
         const height = Math.max(1, Math.round(img.height * scale));
 
