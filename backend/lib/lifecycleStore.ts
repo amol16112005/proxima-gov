@@ -4,6 +4,7 @@ import type {
   DevelopmentIssue,
   LifecycleStage,
   MpReviewDecision,
+  ProgressPhotoMilestone,
   ProgressSubStage,
 } from "@/data/lifecycleTypes";
 import { SUB_STAGE_CONFIG } from "@/data/lifecycleTypes";
@@ -20,8 +21,13 @@ import {
 export { getMpPriorityClusters } from "./priorityEngine";
 import {
   applyWorkCompletionRevert,
+  canAdvanceToSubStage,
   canMarkWorkComplete,
+  canUploadCompletionPhoto,
+  canUploadPlanningPhoto,
+  canUploadQualityInspectionPhoto,
   hasCompletionPhoto,
+  hasMilestonePhoto,
   renumberProgressImageWeeks,
   shouldRevertWorkCompletion,
 } from "./lifecycleRules";
@@ -29,8 +35,14 @@ import { addNotification } from "./notifications";
 
 export {
   applyWorkCompletionRevert,
+  canAdvanceToSubStage,
   canMarkWorkComplete,
+  canUploadCompletionPhoto,
+  canUploadPlanningPhoto,
+  canUploadQualityInspectionPhoto,
   hasCompletionPhoto,
+  hasPlanningPhoto,
+  hasQualityInspectionPhoto,
   shouldRevertWorkCompletion,
 } from "./lifecycleRules";
 export { isMpActionableIssue } from "./issueTriage";
@@ -350,7 +362,7 @@ export function updateProgress(
   const config = SUB_STAGE_CONFIG.find((s) => s.key === subStage);
   if (!config) return undefined;
 
-  if (subStage === "completed" && !canMarkWorkComplete(issue)) {
+  if (!canAdvanceToSubStage(issue, subStage)) {
     return undefined;
   }
 
@@ -387,15 +399,29 @@ export function addProgressImage(
   issueId: string,
   label: string,
   caption: string,
-  isCompletion = false,
-  imageUrl?: string
+  options: {
+    isCompletion?: boolean;
+    milestone?: ProgressPhotoMilestone;
+    imageUrl?: string;
+  } = {}
 ): DevelopmentIssue | undefined {
   const issue = getIssueById(issueId);
   if (!issue) return undefined;
 
-  if (isCompletion && hasCompletionPhoto(issue)) {
+  const { isCompletion = false, milestone, imageUrl } = options;
+
+  if (isCompletion) {
+    if (!canUploadCompletionPhoto(issue)) return undefined;
+  } else if (milestone === "planning") {
+    if (!canUploadPlanningPhoto(issue)) return undefined;
+  } else if (milestone === "quality-inspection") {
+    if (!canUploadQualityInspectionPhoto(issue)) return undefined;
+  } else {
     return undefined;
   }
+
+  if (isCompletion && hasCompletionPhoto(issue)) return undefined;
+  if (milestone && hasMilestonePhoto(issue, milestone)) return undefined;
 
   const week = issue.progressImages.length + 1;
   const baseGps: Record<string, { lat: number; lng: number }> = {
@@ -425,6 +451,7 @@ export function addProgressImage(
     capturedAt: new Date().toISOString(),
     verified: true,
     isCompletion,
+    milestone: isCompletion ? undefined : milestone,
     imageUrl,
   });
 
@@ -432,11 +459,15 @@ export function addProgressImage(
     issue.afterImageLabel = `After — ${issue.title}`;
   }
 
+  const photoSummary = isCompletion
+    ? "Completion photo"
+    : milestone === "planning"
+      ? "Planning milestone photo"
+      : "Quality inspection milestone photo";
+
   syncIssue(
     issue,
-    isCompletion
-      ? `Completion photo uploaded for #${issue.id}`
-      : `Progress photo (week ${week}) uploaded for #${issue.id}`,
+    `${photoSummary} uploaded for #${issue.id}`,
     "issue.progress_photo"
   );
   return issue;

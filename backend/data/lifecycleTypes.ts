@@ -93,6 +93,9 @@ export interface TimelineEvent {
   stage: LifecycleStage;
 }
 
+/** Systematic progress photo checkpoints — planning (before work planning) and quality-inspection (after QA). */
+export type ProgressPhotoMilestone = "planning" | "quality-inspection";
+
 export interface ProgressImage {
   week: number;
   label: string;
@@ -102,6 +105,8 @@ export interface ProgressImage {
   verified: boolean;
   /** Base64 data URL or public path for the uploaded site photo. */
   imageUrl?: string;
+  /** Systematic milestone: before planning, or after quality inspection. */
+  milestone?: ProgressPhotoMilestone;
   /** True when this is the mandatory completion / after-work site photo. */
   isCompletion?: boolean;
 }

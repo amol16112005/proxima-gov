@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { ensureDataHydrated } from "@/lib/cloud";
 import { getMpById } from "@/data/mpRegistry";
-import type { MpReviewDecision, ProgressSubStage } from "@/data/lifecycleTypes";
+import type {
+  MpReviewDecision,
+  ProgressPhotoMilestone,
+  ProgressSubStage,
+} from "@/data/lifecycleTypes";
 import {
   canCitizenAccessIssueApi,
   canMpAccessIssueApi,
@@ -104,8 +108,18 @@ export async function PATCH(
         return NextResponse.json(
           {
             error:
-              "Upload at least one progress photo and a completion (after-work) photo before marking work complete.",
+              "Upload planning photo (before planning), quality-inspection photo (after QA), and completion photo before final submission.",
             code: "PHOTOS_REQUIRED",
+          },
+          { status: 400 }
+        );
+      }
+      if (!updated) {
+        return NextResponse.json(
+          {
+            error:
+              "Upload the planning milestone photo before advancing past the planning stage.",
+            code: "PLANNING_PHOTO_REQUIRED",
           },
           { status: 400 }
         );
@@ -125,18 +139,22 @@ export async function PATCH(
           { status: 400 }
         );
       }
-      updated = addProgressImage(
-        id,
-        body.label as string,
-        body.caption as string,
-        Boolean(body.isCompletion),
-        imageUrl
-      );
-      if (!updated && body.isCompletion) {
-        return NextResponse.json(
-          { error: "Completion photo already uploaded for this issue.", code: "COMPLETION_EXISTS" },
-          { status: 400 }
-        );
+      const isCompletion = Boolean(body.isCompletion);
+      const milestone = body.milestone as ProgressPhotoMilestone | undefined;
+      updated = addProgressImage(id, body.label as string, body.caption as string, {
+        isCompletion,
+        milestone: isCompletion ? undefined : milestone,
+        imageUrl,
+      });
+      if (!updated) {
+        const error = isCompletion
+          ? "Upload planning and quality-inspection photos first, then add the completion photo."
+          : milestone === "planning"
+            ? "Planning photo can only be uploaded at work start / planning stage (one photo)."
+            : milestone === "quality-inspection"
+              ? "Quality-inspection photo can only be uploaded after reaching the quality-inspection stage (one photo)."
+              : "Specify a photo milestone: planning or quality-inspection, or upload completion.";
+        return NextResponse.json({ error, code: "PHOTO_NOT_ALLOWED" }, { status: 400 });
       }
       break;
     }

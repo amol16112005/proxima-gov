@@ -53,7 +53,11 @@ export default function MpProgressPhotoManager({
               <strong>
                 {img.isCompletion
                   ? t("lifecycle.completion")
-                  : interpolate(t("lifecycle.week"), { week: String(img.week) })}
+                  : img.milestone === "planning"
+                    ? t("mpActions.planningPhotoLabel")
+                    : img.milestone === "quality-inspection"
+                      ? t("mpActions.qualityPhotoLabel")
+                      : interpolate(t("lifecycle.week"), { week: String(img.week) })}
                 : {img.label}
               </strong>
               <span>{img.caption}</span>

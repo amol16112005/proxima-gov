@@ -224,6 +224,21 @@
   margin: 0;
 }
 
+.photoMilestoneList {
+  margin: 0 0 0.75rem;
+  padding-left: 1.25rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.photoMilestoneDone {
+  color: #86efac;
+}
+
+.photoMilestonePending {
+  color: #dbe4f8;
+}
+
 .voiceStatus {
   font-size: 0.82rem;
   color: #fbbf24;
