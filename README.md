@@ -125,6 +125,7 @@ Proxima Gov is framed as a **Digital India / Lok Sabha** initiative demo (FY 202
 ### AI & Data Integrations
 
 - **Issue triage** — constituency reach and MP mandate checks before MP dashboard
+- **AI Priority & Data Engine** — clusters citizen submissions by theme + geographic hotspot, cross-references constituency demographics and data.gov.in signals, ranks a development roadmap on the MP dashboard: `(Demand × 0.4) + (Gap Weight × 0.6)`
 - **Gemini AI** — grievance acknowledgement and routing (when `NEXT_PUBLIC_GEMINI_API_KEY` is set)
 - **data.gov.in** — live MPLADS / scheme project enrichment (when `DATAGOVINDIA_API_KEY` is set)
 

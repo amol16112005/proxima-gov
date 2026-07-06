@@ -297,7 +297,19 @@ const hi: Messages = {
   "mpDash.citizenReviewsTitle": "🏛️ नागरिक समीक्षा — जवाबदेही आवश्यक",
   "mpDash.citizenReviewsDesc":
     "नागरिकों ने पूर्ण कार्य सत्यापित (या विवादित) किया है। परियोजना बंद करने से पहले फोटो देखें और ठेकेदार या पर्यवेक्षी अधिकारी के विरुद्ध कार्रवाई करें।",
-  "mpDash.aiPendingTitle": "🤖 AI सिफ़ारिशें — अनुमोदन लंबित",
+  "mpDash.priorityEngineTitle": "🧠 AI प्राथमिकता और डेटा इंजन — क्रमबद्ध रोडमैप",
+  "mpDash.priorityEngineSubtitle":
+    "नागरिक सुझाव विषय और हॉटस्पॉट से समूहित, जनसांख्यिकी और सार्वजनिक डेटासेट से जाँचे, फिर सांसद कार्रवाई के लिए क्रमबद्ध।",
+  "mpDash.priorityFormula":
+    "प्राथमिकता स्कोर = (नागरिक मांग गिनती × 0.4) + (अवसंरचना अंतर भार × 0.6) + तात्कालिकता बूस्ट",
+  "mpDash.priorityRank": "क्रम",
+  "mpDash.priorityDemand": "नागरिक मांग",
+  "mpDash.priorityGap": "डेटा अंतर भार",
+  "mpDash.priorityUrgency": "औसत तात्कालिकता",
+  "mpDash.priorityDataSignals": "सार्वजनिक डेटासेट संकेत",
+  "mpDash.priorityCitizensReported": "समूह में शीर्ष सबमिशन",
+  "mpDash.priorityReviewTop": "उच्चतम प्राथमिकता देखें →",
+  "mpDash.aiPendingTitle": "🤖 AI सिफ़ारिशें — अनुमोदन लंबित (क्रमबद्ध)",
   "mpDash.noPendingShort": "कोई लंबित अनुमोदन नहीं",
   "mpDash.noPendingDesc":
     "जब नागरिक मुद्दे दर्ज करें और AI विश्लेषण पूर्ण हो, वे आपकी समीक्षा के लिए यहाँ दिखेंगे।",

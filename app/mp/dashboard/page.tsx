@@ -8,10 +8,12 @@ import { STAGE_EMOJI } from "@/data/lifecycleTypes";
 import { getMpById } from "@/data/mpRegistry";
 import { ensureDataHydrated } from "@/lib/cloud";
 import { getSession } from "@/lib/auth/session";
+import MpPriorityRecommendations from "@/components/mp/MpPriorityRecommendations";
 import {
   getMpDashboardIssues,
   getMpPendingApprovals,
   getMpPendingReviews,
+  getMpPriorityClusters,
 } from "@/lib/lifecycleStore";
 import { stageLabel } from "@/frontend/i18n/labels";
 import { getServerLocale, getServerTranslator } from "@/frontend/i18n/server";
@@ -34,6 +36,7 @@ export default async function MpDashboardPage() {
 
   const allIssues = getMpDashboardIssues(session.constituencyId);
   const pending = getMpPendingApprovals(session.constituencyId);
+  const priorityClusters = getMpPriorityClusters(session.constituencyId, allIssues);
   const pendingReviews = getMpPendingReviews(session.constituencyId);
   const active = allIssues.filter((i) => ["in-progress", "work-started", "work-assigned", "tender-released"].includes(i.stage));
   const delayed = allIssues.filter((i) => i.delayAlert?.active);
@@ -98,6 +101,24 @@ export default async function MpDashboardPage() {
         </section>
       )}
 
+      <MpPriorityRecommendations
+        clusters={priorityClusters}
+        pending={pending}
+        labels={{
+          title: m("mpDash.priorityEngineTitle"),
+          subtitle: m("mpDash.priorityEngineSubtitle"),
+          formula: m("mpDash.priorityFormula"),
+          rank: m("mpDash.priorityRank"),
+          demand: m("mpDash.priorityDemand"),
+          gap: m("mpDash.priorityGap"),
+          urgency: m("mpDash.priorityUrgency"),
+          dataSignals: m("mpDash.priorityDataSignals"),
+          citizensReported: m("mpDash.priorityCitizensReported"),
+          reviewTop: m("mpDash.priorityReviewTop"),
+          noClusters: m("mpDash.noPendingShort"),
+        }}
+      />
+
       <section id="pending-approvals" style={{ marginBottom: "2.5rem" }}>
         <h2 className={styles.sectionTitle}>{m("mpDash.aiPendingTitle")}</h2>
         {pending.length === 0 ? (
@@ -113,7 +134,14 @@ export default async function MpDashboardPage() {
               <Link href={`/mp/issues/${issue.id}`} className={ls.issueListItem} style={{ marginBottom: "0.75rem" }}>
                 <div>
                   <p style={{ fontSize: "0.75rem", color: "#7c8db5" }}>
-                    #{issue.id} · {m("mpDash.score")} {issue.aiAnalysis?.priorityScore}/100
+                    #{issue.id} · {m("mpDash.score")}{" "}
+                    {issue.aiAnalysis?.compositePriorityScore ?? issue.aiAnalysis?.priorityScore}/100
+                    {issue.aiAnalysis?.citizenDemandCount && issue.aiAnalysis.citizenDemandCount > 1
+                      ? ` · ${issue.aiAnalysis.citizenDemandCount} ${m("mpDash.priorityDemand").toLowerCase()}`
+                      : ""}
+                    {issue.aiAnalysis?.geographicHotspot
+                      ? ` · ${issue.aiAnalysis.geographicHotspot}`
+                      : ""}
                   </p>
                   <p style={{ fontWeight: 600 }}>{issue.title}</p>
                 </div>

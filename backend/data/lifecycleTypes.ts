@@ -42,6 +42,22 @@ export interface AiAnalysis {
   citizenGuidance?: string;
   suggestedAuthority?: string;
   triageReasons?: string[];
+  /** AI-extracted theme for demand clustering (e.g. water-infrastructure, education). */
+  themeCategory?: string;
+  /** Village, ward, or neighbourhood hotspot extracted from citizen text. */
+  geographicHotspot?: string;
+  /** Urgency from critical keywords (0–100). */
+  urgencyScore?: number;
+  /** Structural weight from demographics + public datasets (0–100). */
+  infrastructureGapWeight?: number;
+  /** Citizens in the same theme+hotspot cluster. */
+  citizenDemandCount?: number;
+  /** Cluster key for grouped recommendations. */
+  clusterId?: string;
+  /** Ranked score: (Demand×0.4) + (Data Gap×0.6) + urgency boost. */
+  compositePriorityScore?: number;
+  /** Public dataset signals used in gap weighting. */
+  dataSignals?: string[];
 }
 
 export interface MpApproval {

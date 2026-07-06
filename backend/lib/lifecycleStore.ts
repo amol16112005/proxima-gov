@@ -10,6 +10,14 @@ import { SUB_STAGE_CONFIG } from "@/data/lifecycleTypes";
 import { scheduleActivity } from "./cloud/activityLog";
 import { persistIssue, persistIssueCounter } from "./cloud/persist";
 import { applyTriageToAnalysis, assessIssueScope, isMpActionableIssue } from "./issueTriage";
+import {
+  enrichIssuePriorityFields,
+  getMpPendingApprovalsRanked,
+  getMpPriorityClusters,
+  refreshConstituencyPriorityRankings,
+} from "./priorityEngine";
+
+export { getMpPriorityClusters } from "./priorityEngine";
 import { canMarkWorkComplete, hasCompletionPhoto } from "./lifecycleRules";
 import { addNotification } from "./notifications";
 
@@ -152,8 +160,22 @@ export function createIssue(data: {
           : "IS";
 
   const triage = assessIssueScope(data);
+  const baseAnalysis = generateAiAnalysis(data.title, data.description, data.category, data.location);
+  const priorityFields = enrichIssuePriorityFields({
+    ...data,
+    id: "pending",
+    citizenName: data.citizenName,
+    submittedAt: "",
+    stage: "ai-analysis",
+    currentProgress: 0,
+    progressSubStage: "planning",
+    beforeImageLabel: "",
+    timeline: [],
+    progressImages: [],
+    verification: { yesVotes: 0, noVotes: 0, flagged: false, responses: [] },
+  });
   const ai = applyTriageToAnalysis(
-    generateAiAnalysis(data.title, data.description, data.category, data.location),
+    { ...baseAnalysis, ...priorityFields },
     triage
   );
   const now = today();
@@ -180,6 +202,7 @@ export function createIssue(data: {
   };
 
   issues().unshift(issue);
+  refreshConstituencyPriorityRankings(issues(), data.constituencyId);
 
   addNotification(data.citizenId, issue.id, `🟡 Issue #${issue.id} submitted successfully`);
   addNotification(
@@ -634,10 +657,5 @@ function checkDelayAlert(issue: DevelopmentIssue): void {
 }
 
 export function getMpPendingApprovals(constituencyId: string): DevelopmentIssue[] {
-  return issues().filter(
-    (i) =>
-      i.constituencyId === constituencyId &&
-      (i.stage === "ai-analysis" || i.stage === "mp-approval") &&
-      isMpActionableIssue(i)
-  );
+  return getMpPendingApprovalsRanked(constituencyId, issues());
 }

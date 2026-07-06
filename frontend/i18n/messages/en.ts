@@ -296,7 +296,19 @@ const en = {
   "mpDash.citizenReviewsTitle": "🏛️ Citizen Reviews — Accountability Required",
   "mpDash.citizenReviewsDesc":
     "Citizens have verified (or disputed) completed work. Review photos and take action against the contractor or supervising officer before closing the project.",
-  "mpDash.aiPendingTitle": "🤖 AI Recommendations — Pending Approval",
+  "mpDash.priorityEngineTitle": "🧠 AI Priority & Data Engine — Ranked Roadmap",
+  "mpDash.priorityEngineSubtitle":
+    "Citizen submissions are clustered by theme and hotspot, cross-referenced with constituency demographics and public datasets, then ranked for MP action.",
+  "mpDash.priorityFormula":
+    "Priority Score = (Citizen Demand Count × 0.4) + (Infrastructure Gap Weight × 0.6) + urgency boost",
+  "mpDash.priorityRank": "Rank",
+  "mpDash.priorityDemand": "Citizen demand",
+  "mpDash.priorityGap": "Data gap weight",
+  "mpDash.priorityUrgency": "Avg urgency",
+  "mpDash.priorityDataSignals": "Public dataset signals",
+  "mpDash.priorityCitizensReported": "Top submission in cluster",
+  "mpDash.priorityReviewTop": "Review highest-priority item →",
+  "mpDash.aiPendingTitle": "🤖 AI Recommendations — Pending Approval (ranked)",
   "mpDash.noPendingShort": "No pending approvals",
   "mpDash.noPendingDesc":
     "When citizens submit issues and AI analysis is complete, they will appear here for your review and approval.",
