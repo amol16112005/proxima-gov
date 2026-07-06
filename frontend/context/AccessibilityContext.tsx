@@ -79,9 +79,8 @@ export function AccessibilityProvider({
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
   const [largeText, setLargeText] = useState(() => readPrefs().largeText);
   const [highContrast, setHighContrast] = useState(() => readPrefs().highContrast);
-  const [isOnline, setIsOnline] = useState(
-    () => (typeof navigator !== "undefined" ? navigator.onLine : true)
-  );
+  // Assume online on first paint — navigator.onLine is unreliable (false positives on Vercel/CDN).
+  const [isOnline, setIsOnline] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(() => {
@@ -90,11 +89,31 @@ export function AccessibilityProvider({
       queueMicrotask(() => setLocaleState(stored));
     }
 
-    const onOnline = () => setIsOnline(true);
+    let cancelled = false;
+
+    const verifyOnline = async () => {
+      if (!navigator.onLine) {
+        if (!cancelled) setIsOnline(false);
+        return;
+      }
+      try {
+        const res = await fetch("/api/health", { method: "GET", cache: "no-store" });
+        if (!cancelled) setIsOnline(res.ok);
+      } catch {
+        if (!cancelled) setIsOnline(false);
+      }
+    };
+
+    const onOnline = () => {
+      void verifyOnline();
+    };
     const onOffline = () => setIsOnline(false);
+
+    void verifyOnline();
     window.addEventListener("online", onOnline);
     window.addEventListener("offline", onOffline);
     return () => {
+      cancelled = true;
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
     };
