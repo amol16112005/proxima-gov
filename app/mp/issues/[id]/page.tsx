@@ -6,7 +6,7 @@ import { getConstituencyById } from "@/data/constituencies";
 import { getMpById } from "@/data/mpRegistry";
 import { ensureDataHydrated } from "@/lib/cloud";
 import { getSession } from "@/lib/auth/session";
-import { getIssueById, isMpActionableIssue } from "@/lib/lifecycleStore";
+import { getIssueById, isMpActionableIssue, repairAndPersistWorkProcess } from "@/lib/lifecycleStore";
 import styles from "@/app/shared.module.css";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +22,7 @@ export default async function MpIssueDetailPage({
   await ensureDataHydrated();
 
   const { id } = await params;
+  await repairAndPersistWorkProcess(id);
   const issue = getIssueById(id);
   if (!issue || issue.constituencyId !== session.constituencyId || !isMpActionableIssue(issue)) {
     notFound();

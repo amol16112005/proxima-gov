@@ -6,6 +6,8 @@ import {
   canAdvanceToSubStage,
   canConfirmInspection,
   canConfirmWorkInProgress,
+  canUndoInspection,
+  canUndoWorkInProgress,
   canMarkWorkComplete,
   canUploadAfterWorkPhoto,
   canUploadBeforeWorkPhoto,
@@ -171,6 +173,29 @@ describe("lifecycleRules", () => {
     expect(hasBeforeWorkPhoto(issue)).toBe(true);
     expect(hasAfterWorkPhoto(issue)).toBe(true);
     expect(canUploadAfterWorkPhoto(issue)).toBe(false);
+  });
+
+  it("treats WIP and inspection as incomplete when before-work photo is missing", () => {
+    const issue = issueWithImages([], {
+      progressSubStage: "quality-inspection",
+      currentProgress: 90,
+    });
+
+    expect(hasWorkInProgressConfirmed(issue)).toBe(false);
+    expect(hasInspectionConfirmed(issue)).toBe(false);
+  });
+
+  it("allows undo clicks for confirmed WIP and inspection steps", () => {
+    const wip = issueWithImages([beforeWorkPhoto], { progressSubStage: "construction" });
+    const inspected = issueWithImages([beforeWorkPhoto, afterWorkPhoto], {
+      progressSubStage: "quality-inspection",
+    });
+
+    expect(canUndoWorkInProgress(wip)).toBe(true);
+    expect(canUndoInspection(inspected)).toBe(true);
+    expect(canUndoWorkInProgress(issueWithImages([], { progressSubStage: "construction" }))).toBe(
+      false
+    );
   });
 
   it("cascades undo of WIP, inspection, and after-work when before photo is gone", () => {

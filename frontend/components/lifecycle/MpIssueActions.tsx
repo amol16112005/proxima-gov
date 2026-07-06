@@ -12,6 +12,8 @@ import {
   canConfirmInspection,
   canConfirmWorkInProgress,
   canMarkWorkComplete,
+  canUndoInspection,
+  canUndoWorkInProgress,
   canUploadAfterWorkPhoto,
   canUploadBeforeWorkPhoto,
   hasAfterWorkPhoto,
@@ -74,6 +76,8 @@ export default function MpIssueActions({
   const afterWorkReady = canUploadAfterWorkPhoto(issue);
   const workInProgressReady = canConfirmWorkInProgress(issue);
   const inspectionReady = canConfirmInspection(issue);
+  const undoWorkInProgressReady = canUndoWorkInProgress(issue);
+  const undoInspectionReady = canUndoInspection(issue);
   const hasBefore = hasBeforeWorkPhoto(issue);
   const hasAfter = hasAfterWorkPhoto(issue);
   const hasWip = hasWorkInProgressConfirmed(issue);
@@ -325,21 +329,39 @@ export default function MpIssueActions({
             </button>
             <button
               className={styles.btnSecondary}
-              disabled={busy || !workInProgressReady}
-              onClick={() => act("progress", { subStage: "construction" })}
+              disabled={busy || (hasWip ? !undoWorkInProgressReady : !workInProgressReady)}
+              onClick={() =>
+                hasWip ? act("undoWorkInProgress") : act("progress", { subStage: "construction" })
+              }
               type="button"
-              title={!hasBefore ? t("mpActions.needBeforeWorkPhoto") : undefined}
+              title={
+                !hasBefore
+                  ? t("mpActions.needBeforeWorkPhoto")
+                  : hasWip
+                    ? t("mpActions.undoWorkInProgressHint")
+                    : undefined
+              }
             >
-              {hasWip ? t("mpActions.workInProgressConfirmed") : t("mpActions.confirmWorkInProgress")}
+              {hasWip ? t("mpActions.undoWorkInProgress") : t("mpActions.confirmWorkInProgress")}
             </button>
             <button
               className={styles.btnSecondary}
-              disabled={busy || !inspectionReady}
-              onClick={() => act("progress", { subStage: "quality-inspection" })}
+              disabled={busy || (hasInspection ? !undoInspectionReady : !inspectionReady)}
+              onClick={() =>
+                hasInspection
+                  ? act("undoInspection")
+                  : act("progress", { subStage: "quality-inspection" })
+              }
               type="button"
-              title={!hasWip ? t("mpActions.needWorkInProgressFirst") : undefined}
+              title={
+                !hasWip
+                  ? t("mpActions.needWorkInProgressFirst")
+                  : hasInspection
+                    ? t("mpActions.undoInspectionHint")
+                    : undefined
+              }
             >
-              {hasInspection ? t("mpActions.inspectionConfirmed") : t("mpActions.confirmInspection")}
+              {hasInspection ? t("mpActions.undoInspection") : t("mpActions.confirmInspection")}
             </button>
             <button
               className={styles.btnSecondary}

@@ -21,9 +21,13 @@ import {
 export { getMpPriorityClusters } from "./priorityEngine";
 import {
   applyBeforeWorkPhotoRemovalCascade,
+  applyUndoInspection,
+  applyUndoWorkInProgress,
   applyWorkCompletionRevert,
   canAdvanceToSubStage,
   canMarkWorkComplete,
+  canUndoInspection,
+  canUndoWorkInProgress,
   canUploadCompletionPhoto,
   canUploadPlanningPhoto,
   canUploadQualityInspectionPhoto,
@@ -32,6 +36,7 @@ import {
   hasMilestonePhoto,
   isActiveWorkStage,
   renumberProgressImageWeeks,
+  repairWorkProcessState,
   shouldRevertWorkCompletion,
 } from "./lifecycleRules";
 import { addNotification } from "./notifications";
@@ -43,6 +48,8 @@ export {
   canAdvanceToSubStage,
   canConfirmInspection,
   canConfirmWorkInProgress,
+  canUndoInspection,
+  canUndoWorkInProgress,
   canMarkWorkComplete,
   canUploadAfterWorkPhoto,
   canUploadBeforeWorkPhoto,
@@ -553,6 +560,49 @@ export async function removeProgressImage(
       : reverted
         ? `Work reverted to in-progress on #${issue.id} after MP removed photos`
         : `MP removed ${removed.isCompletion ? "completion" : "progress"} photo from #${issue.id}`,
+    "issue.progress_photo"
+  );
+  return issue;
+}
+
+export async function repairAndPersistWorkProcess(
+  issueId: string
+): Promise<DevelopmentIssue | undefined> {
+  const issue = getIssueById(issueId);
+  if (!issue) return undefined;
+  if (!repairWorkProcessState(issue)) return issue;
+  await syncIssue(issue, `Work process repaired on #${issue.id}`, "issue.progress_photo");
+  return issue;
+}
+
+export async function undoWorkProcessStep(
+  issueId: string,
+  step: "work-in-progress" | "inspection"
+): Promise<DevelopmentIssue | undefined> {
+  const issue = getIssueById(issueId);
+  if (!issue) return undefined;
+
+  if (step === "inspection") {
+    if (!canUndoInspection(issue)) return undefined;
+    applyUndoInspection(issue);
+    pushTimeline(issue, "Inspection step undone by MP", "in-progress");
+  } else {
+    if (!canUndoWorkInProgress(issue)) return undefined;
+    applyUndoWorkInProgress(issue);
+    pushTimeline(issue, "Work in progress step undone by MP", "in-progress");
+  }
+
+  if (issue.citizenId) {
+    addNotification(
+      issue.citizenId,
+      issue.id,
+      `↩️ MP undid a work step on #${issue.id}`
+    );
+  }
+
+  await syncIssue(
+    issue,
+    `MP undid ${step} on #${issue.id}`,
     "issue.progress_photo"
   );
   return issue;

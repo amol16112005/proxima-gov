@@ -18,6 +18,8 @@ import {
   addProgressImage,
   getIssueById,
   removeProgressImage,
+  repairAndPersistWorkProcess,
+  undoWorkProcessStep,
   mpApproveIssue,
   mpAssignWork,
   mpReleaseTender,
@@ -188,6 +190,24 @@ export async function PATCH(
       }
       break;
     }
+    case "undoWorkInProgress":
+      updated = await undoWorkProcessStep(id, "work-in-progress");
+      if (!updated) {
+        return NextResponse.json(
+          { error: "Work in progress cannot be undone right now.", code: "UNDO_NOT_ALLOWED" },
+          { status: 400 }
+        );
+      }
+      break;
+    case "undoInspection":
+      updated = await undoWorkProcessStep(id, "inspection");
+      if (!updated) {
+        return NextResponse.json(
+          { error: "Inspection cannot be undone right now.", code: "UNDO_NOT_ALLOWED" },
+          { status: 400 }
+        );
+      }
+      break;
     case "removeImage": {
       const imageIndex = body.imageIndex;
       if (typeof imageIndex !== "number" || !Number.isInteger(imageIndex) || imageIndex < 0) {
@@ -227,5 +247,6 @@ export async function PATCH(
     return NextResponse.json({ error: "Action could not be applied." }, { status: 400 });
   }
 
-  return NextResponse.json({ issue: updated });
+  const repaired = await repairAndPersistWorkProcess(id);
+  return NextResponse.json({ issue: repaired ?? updated });
 }

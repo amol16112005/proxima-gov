@@ -62,14 +62,27 @@ export function canUploadPlanningPhoto(issue: DevelopmentIssue): boolean {
   return canUploadBeforeWorkPhoto(issue);
 }
 
-export function hasWorkInProgressConfirmed(issue: DevelopmentIssue): boolean {
-  const stage = issue.progressSubStage;
+function rawProgressSubStage(stage: ProgressSubStage): boolean {
   return stage === "construction" || stage === "quality-inspection" || stage === "completed";
 }
 
+export function hasWorkInProgressConfirmed(issue: DevelopmentIssue): boolean {
+  if (!hasBeforeWorkPhoto(issue)) return false;
+  return rawProgressSubStage(issue.progressSubStage);
+}
+
 export function hasInspectionConfirmed(issue: DevelopmentIssue): boolean {
+  if (!hasBeforeWorkPhoto(issue)) return false;
   const stage = issue.progressSubStage;
   return stage === "quality-inspection" || stage === "completed";
+}
+
+export function canUndoWorkInProgress(issue: DevelopmentIssue): boolean {
+  return isActiveWorkStage(issue) && hasWorkInProgressConfirmed(issue);
+}
+
+export function canUndoInspection(issue: DevelopmentIssue): boolean {
+  return isActiveWorkStage(issue) && hasInspectionConfirmed(issue);
 }
 
 export function canConfirmWorkInProgress(issue: DevelopmentIssue): boolean {
@@ -139,28 +152,86 @@ export function applyWorkCompletionRevert(issue: DevelopmentIssue): void {
   }
 }
 
+function syncBudgetSpent(issue: DevelopmentIssue): void {
+  if (issue.budget && issue.approval) {
+    issue.budget.spent = Math.round(issue.approval.budget * (issue.currentProgress / 100));
+  }
+}
+
+function stripAfterWorkPhotos(issue: DevelopmentIssue): void {
+  const beforeCount = issue.progressImages.length;
+  issue.progressImages = issue.progressImages.filter((img) => !img.isCompletion);
+  if (issue.progressImages.length !== beforeCount) {
+    renumberProgressImageWeeks(issue);
+    issue.afterImageLabel = undefined;
+  }
+}
+
 /** Undo WIP, inspection, and after-work photo when the before-work photo is removed. */
 export function applyBeforeWorkPhotoRemovalCascade(issue: DevelopmentIssue): boolean {
   const hadAfterWork = hasAfterWorkPhoto(issue);
   const hadProcessProgress =
-    hasWorkInProgressConfirmed(issue) || issue.currentProgress > 0 || hadAfterWork;
+    rawProgressSubStage(issue.progressSubStage) ||
+    issue.currentProgress > 0 ||
+    hadAfterWork;
 
-  issue.progressImages = issue.progressImages.filter((img) => !img.isCompletion);
-  renumberProgressImageWeeks(issue);
+  stripAfterWorkPhotos(issue);
 
   issue.progressSubStage = "planning";
   issue.currentProgress = 0;
   issue.afterImageLabel = undefined;
-
-  if (issue.budget && issue.approval) {
-    issue.budget.spent = 0;
-  }
+  syncBudgetSpent(issue);
 
   if (shouldRevertWorkCompletion(issue.stage, canMarkWorkComplete(issue))) {
+    issue.stage = "in-progress";
+  } else if (isActiveWorkStage(issue)) {
     issue.stage = "in-progress";
   }
 
   return hadProcessProgress || hadAfterWork;
+}
+
+export function applyUndoInspection(issue: DevelopmentIssue): void {
+  issue.progressSubStage = "construction";
+  issue.currentProgress = 65;
+  stripAfterWorkPhotos(issue);
+  syncBudgetSpent(issue);
+}
+
+export function applyUndoWorkInProgress(issue: DevelopmentIssue): void {
+  issue.progressSubStage = "planning";
+  issue.currentProgress = hasBeforeWorkPhoto(issue) ? 20 : 0;
+  stripAfterWorkPhotos(issue);
+  syncBudgetSpent(issue);
+}
+
+/** Fix stale DB rows where process advanced without a before-work photo. */
+export function needsWorkProcessRepair(issue: DevelopmentIssue): boolean {
+  if (hasBeforeWorkPhoto(issue)) {
+    return hasAfterWorkPhoto(issue) && !hasInspectionConfirmed(issue);
+  }
+  return (
+    rawProgressSubStage(issue.progressSubStage) ||
+    hasAfterWorkPhoto(issue) ||
+    issue.currentProgress > 0
+  );
+}
+
+export function repairWorkProcessState(issue: DevelopmentIssue): boolean {
+  if (!needsWorkProcessRepair(issue)) return false;
+
+  if (!hasBeforeWorkPhoto(issue)) {
+    applyBeforeWorkPhotoRemovalCascade(issue);
+    return true;
+  }
+
+  stripAfterWorkPhotos(issue);
+  if (issue.progressSubStage === "quality-inspection" || issue.progressSubStage === "completed") {
+    issue.progressSubStage = "construction";
+    issue.currentProgress = 65;
+  }
+  syncBudgetSpent(issue);
+  return true;
 }
 
 export function renumberProgressImageWeeks(issue: DevelopmentIssue): void {
