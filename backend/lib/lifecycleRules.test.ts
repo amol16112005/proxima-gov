@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { DevelopmentIssue } from "@/data/lifecycleTypes";
 import {
+  applyBeforeWorkPhotoRemovalCascade,
   applyWorkCompletionRevert,
   canAdvanceToSubStage,
   canConfirmInspection,
@@ -170,5 +171,24 @@ describe("lifecycleRules", () => {
     expect(hasBeforeWorkPhoto(issue)).toBe(true);
     expect(hasAfterWorkPhoto(issue)).toBe(true);
     expect(canUploadAfterWorkPhoto(issue)).toBe(false);
+  });
+
+  it("cascades undo of WIP, inspection, and after-work when before photo is gone", () => {
+    const issue = issueWithImages([afterWorkPhoto], {
+      progressSubStage: "quality-inspection",
+      currentProgress: 90,
+      afterImageLabel: "After — Test road",
+      stage: "citizen-verification",
+    });
+
+    applyBeforeWorkPhotoRemovalCascade(issue);
+
+    expect(issue.stage).toBe("in-progress");
+    expect(issue.progressSubStage).toBe("planning");
+    expect(issue.currentProgress).toBe(0);
+    expect(hasAfterWorkPhoto(issue)).toBe(false);
+    expect(hasWorkInProgressConfirmed(issue)).toBe(false);
+    expect(hasInspectionConfirmed(issue)).toBe(false);
+    expect(issue.afterImageLabel).toBeUndefined();
   });
 });

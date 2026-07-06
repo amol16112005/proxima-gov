@@ -74,4 +74,43 @@ describe("removeProgressImage", () => {
     const updated = await removeProgressImage("TEST-1", 99);
     expect(updated).toBeUndefined();
   });
+
+  it("resets WIP, inspection, and after-work when before-work photo is removed", async () => {
+    global.__proximaIssues = [
+      {
+        ...baseIssue(),
+        progressSubStage: "quality-inspection",
+        currentProgress: 90,
+        progressImages: [
+          {
+            week: 1,
+            label: "Before",
+            caption: "Before work",
+            gps: { lat: 12.9, lng: 77.6 },
+            capturedAt: "2026-01-01T00:00:00.000Z",
+            verified: true,
+            milestone: "planning",
+            imageUrl: "data:image/jpeg;base64,before",
+          },
+          {
+            week: 2,
+            label: "After",
+            caption: "After work",
+            gps: { lat: 12.9, lng: 77.6 },
+            capturedAt: "2026-01-03T00:00:00.000Z",
+            verified: true,
+            isCompletion: true,
+            imageUrl: "data:image/jpeg;base64,after",
+          },
+        ],
+      },
+    ];
+
+    const updated = await removeProgressImage("TEST-1", 0);
+    expect(updated).toBeDefined();
+    expect(updated!.progressImages).toHaveLength(0);
+    expect(updated!.progressSubStage).toBe("planning");
+    expect(updated!.currentProgress).toBe(0);
+    expect(updated!.progressImages.some((img) => img.isCompletion)).toBe(false);
+  });
 });

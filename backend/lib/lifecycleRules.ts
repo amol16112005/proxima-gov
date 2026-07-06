@@ -139,6 +139,30 @@ export function applyWorkCompletionRevert(issue: DevelopmentIssue): void {
   }
 }
 
+/** Undo WIP, inspection, and after-work photo when the before-work photo is removed. */
+export function applyBeforeWorkPhotoRemovalCascade(issue: DevelopmentIssue): boolean {
+  const hadAfterWork = hasAfterWorkPhoto(issue);
+  const hadProcessProgress =
+    hasWorkInProgressConfirmed(issue) || issue.currentProgress > 0 || hadAfterWork;
+
+  issue.progressImages = issue.progressImages.filter((img) => !img.isCompletion);
+  renumberProgressImageWeeks(issue);
+
+  issue.progressSubStage = "planning";
+  issue.currentProgress = 0;
+  issue.afterImageLabel = undefined;
+
+  if (issue.budget && issue.approval) {
+    issue.budget.spent = 0;
+  }
+
+  if (shouldRevertWorkCompletion(issue.stage, canMarkWorkComplete(issue))) {
+    issue.stage = "in-progress";
+  }
+
+  return hadProcessProgress || hadAfterWork;
+}
+
 export function renumberProgressImageWeeks(issue: DevelopmentIssue): void {
   issue.progressImages.forEach((img, index) => {
     img.week = index + 1;

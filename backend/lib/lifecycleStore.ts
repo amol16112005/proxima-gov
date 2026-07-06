@@ -20,6 +20,7 @@ import {
 
 export { getMpPriorityClusters } from "./priorityEngine";
 import {
+  applyBeforeWorkPhotoRemovalCascade,
   applyWorkCompletionRevert,
   canAdvanceToSubStage,
   canMarkWorkComplete,
@@ -37,6 +38,7 @@ import { addNotification } from "./notifications";
 import { backfillSeedIssuePhotos } from "./seedIssueBackfill";
 
 export {
+  applyBeforeWorkPhotoRemovalCascade,
   applyWorkCompletionRevert,
   canAdvanceToSubStage,
   canConfirmInspection,
@@ -501,23 +503,19 @@ export async function removeProgressImage(
   if (imageIndex < 0 || imageIndex >= issue.progressImages.length) return undefined;
 
   const removed = issue.progressImages[imageIndex];
+  const removedBeforeWork = removed.milestone === "planning";
   issue.progressImages.splice(imageIndex, 1);
   renumberProgressImageWeeks(issue);
 
-  if (!hasCompletionPhoto(issue)) {
+  let cascaded = false;
+  if (removedBeforeWork || !hasBeforeWorkPhoto(issue)) {
+    cascaded = applyBeforeWorkPhotoRemovalCascade(issue);
+  } else if (!hasCompletionPhoto(issue)) {
     issue.afterImageLabel = undefined;
   }
 
-  if (!hasBeforeWorkPhoto(issue) && isActiveWorkStage(issue)) {
-    issue.progressSubStage = "planning";
-    issue.currentProgress = 0;
-    if (issue.budget && issue.approval) {
-      issue.budget.spent = 0;
-    }
-  }
-
   const reverted = shouldRevertWorkCompletion(issue.stage, canMarkWorkComplete(issue));
-  if (reverted) {
+  if (reverted && !cascaded) {
     applyWorkCompletionRevert(issue);
     pushTimeline(issue, "Work marked incomplete — MP removed required photos", "in-progress");
     if (issue.citizenId) {
@@ -525,6 +523,19 @@ export async function removeProgressImage(
         issue.citizenId,
         issue.id,
         `⚠️ #${issue.id} reopened for more work — MP removed site photos`
+      );
+    }
+  } else if (cascaded) {
+    pushTimeline(
+      issue,
+      "Work process reset — before-work photo removed; WIP, inspection, and after-work undone",
+      "in-progress"
+    );
+    if (issue.citizenId) {
+      addNotification(
+        issue.citizenId,
+        issue.id,
+        `⚠️ #${issue.id} work steps reset — MP removed the before-work photo`
       );
     }
   } else if (issue.citizenId) {
@@ -537,9 +548,11 @@ export async function removeProgressImage(
 
   await syncIssue(
     issue,
-    reverted
-      ? `Work reverted to in-progress on #${issue.id} after MP removed photos`
-      : `MP removed ${removed.isCompletion ? "completion" : "progress"} photo from #${issue.id}`,
+    cascaded
+      ? `Work process reset on #${issue.id} — before-work photo removed`
+      : reverted
+        ? `Work reverted to in-progress on #${issue.id} after MP removed photos`
+        : `MP removed ${removed.isCompletion ? "completion" : "progress"} photo from #${issue.id}`,
     "issue.progress_photo"
   );
   return issue;
