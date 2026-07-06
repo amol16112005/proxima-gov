@@ -84,6 +84,8 @@ describe("validation", () => {
     expect(validateMpApproval({ fund: "", budget: 15_00_000 }).ok).toBe(false);
     expect(validateMpApproval({ fund: "MPLADS", budget: 0 }).ok).toBe(false);
     expect(validateMpApproval({ fund: "MPLADS" }).ok).toBe(false);
+    expect(validateMpApproval({ fund: "MPLADS", budget: 500 }).ok).toBe(true);
+    expect(validateMpApproval({ fund: "MPLADS", budget: 2500 }).ok).toBe(true);
   });
 
   it("rejects invalid photo payloads", () => {

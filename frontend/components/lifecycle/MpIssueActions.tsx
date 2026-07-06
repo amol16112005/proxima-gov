@@ -196,8 +196,8 @@ export default function MpIssueActions({ issue }: { issue: DevelopmentIssue }) {
               id={`approval-budget-${issue.id}`}
               className={styles.input}
               type="number"
-              min={10000}
-              step={1000}
+              min={1}
+              step={1}
               inputMode="numeric"
               value={approvalBudget}
               onChange={(e) => setApprovalBudget(e.target.value)}

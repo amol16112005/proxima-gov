@@ -90,7 +90,6 @@ export function validateIssueSubmission(body: {
   };
 }
 
-const MIN_MP_BUDGET_INR = 10_000;
 const MAX_MP_BUDGET_INR = 500_00_00_000;
 
 export function validateMpApproval(body: {
@@ -110,10 +109,7 @@ export function validateMpApproval(body: {
         : Number.NaN;
 
   if (!Number.isFinite(budget) || budget <= 0) {
-    return { ok: false, error: "Please enter the approved budget amount in rupees." };
-  }
-  if (budget < MIN_MP_BUDGET_INR) {
-    return { ok: false, error: `Budget must be at least ₹${MIN_MP_BUDGET_INR.toLocaleString("en-IN")}.` };
+    return { ok: false, error: "Please enter a valid approved budget amount in rupees." };
   }
   if (budget > MAX_MP_BUDGET_INR) {
     return { ok: false, error: "Budget exceeds the allowed maximum for MP approval." };
