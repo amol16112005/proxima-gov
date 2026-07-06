@@ -60,7 +60,9 @@ export async function deleteIssueFromStorage(issueId: string): Promise<void> {
   if (getStorageProvider() === "mongodb") {
     const db = await getMongoDb();
     if (!db) return;
-    await db.collection(COLLECTIONS.issues).deleteOne({ _id: issueId });
+    await db
+      .collection<StoredDoc<DevelopmentIssue>>(COLLECTIONS.issues)
+      .deleteOne({ _id: issueId });
     return;
   }
   const database = getDb();
@@ -72,7 +74,9 @@ export async function deleteNotificationsForIssue(issueId: string): Promise<void
   if (getStorageProvider() === "mongodb") {
     const db = await getMongoDb();
     if (!db) return;
-    await db.collection(COLLECTIONS.notifications).deleteMany({ issueId });
+    await db
+      .collection<StoredDoc<Notification>>(COLLECTIONS.notifications)
+      .deleteMany({ issueId });
     return;
   }
   const database = getDb();
