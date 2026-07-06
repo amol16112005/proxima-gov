@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAccessibility } from "@/context/AccessibilityContext";
 import type { MessageKey } from "@/frontend/i18n";
 import { mergeTranscript, type SpeechField } from "@/frontend/lib/speechRecognition";
@@ -37,15 +37,22 @@ const VOICE_LABEL_KEYS: Record<
   },
 };
 
+function voiceErrorMessage(errorKey: MessageKey): MessageKey {
+  if (errorKey === "issuesNew.voiceMicDenied") return "issuesNew.voiceMicDeniedBanner";
+  return errorKey;
+}
+
 function VoiceMicButton({
   field,
   listeningField,
+  hasError,
   disabled,
   onToggle,
   label,
 }: {
   field: SpeechField;
   listeningField: SpeechField | null;
+  hasError?: boolean;
   disabled?: boolean;
   onToggle: (field: SpeechField) => void;
   label: string;
@@ -55,14 +62,31 @@ function VoiceMicButton({
   return (
     <button
       type="button"
-      className={`${styles.voiceBtn} ${isListening ? styles.voiceBtnActive : ""}`}
+      className={`${styles.voiceBtn} ${isListening ? styles.voiceBtnActive : ""} ${
+        hasError ? styles.voiceBtnError : ""
+      }`}
       onClick={() => onToggle(field)}
       disabled={disabled}
       aria-label={label}
       aria-pressed={isListening}
+      aria-invalid={hasError || undefined}
     >
       <MicIcon />
     </button>
+  );
+}
+
+function VoiceFieldAlert({
+  message,
+  alertRef,
+}: {
+  message: string;
+  alertRef?: (node: HTMLDivElement | null) => void;
+}) {
+  return (
+    <div ref={alertRef} className={styles.voiceFieldAlert} role="alert" aria-live="assertive">
+      {message}
+    </div>
   );
 }
 
@@ -106,11 +130,24 @@ export default function NewIssueForm() {
     [description, location, stopSpeaking, title]
   );
 
-  const { isSupported, listeningField, errorKey, toggle, stop, clearError } = useSpeechInput({
-    locale,
-    onTranscript: handleTranscript,
-    onListeningStart: handleListeningStart,
-  });
+  const fieldAlertRefs = useRef<Partial<Record<SpeechField, HTMLDivElement | null>>>({});
+
+  const { isSupported, listeningField, errorKey, errorField, toggle, stop, clearError } =
+    useSpeechInput({
+      locale,
+      onTranscript: handleTranscript,
+      onListeningStart: handleListeningStart,
+    });
+
+  useEffect(() => {
+    if (!errorField || !errorKey) return;
+    const node = fieldAlertRefs.current[errorField];
+    node?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [errorField, errorKey]);
+
+  const voiceErrorText = errorKey ? t(voiceErrorMessage(errorKey)) : null;
+  const fieldVoiceError = (field: SpeechField) =>
+    errorField === field && errorKey ? t(voiceErrorMessage(errorKey)) : null;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,6 +208,11 @@ export default function NewIssueForm() {
         {t("issuesNew.aiHint")}
       </p>
       <p className={styles.voiceHint}>{t("issuesNew.voiceHint")}</p>
+      {voiceErrorText && (
+        <div className={styles.voiceAlertBanner} role="alert" aria-live="assertive">
+          {voiceErrorText}
+        </div>
+      )}
       <form onSubmit={submit} aria-busy={loading}>
         <div className={styles.fieldGroup}>
           <label className={styles.label} htmlFor="issue-category">
@@ -198,6 +240,7 @@ export default function NewIssueForm() {
             <VoiceMicButton
               field="title"
               listeningField={listeningField}
+              hasError={errorField === "title"}
               disabled={!isSupported || loading}
               onToggle={(field) => {
                 clearError();
@@ -206,6 +249,14 @@ export default function NewIssueForm() {
               label={voiceLabel("title")}
             />
           </div>
+          {fieldVoiceError("title") && (
+            <VoiceFieldAlert
+              message={fieldVoiceError("title")!}
+              alertRef={(node) => {
+                fieldAlertRefs.current.title = node;
+              }}
+            />
+          )}
           <input
             id="issue-title"
             className={styles.input}
@@ -223,6 +274,7 @@ export default function NewIssueForm() {
             <VoiceMicButton
               field="location"
               listeningField={listeningField}
+              hasError={errorField === "location"}
               disabled={!isSupported || loading}
               onToggle={(field) => {
                 clearError();
@@ -231,6 +283,14 @@ export default function NewIssueForm() {
               label={voiceLabel("location")}
             />
           </div>
+          {fieldVoiceError("location") && (
+            <VoiceFieldAlert
+              message={fieldVoiceError("location")!}
+              alertRef={(node) => {
+                fieldAlertRefs.current.location = node;
+              }}
+            />
+          )}
           <input
             id="issue-location"
             className={styles.input}
@@ -248,6 +308,7 @@ export default function NewIssueForm() {
             <VoiceMicButton
               field="description"
               listeningField={listeningField}
+              hasError={errorField === "description"}
               disabled={!isSupported || loading}
               onToggle={(field) => {
                 clearError();
@@ -256,6 +317,14 @@ export default function NewIssueForm() {
               label={voiceLabel("description")}
             />
           </div>
+          {fieldVoiceError("description") && (
+            <VoiceFieldAlert
+              message={fieldVoiceError("description")!}
+              alertRef={(node) => {
+                fieldAlertRefs.current.description = node;
+              }}
+            />
+          )}
           <textarea
             id="issue-description"
             className={styles.textarea}
@@ -331,11 +400,6 @@ export default function NewIssueForm() {
         {listeningField && (
           <p className={styles.voiceStatus} role="status" aria-live="polite">
             {voiceLabel(listeningField)}
-          </p>
-        )}
-        {errorKey && (
-          <p className={styles.errorMsg} role="alert">
-            {t(errorKey)}
           </p>
         )}
         {error && <p className={styles.errorMsg} role="alert">{error}</p>}

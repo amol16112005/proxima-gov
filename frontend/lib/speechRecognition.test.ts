@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   mapSpeechErrorToMessageKey,
   mergeTranscript,
+  probeMicrophonePermission,
   speechLocaleFromAppLocale,
 } from "./speechRecognition";
 
@@ -32,6 +33,21 @@ describe("mapSpeechErrorToMessageKey", () => {
 
   it("falls back to generic voice error", () => {
     expect(mapSpeechErrorToMessageKey("bad-grammar")).toBe("issuesNew.voiceError");
+  });
+});
+
+describe("probeMicrophonePermission", () => {
+  it("returns unavailable when mediaDevices is missing", async () => {
+    const original = navigator.mediaDevices;
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: undefined,
+    });
+    await expect(probeMicrophonePermission()).resolves.toBe("unavailable");
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: original,
+    });
   });
 });
 

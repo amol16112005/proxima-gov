@@ -70,6 +70,22 @@ export function mapSpeechErrorToMessageKey(error: SpeechRecognitionErrorCode): M
   }
 }
 
+export async function probeMicrophonePermission(): Promise<"granted" | "denied" | "unavailable"> {
+  if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+    return "unavailable";
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach((track) => track.stop());
+    return "granted";
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "NotFoundError") {
+      return "unavailable";
+    }
+    return "denied";
+  }
+}
+
 export function mergeTranscript(base: string, spoken: string): string {
   const trimmed = spoken.trim();
   if (!trimmed) return base;

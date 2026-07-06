@@ -6,6 +6,7 @@ import type { MessageKey } from "@/frontend/i18n";
 import {
   getSpeechRecognitionCtor,
   mapSpeechErrorToMessageKey,
+  probeMicrophonePermission,
   speechLocaleFromAppLocale,
   type BrowserSpeechRecognition,
   type SpeechField,
@@ -17,6 +18,10 @@ interface UseSpeechInputOptions {
   onListeningStart?: (field: SpeechField) => void;
 }
 
+function micProbeToErrorKey(status: "denied" | "unavailable"): MessageKey {
+  return status === "denied" ? "issuesNew.voiceMicDenied" : "issuesNew.voiceMicUnavailable";
+}
+
 export function useSpeechInput({
   locale,
   onTranscript,
@@ -25,7 +30,9 @@ export function useSpeechInput({
   const [isSupported, setIsSupported] = useState(false);
   const [listeningField, setListeningField] = useState<SpeechField | null>(null);
   const [errorKey, setErrorKey] = useState<MessageKey | null>(null);
+  const [errorField, setErrorField] = useState<SpeechField | null>(null);
   const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
+  const activeFieldRef = useRef<SpeechField | null>(null);
   const finalTranscriptRef = useRef("");
   const onTranscriptRef = useRef(onTranscript);
   const onListeningStartRef = useRef(onListeningStart);
@@ -42,9 +49,15 @@ export function useSpeechInput({
     setIsSupported(!!getSpeechRecognitionCtor());
   }, []);
 
+  const setVoiceError = useCallback((field: SpeechField, key: MessageKey) => {
+    setErrorField(field);
+    setErrorKey(key);
+  }, []);
+
   const cleanupRecognition = useCallback(() => {
     recognitionRef.current = null;
     finalTranscriptRef.current = "";
+    activeFieldRef.current = null;
     setListeningField(null);
   }, []);
 
@@ -52,6 +65,7 @@ export function useSpeechInput({
     const active = recognitionRef.current;
     if (!active) {
       setListeningField(null);
+      activeFieldRef.current = null;
       return;
     }
     active.onresult = null;
@@ -70,13 +84,11 @@ export function useSpeechInput({
     cleanupRecognition();
   }, [cleanupRecognition]);
 
-  const start = useCallback(
+  const beginRecognition = useCallback(
     (field: SpeechField) => {
       const Ctor = getSpeechRecognitionCtor();
       if (!Ctor) return;
 
-      stop();
-      setErrorKey(null);
       finalTranscriptRef.current = "";
       onListeningStartRef.current?.(field);
 
@@ -105,7 +117,8 @@ export function useSpeechInput({
 
       recognition.onerror = (event) => {
         if (event.error === "aborted") return;
-        setErrorKey(mapSpeechErrorToMessageKey(event.error));
+        const failedField = activeFieldRef.current ?? field;
+        setVoiceError(failedField, mapSpeechErrorToMessageKey(event.error));
         cleanupRecognition();
       };
 
@@ -114,15 +127,36 @@ export function useSpeechInput({
       };
 
       recognitionRef.current = recognition;
+      activeFieldRef.current = field;
 
       try {
         recognition.start();
       } catch {
-        setErrorKey("issuesNew.voiceError");
+        setVoiceError(field, "issuesNew.voiceError");
         cleanupRecognition();
       }
     },
-    [cleanupRecognition, locale, stop]
+    [cleanupRecognition, locale, setVoiceError]
+  );
+
+  const start = useCallback(
+    async (field: SpeechField) => {
+      const Ctor = getSpeechRecognitionCtor();
+      if (!Ctor) return;
+
+      stop();
+      setErrorKey(null);
+      setErrorField(null);
+
+      const micStatus = await probeMicrophonePermission();
+      if (micStatus !== "granted") {
+        setVoiceError(field, micProbeToErrorKey(micStatus));
+        return;
+      }
+
+      beginRecognition(field);
+    },
+    [beginRecognition, setVoiceError, stop]
   );
 
   const toggle = useCallback(
@@ -131,12 +165,25 @@ export function useSpeechInput({
         stop();
         return;
       }
-      start(field);
+      void start(field);
     },
     [listeningField, start, stop]
   );
 
+  const clearError = useCallback(() => {
+    setErrorKey(null);
+    setErrorField(null);
+  }, []);
+
   useEffect(() => () => stop(), [stop]);
 
-  return { isSupported, listeningField, errorKey, toggle, stop, clearError: () => setErrorKey(null) };
+  return {
+    isSupported,
+    listeningField,
+    errorKey,
+    errorField,
+    toggle,
+    stop,
+    clearError,
+  };
 }

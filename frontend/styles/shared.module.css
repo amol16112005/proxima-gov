@@ -230,6 +230,44 @@
   margin: -0.35rem 0 0.75rem;
 }
 
+.voiceAlertBanner {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(248, 113, 113, 0.55);
+  border-radius: 0.65rem;
+  padding: 0.9rem 1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #fee2e2;
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.voiceFieldAlert {
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 0.55rem;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #fecaca;
+  margin: 0.15rem 0 0.45rem;
+  line-height: 1.45;
+}
+
+.voiceBtnError {
+  color: #fff;
+  background: rgba(239, 68, 68, 0.28);
+  border-color: rgba(248, 113, 113, 0.65);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.22);
+}
+
+:global(html.a11y-high-contrast) .voiceAlertBanner,
+:global(html.a11y-high-contrast) .voiceFieldAlert {
+  background: #300;
+  border-color: #f87171;
+  color: #fff;
+}
+
 .required {
   color: #f87171;
   margin-left: 0.2rem;

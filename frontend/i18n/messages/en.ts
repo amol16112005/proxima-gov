@@ -355,7 +355,10 @@ const en = {
   "issuesNew.voiceListeningDescription": "Listening for description — tap mic to stop",
   "issuesNew.voiceUnsupported":
     "Voice input is not supported in this browser. Try Chrome or Edge, or type your issue.",
-  "issuesNew.voiceMicDenied": "Microphone access was denied. Allow the mic in browser settings and try again.",
+  "issuesNew.voiceMicDenied": "Microphone access denied. Allow microphone for this site, then tap the mic again.",
+  "issuesNew.voiceMicDeniedBanner":
+    "Microphone access denied — voice input cannot start. Click the lock icon in your browser address bar, set Microphone to Allow, then tap the mic button again.",
+  "issuesNew.voiceMicUnavailable": "No microphone was found on this device. Connect a mic or type your issue instead.",
   "issuesNew.voiceNoSpeech": "No speech detected. Try speaking closer to the microphone.",
   "issuesNew.voiceNetwork": "Voice recognition needs a network connection. Check your connection and retry.",
   "issuesNew.voiceLangUnsupported": "Speech recognition is not available for the selected language in this browser.",
