@@ -27,8 +27,7 @@ export function cloudStatus(): {
     return {
       enabled: true,
       provider: "mongodb",
-      message:
-        "History is saved in MongoDB — document database, free Atlas tier, no Google required.",
+      message: "MongoDB active — activity history saved in the cloud.",
       location: uri?.replace(/\/\/([^:]+):([^@]+)@/, "//***:***@"),
       ready: Boolean(uri),
     };

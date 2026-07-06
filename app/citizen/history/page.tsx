@@ -4,12 +4,7 @@ import PortalHeader from "@/components/PortalHeader";
 import { getConstituencyById } from "@/data/constituencies";
 import { STAGE_EMOJI } from "@/data/lifecycleTypes";
 import { getSession } from "@/lib/auth/session";
-import {
-  cloudStatus,
-  ensureDataHydrated,
-  getActivityForCitizen,
-  type ActivityEntry,
-} from "@/lib/cloud";
+import { ensureDataHydrated, getActivityForCitizen, type ActivityEntry } from "@/lib/cloud";
 import { stageLabel } from "@/frontend/i18n/labels";
 import { interpolate } from "@/frontend/i18n";
 import type { MessageKey } from "@/frontend/i18n";
@@ -49,16 +44,6 @@ export default async function CitizenHistoryPage() {
   if (!constituency) redirect("/citizen/login");
 
   const entries = getActivityForCitizen(session.id, 80);
-  const cloud = cloudStatus();
-
-  const cloudLabel =
-    cloud.provider === "mongodb"
-      ? m("history.mongodbActive")
-      : cloud.provider === "sqlite"
-        ? m("history.sqliteActive")
-        : cloud.enabled
-          ? m("history.persistenceActive")
-          : m("history.demoMode");
 
   return (
     <div className={styles.pageWide}>
@@ -72,21 +57,6 @@ export default async function CitizenHistoryPage() {
           {interpolate(m("history.subtitleAudit"), { name: constituency.name })}
         </p>
       </section>
-
-      <div
-        style={{
-          marginBottom: "1.5rem",
-          padding: "0.85rem 1rem",
-          borderRadius: "0.75rem",
-          border: `1px solid ${cloud.enabled ? "rgba(52, 211, 153, 0.35)" : "rgba(251, 191, 36, 0.35)"}`,
-          background: cloud.enabled ? "rgba(52, 211, 153, 0.08)" : "rgba(251, 191, 36, 0.08)",
-          fontSize: "0.88rem",
-          color: cloud.enabled ? "#6ee7b7" : "#fcd34d",
-        }}
-      >
-        <strong>{cloudLabel}</strong>
-        <span style={{ color: "#9aa5b8", marginLeft: "0.5rem" }}>{cloud.message}</span>
-      </div>
 
       {entries.length === 0 ? (
         <div className={styles.projectCard}>
