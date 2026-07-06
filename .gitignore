@@ -67,3 +67,4 @@ yarn-error.log*
 
 # ── Local-only docs (demo PINs also live in backend/data/mpRegistry.ts for dev)
 DEVELOPER_MP_CREDENTIALS.md
+PROXIMA_GOV_PROJECT_DOCUMENTATION.docx
